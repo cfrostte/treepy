@@ -1,0 +1,4 @@
+ * Esta carpeta contiene los controladores y las carpetas que agrupan las clases y utilidades relacionadas a los mismos
+ 
+ * Las carpetas de la forma _vN tienen por N a alguna de las versiones anteriores;
+ la version actual de la aplicacion es la N+1 para la _vN con la N mayor a todas.

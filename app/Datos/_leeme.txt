@@ -1,0 +1,3 @@
+ * En la raiz de esta carpeta deberia ir una clase por cada entidad del diagrama de clases (ver diagramas de cacoo.com)
+ 
+ * El resto de las clases que no son del tipo anterior deberian ir en la carpeta 'core', asi como la base de datos misma.

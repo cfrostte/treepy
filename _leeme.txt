@@ -1,0 +1,3 @@
+ * En esta carpeta deberia de estar solo el app.py, con el proposito de ejecutar todo lo necesario para abrir la aplicacion (sin procesar nada)
+ 
+ * El resto del contenido de la aplicacion misma deberia de ir en la carpeta 'app', los otros archivos aqui presentes pueden ser del git o autogenerados
