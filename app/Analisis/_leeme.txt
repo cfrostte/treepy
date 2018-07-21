@@ -1,0 +1,8 @@
+ * Los nombres de las clases comienzan con 't' para que se diferencien de los archivos de las 'utils';
+ les sigue el adjetivo que describe la utilidad que tiene, es decir: tUtilidad.py
+
+ * La carpeta 'utils' debera tener todo el contenido interno de la carpeta 'upm_arboles';
+ para realizar las pruebas, se debe invocar las funciones que se supone que estaran disponibles,
+ arrojando en cada caso, datos de prueba que se correspondan con los datos esperados.
+ 
+ Al pegar y reemplazar en 'utils' el contenido de 'upm_arboles', todo deberia seguir igual.
