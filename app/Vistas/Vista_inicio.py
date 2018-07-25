@@ -1,11 +1,16 @@
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
+from tkinter import messagebox
 
 def donothing():
 	print("donothing")
 
+# def hello(x,y):
+	# messagebox.showinfo("Say Hello", "Hello World" + str(x) + " : " + str(y))
+
 def mimenu(root):
 	MENU = tk.Menu(root)
+	# MENU.post(0,768)
 
 	menu_archivo = tk.Menu(MENU, tearoff=0)
 	menu_edicion = tk.Menu(MENU, tearoff=0)
@@ -13,8 +18,14 @@ def mimenu(root):
 	menu_ayuda = tk.Menu(MENU, tearoff=0)
 
 	menu_archivo.add_command(label="Nuevo ensayo", command=donothing)
+	# menu_archivo.add_command(label="Nuevo ensayo", command=hello(root.winfo_screenwidth(), root.winfo_screenheight()))
 	menu_archivo.add_separator()
 	menu_archivo.add_command(label="Salir", command=root.quit)
+
+	menu_edicion.add_command(label="Editar ensayo", command=donothing)
+	menu_edicion.add_command(label="Editar Repeticion", command=donothing)
+
+
 
 	MENU.add_cascade(label="Archivo", menu=menu_archivo)
 	MENU.add_cascade(label="Edicion", menu=menu_edicion)
