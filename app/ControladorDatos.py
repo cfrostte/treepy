@@ -16,9 +16,21 @@ class ControladorDatos(object):
         Ensayo.crear_tabla(cls.db)
 
     @classmethod
+    def crear_objetos(cls, estatico, a, b):
+        """..."""
+        print('\n---------------------------------')
+        print('\tCreando {}'.format(estatico.tabla))
+        print('---------------------------------\n')
+        for r in range(a, b):
+            o = estatico.aleatorio().guardar(cls.db)
+            print('{} : {}'.format(r, o))
+
+    @classmethod
     def volcar_datos_prueba(cls):
         """..."""
         cls.crear_objetos(Ensayo, 1, 23)
+        cls.crear_objetos(Ensayo, 4, 56)
+        cls.crear_objetos(Ensayo, 7, 89)
 
     @classmethod
     def respaldar_datos(cls):
@@ -27,13 +39,3 @@ class ControladorDatos(object):
         with open(cls.sql, 'w') as a:
             for linea in conexion.iterdump():
                 a.write('%s\n' % linea)
-
-    @classmethod
-    def crear_objetos(cls, muestra, a, b):
-        """..."""
-        print('\n------------------------------')
-        print('\tCreando {}'.format(muestra.tabla))
-        print('------------------------------\n')
-        for r in range(a, b):
-            o = muestra.aleatorio().guardar(cls.db)
-            print('{} : {}'.format(r, o))

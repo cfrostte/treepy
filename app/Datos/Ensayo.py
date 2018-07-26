@@ -8,7 +8,7 @@ class Ensayo(Base):
     tabla = 'ensayos'
     nro = None
 
-    def __init__(self, nro=None, clave=None):
+    def __init__(self, nro, clave=None):
         Base.__init__(self, clave)
         self.nro = nro
 
@@ -18,7 +18,7 @@ class Ensayo(Base):
     @classmethod
     def crear_tabla(cls, donde):
         consulta = """CREATE TABLE IF NOT EXISTS {} (
-        id INTEGER PRIMARY KEY NOT NULL,
+        clave INTEGER PRIMARY KEY NOT NULL,
         nro TEXT NOT NULL)""".format(cls.tabla)
         cls.consultar(donde, consulta)
 
@@ -29,19 +29,11 @@ class Ensayo(Base):
     def obtener(self, donde):
         fila = super().obtener(donde)
         if fila:
-            return Ensayo(fila['nro'], fila['id'])
+            return Ensayo(fila['nro'], fila['clave'])
         return None
 
-    def guardar(self, donde):
-        if self.obtener(donde): # Existe, entonces modificar:
-            consulta = """UPDATE {} SET nro = ? WHERE id = ?""".format(self.tabla)
-            self.consultar(donde, consulta, (self.nro, self.clave))
-        else: # No existe, entonces crear
-            consulta = """INSERT INTO {} (id, nro) VALUES (?, ?)""".format(self.tabla)
-            clave = self.id_disponible(donde)
-            self.consultar(donde, consulta, (clave, self.nro))
-            self.clave = clave
-        return self.obtener(donde)
+    def guardar(self, donde, valores=None):
+        return super().guardar(donde, (self.nro, ))
 
     @staticmethod
     def aleatorio():
