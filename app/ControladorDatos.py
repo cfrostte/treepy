@@ -5,8 +5,6 @@ from Datos.Ensayo import Ensayo
 
 class ControladorDatos(object):
 
-    """...""" # DEBERIA SER UN SINGLETON?
-
     db = 'Datos/store/treepy.db'
     sql = 'Datos/store/treepy.sql'
 

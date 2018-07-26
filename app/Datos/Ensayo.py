@@ -6,6 +6,11 @@ from .core.Base import Base
 class Ensayo(Base):
 
     tabla = 'ensayos'
+
+    consulta = """CREATE TABLE IF NOT EXISTS {} (
+    clave INTEGER PRIMARY KEY NOT NULL,
+    nro TEXT NOT NULL)"""
+
     nro = None
 
     def __init__(self, nro, clave=None):
@@ -14,13 +19,6 @@ class Ensayo(Base):
 
     def __str__(self):
         return "clave=%s, nro=%s" % (self.clave, self.nro)
-
-    @classmethod
-    def crear_tabla(cls, donde):
-        consulta = """CREATE TABLE IF NOT EXISTS {} (
-        clave INTEGER PRIMARY KEY NOT NULL,
-        nro TEXT NOT NULL)""".format(cls.tabla)
-        cls.consultar(donde, consulta)
 
     @classmethod
     def id_disponible(cls, donde, tabla=None):
