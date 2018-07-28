@@ -7,7 +7,6 @@ class Repeticion(Base):
 
     _tabla = 'repeticiones'
 
-    # Columnas de la tabla:
     nro = None
     id_ensayos = None
 
@@ -34,10 +33,6 @@ class Repeticion(Base):
         id_ensayos INTEGER, 
         FOREIGN KEY(id_ensayos) REFERENCES ensayos(clave))"""
         return s.format(cls._tabla)
-
-    @classmethod
-    def id_disponible(cls, donde, _tabla=None):
-        return Base.id_disponible(donde, cls._tabla)
 
     def obtener(self, donde):
         fila = super().obtener(donde)
