@@ -6,8 +6,8 @@ class Base(object):
 
     # Atributos que comiencen con '_' no se persisten:
     _tabla = None # Nombre de la _tabla en donde se persiste
-    _consulta = None # Consulta con la cual se crea la _tabla
 
+    # El resto de los atributos deben estar en la _tabla:
     clave = None # Es el 'id' (la palabra 'id' esta reservada)
 
     def __init__(self, clave):
@@ -30,6 +30,16 @@ class Base(object):
     def aleatorio():
         """Retorna un objeto con datos aleatorios"""
         pass
+
+    @classmethod
+    def sentencia(cls):
+        """Retorna la sentencia de creacion de la tabla del objeto"""
+        pass
+
+    @classmethod
+    def foranea(cls):
+        """Retorna el nombre por defecto de una FK de este objeto"""
+        return 'id_' + cls._tabla
 
     @classmethod
     def consultar(cls, donde, _consulta, valores=None, many=False, close=True):
@@ -56,7 +66,7 @@ class Base(object):
     @classmethod
     def crear_tabla(cls, donde):
         """Crea la _tabla en donde se almacenan los datos"""
-        cls.consultar(donde, cls._consulta.format(cls._tabla))
+        cls.consultar(donde, cls.sentencia())
 
     @classmethod
     def id_disponible(cls, donde, _tabla):
@@ -78,7 +88,7 @@ class Base(object):
         """
         limite = 'LIMIT {}'.format(limite) if limite else ''
         if padre:
-            campo = fk if fk else 'id_' + padre._tabla
+            campo = fk if fk else padre.foranea()
             valor = padre.clave
             condicion = 'WHERE {} = ?'.format(campo)
         else:
@@ -103,8 +113,11 @@ class Base(object):
         conexion.close()
         return fila
 
-    def guardar(self, donde, valores):
+    def guardar(self, donde):
         """Crea o modifica los datos del objeto"""
+        valores = ()
+        for a in self.atributos():
+            valores += (getattr(self, a), )
         if self.obtener(donde): # Existe, entonces modificar:
             atributos = ' = ?, '.join(self.atributos()) + ' = ?'
             _consulta = """UPDATE {} SET {} WHERE clave = ?""".format(self._tabla, atributos)

@@ -32,7 +32,7 @@ class ControladorDatos(object):
         """..."""
         ensayos = cls.crear_objetos(Ensayo, 0, 9)
         for e in ensayos:
-            e._repeticiones.append(cls.crear_objetos(Repeticion, 0, 3))
+            e.repeticiones(cls.db, cls.crear_objetos(Repeticion, 0, 3))
 
     @classmethod
     def listar_objetos(cls, tipo, limite=None):
@@ -58,6 +58,6 @@ class ControladorDatos(object):
     @staticmethod
     def log_tarea(accion, clase=None):
         """..."""
-        print('\n-------------------------------------------------------')
-        print('\t\t{} {}'.format(accion, clase._tabla if clase else None))
-        print('-------------------------------------------------------\n')
+        print('\n-----------------------------------------------------')
+        print('\t\t{} {}'.format(accion, clase._tabla if clase else ''))
+        print('-----------------------------------------------------\n')
