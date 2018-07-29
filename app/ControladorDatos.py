@@ -48,14 +48,14 @@ class ControladorDatos(object):
         return cls.controlados[tipo].buscar(cls.db, filtro, orden, asc, limite)
 
     @classmethod
-    def ver_relacionados_entre(cls, uno, muchos, fk=None):
+    def ver_relacionados_de(cls, uno, muchos, filtro=None, fk=None):
         """..."""
-        return uno.lista(cls.db, muchos, None, fk)
+        return uno.lista(cls.db, muchos, None, filtro, fk)
 
     @classmethod
-    def relacionar_uno_muchos(cls, objeto, lista, fk=None):
+    def relacionar_uno_muchos(cls, objeto, tipo, lista, fk=None):
         """..."""
-        return cls.controlados[objeto].lista(cls.db, lista, None, fk)
+        return cls.controlados[objeto].lista(cls.db, tipo, lista, None, fk)
 
     ############################################################################
 

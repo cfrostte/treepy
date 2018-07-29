@@ -167,7 +167,7 @@ class Base(object):
             self.clave = clave
         return self.obtener(donde, {'clave' : self.clave})
 
-    def lista(self, donde, tipo, lista=None, fk=None):
+    def lista(self, donde, tipo, lista=None, filtro=None, fk=None):
         """
         Retorna la lista de todos los objetos relacionados a este:
         -   Si se llama a .lista(donde, tipo) solo retorna la lista,
@@ -178,8 +178,11 @@ class Base(object):
                 y se le asigna el valor de la clave objeto apuntado
         """
         fk = fk if fk else self.foranea()
+        filtro_fk = {fk : self.clave}
+        if filtro:
+            filtro_fk = dict(list(filtro_fk.items()) + list(filtro.items()))
         if lista:
             for l in lista:
                 setattr(l, fk, self.clave)
                 l.guardar(donde)
-        return self._relacionados[tipo].buscar(donde, {fk : self.clave})
+        return self._relacionados[tipo].buscar(donde, filtro_fk)
