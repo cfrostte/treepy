@@ -14,12 +14,6 @@ class Repeticion(Base):
         Base.__init__(self, clave)
 
     @staticmethod
-    def desde_fila(f):
-        r = Repeticion(f['clave'])
-        r.nro = f['nro']
-        return r
-
-    @staticmethod
     def aleatorio():
         r = Repeticion()
         r.nro = random.randint(123, 987)
@@ -33,11 +27,3 @@ class Repeticion(Base):
         id_ensayos INTEGER, 
         FOREIGN KEY(id_ensayos) REFERENCES ensayos(clave))"""
         return s.format(cls._tabla)
-
-    def obtener(self, donde):
-        fila = super().obtener(donde)
-        if fila:
-            self = Repeticion(fila['clave'])
-            self.nro = fila['nro']
-            return self
-        return None
