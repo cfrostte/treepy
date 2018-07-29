@@ -53,7 +53,8 @@ if __name__ == "__main__":
     class SampleApp(Tk):
         def __init__(self, *args, **kwargs):
             root = Tk.__init__(self, *args, **kwargs)
-           # root.state('zoomed') 
+            # root = self.Tk()
+            # root.state('zoomed') 
             print(type(root))
             # root.geometry("1280x768")
 

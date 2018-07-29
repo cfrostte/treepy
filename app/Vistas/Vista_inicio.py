@@ -16,6 +16,7 @@ def donothing():
 def mimenu(root):
 	MENU = tk.Menu(root)
 	# MENU.post(0,768)
+	
 
 	menu_archivo = tk.Menu(MENU, tearoff=0)
 	menu_edicion = tk.Menu(MENU, tearoff=0)
@@ -54,14 +55,17 @@ class Inicio():
 		self.root.geometry("1280x768")
 		self.root.title("TreePy Analisis de Imagenes")
 		# self.frame = tk.Frame(self.root)
-		self.frame = DoubleScrollbarFrame(self.root, relief="sunken")
-
+		# self.frame = DoubleScrollbarFrame(self.root, relief="sunken")
+		self.frame = VerticalScrolledFrame(self.root)
+		self.frame.pack(fill=tk.BOTH, padx=0, pady=0, expand=True)
 		#subframe
-		self.subframe = ttk.Frame( self.frame.get_frame() )
 
-		#self.root.state('zoomed')
-		self.labelUno = ttk.Label(self.subframe, text="Label del inicio")
-		self.labelUno.grid(row=0, column=0, sticky=tk.W)
+		#retorna una canvas
+		# self.subframe = ttk.Frame( self.frame.get_frame() )
+
+		self.root.state('zoomed')
+		self.labelUno = ttk.Label(self.frame.interior, text="Label del inicio")
+		# self.labelUno.grid(row=0, column=0, sticky=tk.W)
 		# self.subframe
 
 		# Relleno del frame
@@ -82,20 +86,20 @@ class Inicio():
 		# scrollbar.pack(side = RIGHT, fill = Y)
 		# scrollbar.config(command=self.frame.yview)
 
-		self.ensayosRecientes[0][0].grid(row=1,column=0)
-		self.ensayosRecientes[1][0].grid(row=1,column=1)
-		self.ensayosRecientes[2][0].grid(row=1,column=2)
-		self.ensayosRecientes[3][0].grid(row=2,column=0)
-		self.ensayosRecientes[4][0].grid(row=2,column=1)
-		self.ensayosRecientes[5][0].grid(row=2,column=2)
-		self.ensayosRecientes[6][0].grid(row=3,column=0)
-		self.ensayosRecientes[7][0].grid(row=3,column=1)
-		self.ensayosRecientes[8][0].grid(row=3,column=2)
+		# self.ensayosRecientes[0][0].grid(row=1,column=0)
+		# self.ensayosRecientes[1][0].grid(row=1,column=1)
+		# self.ensayosRecientes[2][0].grid(row=1,column=2)
+		# self.ensayosRecientes[3][0].grid(row=2,column=0)
+		# self.ensayosRecientes[4][0].grid(row=2,column=1)
+		# self.ensayosRecientes[5][0].grid(row=2,column=2)
+		# self.ensayosRecientes[6][0].grid(row=3,column=0)
+		# self.ensayosRecientes[7][0].grid(row=3,column=1)
+		# self.ensayosRecientes[8][0].grid(row=3,column=2)
 		# ################## #
 		
-		self.labelUno.grid(row=0, column=0, sticky=tk.W)
-		self.subframe.pack(padx  = 15, pady   = 15, fill = tk.BOTH, expand = tk.TRUE)
-		self.frame.pack( padx   = 5, pady   = 5, expand = True, fill = tk.BOTH)
+		self.labelUno.pack()
+		# self.subframe.pack(padx  = 15, pady   = 15, fill = tk.BOTH, expand = tk.TRUE)
+		# self.frame.pack( padx   = 5, pady   = 5, expand = True, fill = tk.BOTH)
 
 		self.frame.grid_rowconfigure(1, minsize=10)
 		# self.frame.place(x=0,y=0)
@@ -105,16 +109,24 @@ class Inicio():
 
 	def ensayosRecientes(self):
 		fotosEnsayos = []
+		frameContainer=[]
+		frameContainer.append(tk.Frame(self.frame.interior))
+		frameContainer[-1].pack(fill=tk.BOTH, expand=True)
+
 		for x in range(1,10):
 			datos = []
 			nombre = 'Ensayo' + str(x)
 			ensayoImage = Image.open('Image.png')
 			photo = ImageTk.PhotoImage(ensayoImage)
-			label = tk.Label(self.subframe, image=photo)
+			label = tk.Label(frameContainer[-1], image=photo)
 			label.image = photo
+			label.pack(side=tk.LEFT, padx=5, pady=5, expand=True)
 			datos.append(label)
 			datos.append(nombre)
 			fotosEnsayos.append(datos)
+			if len(fotosEnsayos) % 3 ==0:
+				frameContainer.append(tk.Frame(self.frame.interior))
+				frameContainer[-1].pack(fill=tk.BOTH, expand=True)
 		return fotosEnsayos
 
 
@@ -155,6 +167,49 @@ class DoubleScrollbarFrame(ttk.Frame):
 		Return the "frame" useful to place inner controls.
 		'''
 		return self.canvas
+
+
+class VerticalScrolledFrame(tk.Frame):
+    """A pure Tkinter scrollable frame that actually works!
+    * Use the 'interior' attribute to place widgets inside the scrollable frame
+    * Construct and pack/place/grid normally
+    * This frame only allows vertical scrolling
+    """
+    def __init__(self, parent, *args, **kw):
+        ttk.Frame.__init__(self, parent, *args, **kw)
+        # create a canvas object and a vertical scrollbar for scrolling it
+        vscrollbar = tk.Scrollbar(self, orient=tk.VERTICAL)
+        vscrollbar.pack(fill=tk.Y, side=tk.RIGHT, expand=True)
+        canvas = tk.Canvas(self, bd=0, highlightthickness=0,
+                        yscrollcommand=vscrollbar.set)
+        canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        vscrollbar.config(command=canvas.yview)
+
+        # reset the view
+        canvas.xview_moveto(0)
+        canvas.yview_moveto(0)
+
+        # create a frame inside the canvas which will be scrolled with it
+        self.interior = interior = tk.Frame(canvas)
+        interior_id = canvas.create_window(0, 0, window=interior,
+                                           anchor=tk.NW)
+
+        # track changes to the canvas and frame width and sync them,
+        # also updating the scrollbar
+        def _configure_interior(event):
+            # update the scrollbars to match the size of the inner frame
+            size = (interior.winfo_reqwidth(), interior.winfo_reqheight())
+            canvas.config(scrollregion="0 0 %s %s" % size)
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the canvas's width to fit the inner frame
+                canvas.config(width=interior.winfo_reqwidth())
+        interior.bind('<Configure>', _configure_interior)
+
+        def _configure_canvas(event):
+            if interior.winfo_reqwidth() != canvas.winfo_width():
+                # update the inner frame's width to fill the canvas
+                canvas.itemconfigure(interior_id, width=canvas.winfo_width())
+        canvas.bind('<Configure>', _configure_canvas)
 
 
 if __name__ == '__main__':
