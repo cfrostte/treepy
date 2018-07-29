@@ -20,28 +20,68 @@ class ControladorDatos(object):
 
     # Tipos de objeto manejados:
     controlados = {
-        'Ensayo': Ensayo,
-        'Repeticion': Repeticion,
+        'Ensayo' : Ensayo,
+        'Repeticion' : Repeticion,
     }
 
+    ############################################################################
+
     @staticmethod
-    def log_tarea(accion, clase=None):
+    def log_tarea(accion, clase=None, extra=None):
         """..."""
-        print('\n-----------------------------------------------------')
-        print('\t\t{} {}'.format(accion, clase._tabla if clase else ''))
-        print('-----------------------------------------------------\n')
+        _tabla = clase._tabla if clase else ''
+        extra = extra if extra else ''
+        print('\n-------------------------------------------------------------')
+        print('\t\t\t{} {} {}'.format(accion, _tabla, extra))
+        print('-------------------------------------------------------------\n')
+
+    ############################################################################
 
     @classmethod
-    def crear_tablas(cls):
+    def crear_objeto(cls, tipo):
         """..."""
-        cls.log_tarea('Creando tablas')
+        return cls.controlados[tipo].__new__(cls.controlados[tipo])
+
+    @classmethod
+    def buscar_objetos(cls, tipo, filtro=None, orden=None, asc=True, limite=None):
+        """..."""
+        return cls.controlados[tipo].buscar(cls.db, filtro, orden, asc, limite)
+
+    @classmethod
+    def ver_relacionados_de(cls, uno, muchos, filtro=None, fk=None):
+        """..."""
+        return uno.lista(cls.db, muchos, None, filtro, fk)
+
+    @classmethod
+    def relacionar_uno_muchos(cls, objeto, tipo, lista, fk=None):
+        """..."""
+        return cls.controlados[objeto].lista(cls.db, tipo, lista, None, fk)
+
+    ############################################################################
+
+    @classmethod
+    def crear_estructura(cls):
+        """..."""
+        cls.log_tarea('Creando estructura')
         Ensayo.crear_tabla(cls.db)
         Repeticion.crear_tabla(cls.db)
 
     @classmethod
-    def crear_objetos(cls, estatico, a, b):
+    def respaldar_datos(cls):
         """..."""
-        cls.log_tarea('Creando', estatico)
+        cls.log_tarea('Respaldando datos')
+        conexion = sqlite3.connect(cls.db)
+        with open(cls.sql, 'w') as a:
+            for linea in conexion.iterdump():
+                print(linea)
+                a.write('%s\n' % linea)
+
+    ############################################################################
+
+    @classmethod
+    def crear_objetos_prueba(cls, estatico, a, b):
+        """..."""
+        cls.log_tarea('Creando', estatico, 'de prueba')
         objetos_creados = []
         for r in range(a, b):
             o = estatico.aleatorio().guardar(cls.db)
@@ -52,23 +92,7 @@ class ControladorDatos(object):
     @classmethod
     def volcar_datos_prueba(cls):
         """..."""
-        ensayos = cls.crear_objetos(Ensayo, 0, 9)
+        cls.log_tarea('Volcando datos de prueba')
+        ensayos = cls.crear_objetos_prueba(Ensayo, 0, 9)
         for e in ensayos:
-            e.hijos(cls.db, 'Repeticion', cls.crear_objetos(Repeticion, 0, 3))
-
-    @classmethod
-    def listar_objetos(cls, tipo, limite=None):
-        """..."""
-        cls.log_tarea('Listando', cls.controlados[tipo])
-        for objeto in cls.controlados[tipo].todos(cls.db, limite):
-            print(objeto)
-        if limite:
-            print('\nlimite={}'.format(limite))
-
-    @classmethod
-    def respaldar_datos(cls):
-        """..."""
-        conexion = sqlite3.connect(cls.db)
-        with open(cls.sql, 'w') as a:
-            for linea in conexion.iterdump():
-                a.write('%s\n' % linea)
+            e.lista(cls.db, 'Repeticion', cls.crear_objetos_prueba(Repeticion, 0, 3))
