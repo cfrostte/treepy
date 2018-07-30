@@ -10,8 +10,16 @@ crea y lista objetos de tipo Base, vuelca datos de prueba y respalda la BD.
 """
 
 import sqlite3
+
+from Datos.Arbol import Arbol
+from Datos.ArbolFaltante import ArbolFaltante
+from Datos.Bloque import Bloque
+from Datos.Clon import Clon
 from Datos.Ensayo import Ensayo
+from Datos.Imagen import Imagen
+from Datos.Parcela import Parcela
 from Datos.Repeticion import Repeticion
+from Datos.SurcoDetectado import SurcoDetectado
 
 class ControladorDatos(object):
 
@@ -20,8 +28,15 @@ class ControladorDatos(object):
 
     # Tipos de objeto manejados:
     controlados = {
+        'Arbol' : Arbol,
+        'ArbolFaltante' : ArbolFaltante,
+        'Bloque' : Bloque,
+        'Clon' : Clon,
         'Ensayo' : Ensayo,
+        'Imagen' : Imagen,
+        'Parcela' : Parcela,
         'Repeticion' : Repeticion,
+        'SurcoDetectado' : SurcoDetectado,
     }
 
     ############################################################################
@@ -53,9 +68,9 @@ class ControladorDatos(object):
         return uno.lista(cls.db, muchos, None, filtro, fk)
 
     @classmethod
-    def relacionar_uno_muchos(cls, objeto, tipo, lista, fk=None):
+    def relacionar_uno_muchos(cls, uno, muchos, lista, fk=None):
         """..."""
-        return cls.controlados[objeto].lista(cls.db, tipo, lista, None, fk)
+        return uno.lista(cls.db, muchos, lista, None, fk)
 
     ############################################################################
 
@@ -63,8 +78,9 @@ class ControladorDatos(object):
     def crear_estructura(cls):
         """..."""
         cls.log_tarea('Creando estructura')
-        Ensayo.crear_tabla(cls.db)
-        Repeticion.crear_tabla(cls.db)
+        for nombre, clase in cls.controlados.items():
+            print('\t--\tCreando {} para {}'.format(clase._tabla, nombre))
+            clase.crear_tabla(cls.db)
 
     @classmethod
     def respaldar_datos(cls):
@@ -79,12 +95,15 @@ class ControladorDatos(object):
     ############################################################################
 
     @classmethod
-    def crear_objetos_prueba(cls, estatico, a, b):
+    def crear_objetos_prueba(cls, estatico, a, b, guardar=True):
         """..."""
         cls.log_tarea('Creando', estatico, 'de prueba')
         objetos_creados = []
         for r in range(a, b):
-            o = estatico.aleatorio().guardar(cls.db)
+            if guardar:
+                o = estatico.aleatorio().guardar(cls.db)
+            else:
+                o = estatico.aleatorio()
             objetos_creados.append(o)
             print('{} : {}'.format(r, o))
         return objetos_creados
@@ -93,6 +112,13 @@ class ControladorDatos(object):
     def volcar_datos_prueba(cls):
         """..."""
         cls.log_tarea('Volcando datos de prueba')
-        ensayos = cls.crear_objetos_prueba(Ensayo, 0, 9)
-        for e in ensayos:
-            e.lista(cls.db, 'Repeticion', cls.crear_objetos_prueba(Repeticion, 0, 3))
+        def f(lista_padre, hijo, a, b):
+            lista_hijos = None
+            for l in lista_padre:
+                print(l)
+                lista_hijos = cls.crear_objetos_prueba(hijo, a, b, False)
+                cls.relacionar_uno_muchos(l, hijo.__name__, lista_hijos)
+            return lista_hijos
+        ensayos = cls.crear_objetos_prueba(Ensayo, 0, 1)
+        repeticiones = f(ensayos, Repeticion, 0, 3)
+        bloques = f(repeticiones, Bloque, 0, 3)

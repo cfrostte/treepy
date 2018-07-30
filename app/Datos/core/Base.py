@@ -77,7 +77,7 @@ class Base(object):
     @classmethod
     def obtener(cls, donde, filtro):
         """Retorna el registro con los datos del objeto"""
-        resultado = cls.buscar(donde, filtro)
+        resultado = cls.buscar(donde=donde, filtro=filtro, limite=1)
         if resultado:
             return resultado[0]
         return None
