@@ -34,6 +34,15 @@ INSERT INTO "bloques" VALUES(6,'366','717',2);
 INSERT INTO "bloques" VALUES(7,'239','314',3);
 INSERT INTO "bloques" VALUES(8,'735','298',3);
 INSERT INTO "bloques" VALUES(9,'938','160',3);
+INSERT INTO "bloques" VALUES(10,'463','930',4);
+INSERT INTO "bloques" VALUES(11,'386','533',4);
+INSERT INTO "bloques" VALUES(12,'541','501',4);
+INSERT INTO "bloques" VALUES(13,'142','953',5);
+INSERT INTO "bloques" VALUES(14,'956','414',5);
+INSERT INTO "bloques" VALUES(15,'856','417',5);
+INSERT INTO "bloques" VALUES(16,'594','703',6);
+INSERT INTO "bloques" VALUES(17,'500','238',6);
+INSERT INTO "bloques" VALUES(18,'623','785',6);
 CREATE TABLE clones (
         clave INTEGER PRIMARY KEY NOT NULL,
         nro TEXT NOT NULL);
@@ -54,6 +63,7 @@ CREATE TABLE ensayos (
         tipoClonal TEXT NOT NULL,
         nroRepeticiones TEXT NOT NULL);
 INSERT INTO "ensayos" VALUES(1,'665','528','837','701','517','751','780','170','699','837','587','799','273','176');
+INSERT INTO "ensayos" VALUES(2,'421','844','413','822','182','446','677','747','660','898','727','412','516','779');
 CREATE TABLE imagenes (
         clave INTEGER PRIMARY KEY NOT NULL,
         etapa TEXT NOT NULL,
@@ -86,6 +96,9 @@ CREATE TABLE repeticiones (
 INSERT INTO "repeticiones" VALUES(1,'808','558','423',1);
 INSERT INTO "repeticiones" VALUES(2,'749','783','322',1);
 INSERT INTO "repeticiones" VALUES(3,'815','252','860',1);
+INSERT INTO "repeticiones" VALUES(4,'128','574','450',2);
+INSERT INTO "repeticiones" VALUES(5,'647','879','819',2);
+INSERT INTO "repeticiones" VALUES(6,'708','979','691',2);
 CREATE TABLE surcos_detectados (
         clave INTEGER PRIMARY KEY NOT NULL,
         distanciaMedia TEXT NOT NULL,

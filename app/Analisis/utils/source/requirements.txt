@@ -1,0 +1,16 @@
+# Language: Python 3.5.2
+
+# INSTALLATION OF REQUIREMENTS:
+#	pip install -r "requirements.txt"
+
+# pip freeze | grep 'matplotlib\|networkx\|Pillow\|randomcolor\|scikit-image\|scipy\|Shapely\|numpy'
+
+matplotlib==2.1.2
+networkx==2.1
+Pillow==5.0.0
+randomcolor==0.4.4.5
+scikit-image==0.13.1
+scipy==1.0.0
+Shapely==1.6.4.post1
+numpy==1.14.0
+
