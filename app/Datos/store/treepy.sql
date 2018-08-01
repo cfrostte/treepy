@@ -15,6 +15,12 @@ INSERT INTO "arboles" VALUES(3,'894','262','983','405','752','518',5);
 INSERT INTO "arboles" VALUES(4,'400','507','936','878','289','441',5);
 INSERT INTO "arboles" VALUES(5,'831','655','568','616','668','207',5);
 INSERT INTO "arboles" VALUES(6,'183','770','697','157','306','987',5);
+INSERT INTO "arboles" VALUES(7,'983','505','854','642','781','406',10);
+INSERT INTO "arboles" VALUES(8,'637','758','666','836','669','350',10);
+INSERT INTO "arboles" VALUES(9,'377','836','447','346','298','192',10);
+INSERT INTO "arboles" VALUES(10,'513','977','171','318','273','303',10);
+INSERT INTO "arboles" VALUES(11,'836','517','659','502','663','309',10);
+INSERT INTO "arboles" VALUES(12,'244','320','394','710','505','415',10);
 CREATE TABLE arboles_faltantes (
         clave INTEGER PRIMARY KEY NOT NULL,
         id_imagenes INTEGER NOT NULL,
@@ -29,6 +35,14 @@ INSERT INTO "arboles_faltantes" VALUES(5,7,6);
 INSERT INTO "arboles_faltantes" VALUES(6,7,6);
 INSERT INTO "arboles_faltantes" VALUES(7,7,6);
 INSERT INTO "arboles_faltantes" VALUES(8,7,6);
+INSERT INTO "arboles_faltantes" VALUES(9,14,12);
+INSERT INTO "arboles_faltantes" VALUES(10,14,12);
+INSERT INTO "arboles_faltantes" VALUES(11,14,12);
+INSERT INTO "arboles_faltantes" VALUES(12,14,12);
+INSERT INTO "arboles_faltantes" VALUES(13,14,12);
+INSERT INTO "arboles_faltantes" VALUES(14,14,12);
+INSERT INTO "arboles_faltantes" VALUES(15,14,12);
+INSERT INTO "arboles_faltantes" VALUES(16,14,12);
 CREATE TABLE bloques (
         clave INTEGER PRIMARY KEY NOT NULL,
         color TEXT NOT NULL,
@@ -38,6 +52,9 @@ CREATE TABLE bloques (
 INSERT INTO "bloques" VALUES(1,'158','794',2);
 INSERT INTO "bloques" VALUES(2,'749','340',2);
 INSERT INTO "bloques" VALUES(3,'489','565',2);
+INSERT INTO "bloques" VALUES(4,'590','351',4);
+INSERT INTO "bloques" VALUES(5,'939','792',4);
+INSERT INTO "bloques" VALUES(6,'625','649',4);
 CREATE TABLE clones (
         clave INTEGER PRIMARY KEY NOT NULL,
         nro TEXT NOT NULL);
@@ -45,6 +62,10 @@ INSERT INTO "clones" VALUES(1,'336');
 INSERT INTO "clones" VALUES(2,'714');
 INSERT INTO "clones" VALUES(3,'684');
 INSERT INTO "clones" VALUES(4,'283');
+INSERT INTO "clones" VALUES(5,'753');
+INSERT INTO "clones" VALUES(6,'772');
+INSERT INTO "clones" VALUES(7,'324');
+INSERT INTO "clones" VALUES(8,'663');
 CREATE TABLE ensayos (
         clave INTEGER PRIMARY KEY NOT NULL,
         nro TEXT NOT NULL,
@@ -62,6 +83,7 @@ CREATE TABLE ensayos (
         tipoClonal TEXT NOT NULL,
         nroRepeticiones TEXT NOT NULL);
 INSERT INTO "ensayos" VALUES(1,'622','911','125','283','564','503','961','236','350','139','422','661','812','159');
+INSERT INTO "ensayos" VALUES(2,'736','412','465','271','552','955','661','161','177','763','156','657','336','347');
 CREATE TABLE imagenes (
         clave INTEGER PRIMARY KEY NOT NULL,
         etapa TEXT NOT NULL,
@@ -85,6 +107,13 @@ INSERT INTO "imagenes" VALUES(4,'922','379','797','562','814','657','640','780',
 INSERT INTO "imagenes" VALUES(5,'859','449','685','684','902','202','371','126','901','278','790','942',2);
 INSERT INTO "imagenes" VALUES(6,'140','472','326','373','750','224','836','182','178','944','875','690',2);
 INSERT INTO "imagenes" VALUES(7,'289','952','467','502','431','571','652','918','193','553','274','599',2);
+INSERT INTO "imagenes" VALUES(8,'356','741','720','946','710','406','241','734','617','802','814','376',4);
+INSERT INTO "imagenes" VALUES(9,'752','178','488','478','170','374','414','909','967','177','532','952',4);
+INSERT INTO "imagenes" VALUES(10,'609','267','289','568','908','555','196','340','584','366','133','690',4);
+INSERT INTO "imagenes" VALUES(11,'489','683','507','866','595','244','277','388','615','184','125','650',4);
+INSERT INTO "imagenes" VALUES(12,'245','702','476','432','893','259','547','126','807','723','773','485',4);
+INSERT INTO "imagenes" VALUES(13,'205','754','931','638','931','471','715','591','932','986','264','848',4);
+INSERT INTO "imagenes" VALUES(14,'204','442','937','273','672','770','459','802','909','441','491','873',4);
 CREATE TABLE parcelas (
         clave INTEGER PRIMARY KEY NOT NULL,
         fila TEXT NOT NULL,
@@ -98,6 +127,11 @@ INSERT INTO "parcelas" VALUES(2,'522','587',3,4);
 INSERT INTO "parcelas" VALUES(3,'309','843',3,4);
 INSERT INTO "parcelas" VALUES(4,'739','150',3,4);
 INSERT INTO "parcelas" VALUES(5,'773','339',3,4);
+INSERT INTO "parcelas" VALUES(6,'194','294',6,8);
+INSERT INTO "parcelas" VALUES(7,'771','929',6,8);
+INSERT INTO "parcelas" VALUES(8,'836','659',6,8);
+INSERT INTO "parcelas" VALUES(9,'747','580',6,8);
+INSERT INTO "parcelas" VALUES(10,'912','455',6,8);
 CREATE TABLE repeticiones (
         clave INTEGER PRIMARY KEY NOT NULL,
         nro TEXT NOT NULL,
@@ -107,6 +141,8 @@ CREATE TABLE repeticiones (
         FOREIGN KEY(id_ensayos) REFERENCES ensayos(clave));
 INSERT INTO "repeticiones" VALUES(1,'255','525','329',1);
 INSERT INTO "repeticiones" VALUES(2,'735','526','824',1);
+INSERT INTO "repeticiones" VALUES(3,'194','372','261',2);
+INSERT INTO "repeticiones" VALUES(4,'697','238','802',2);
 CREATE TABLE surcos_detectados (
         clave INTEGER PRIMARY KEY NOT NULL,
         distanciaMedia TEXT NOT NULL,
@@ -122,4 +158,13 @@ INSERT INTO "surcos_detectados" VALUES(6,'544','835',7);
 INSERT INTO "surcos_detectados" VALUES(7,'203','195',7);
 INSERT INTO "surcos_detectados" VALUES(8,'540','917',7);
 INSERT INTO "surcos_detectados" VALUES(9,'550','404',7);
+INSERT INTO "surcos_detectados" VALUES(10,'223','621',14);
+INSERT INTO "surcos_detectados" VALUES(11,'735','683',14);
+INSERT INTO "surcos_detectados" VALUES(12,'511','761',14);
+INSERT INTO "surcos_detectados" VALUES(13,'227','315',14);
+INSERT INTO "surcos_detectados" VALUES(14,'827','500',14);
+INSERT INTO "surcos_detectados" VALUES(15,'608','224',14);
+INSERT INTO "surcos_detectados" VALUES(16,'778','389',14);
+INSERT INTO "surcos_detectados" VALUES(17,'225','472',14);
+INSERT INTO "surcos_detectados" VALUES(18,'868','329',14);
 COMMIT;
