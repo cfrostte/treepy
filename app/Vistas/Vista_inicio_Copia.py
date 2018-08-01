@@ -88,7 +88,8 @@ class Inicio():
 			datos.append(label)
 			datos.append(nombrelabel)
 			fotosEnsayos.append(datos)
-			label.bind("<Button-1>", leftclick)
+			label.bind("<Button-1>", lambda event, arg=datos[1]["text"]:self.clickEnsayoReciente(event,arg))
+			# label.bind("<Button-1>", self.clickEnsayoReciente(self,datos[1]["text"]))
 			if len(fotosEnsayos) % 3 ==0:
 				print("salto")
 				# rand = random.choice(colores)
@@ -97,7 +98,7 @@ class Inicio():
 		return fotosEnsayos
 
 	def mimenu(self, root):
-		MENU = tk.Menu(root)
+		MENU = tk.Menu(root)	
 
 		menu_archivo = tk.Menu(MENU, tearoff=0)
 		menu_edicion = tk.Menu(MENU, tearoff=0)
@@ -136,6 +137,12 @@ class Inicio():
 	    newframe.pack()
 	    self.frameActivo = newframe.get_name()
 	    print("raise")
+
+	def clickEnsayoReciente(self, event, nombre):
+		print("Click izquierdo")
+		print(nombre)
+		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
+
 
 class DoubleScrollbarFrame(ttk.Frame):
 
@@ -209,8 +216,7 @@ class VerticalScrolledFrame(tk.Frame):
     def set_name(self, nameFrame):
     	self.nameFrame = nameFrame
 
-def leftclick(self):
-	print("Click izquierdo")
+
 
 def main():
 	mi_app = Inicio()
