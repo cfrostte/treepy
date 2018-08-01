@@ -115,9 +115,7 @@ class Base(object):
 
     @classmethod
     def buscar(cls, donde, filtro=None, orden=None, asc=True, limite=None):
-        """
-        ...
-        """
+        """Retorna todos los registros que coinciden con el filtro"""
         if filtro:
             condiciones = ' = ? AND '.join(list(filtro.keys())) + ' = ?'
             valores = ()
@@ -147,27 +145,32 @@ class Base(object):
 
     def guardar(self, donde):
         """Crea o modifica los datos del objeto y lo retorna (si se guardo)"""
-        valores = ()
-        for a in self.atributos():
-            valores += (getattr(self, a), )
-        if self.obtener(donde, {'clave' : self.clave}): # Existe, entonces modificar:
-            atributos = ' = ?, '.join(self.atributos()) + ' = ?'
+        if self.obtener(donde, {'clave' : self.clave}): # Existe, modificar:
+            atributos_sin_clave = self.atributos()
+            valores_sin_clave = ()
+            for a in atributos_sin_clave:
+                valores_sin_clave += (getattr(self, a), )
+            atributos = ' = ?, '.join(atributos_sin_clave) + ' = ?'
             consulta = """UPDATE {} SET {} WHERE clave = ?"""
             consulta = consulta.format(self._tabla, atributos)
-            self.consultar(donde, consulta, valores + (self.clave, ))
-        else: # No existe, entonces crear (se obtiene una nueva clave para el filtro):
-            atributos = ', '.join(self.atributos(True))
+            self.consultar(donde, consulta, valores_sin_clave + (self.clave, ))
+        else: # No existe, crear (se obtiene una nueva clave para el filtro):
+            atributos_con_clave = self.atributos(True)
+            valores_con_clave = ()
+            for a in atributos_con_clave:
+                valores_con_clave += (getattr(self, a), )
+            atributos = ', '.join(atributos_con_clave)
             clave = self.id_disponible(donde)
             def f(x):
                 return '?'
-            signos = ', '.join(map(f, (clave, ) + valores))
+            signos = ', '.join(map(f, valores_con_clave))
             consulta = """INSERT INTO {} ({}) VALUES ({})"""
             consulta = consulta.format(self._tabla, atributos, signos)
-            self.consultar(donde, consulta, (clave, ) + valores)
+            self.consultar(donde, consulta, valores_con_clave)
             self.clave = clave
         return self.obtener(donde, {'clave' : self.clave})
 
-    def lista(self, donde, tipo, lista=None, filtro=None, fk=None):
+    def lista(self, donde, tipo, guardar=True, lista=None, filtro=None, fk=None):
         """
         Retorna la lista de todos los objetos relacionados a este:
         -   Si se llama a .lista(donde, tipo) solo retorna la lista,
@@ -184,5 +187,6 @@ class Base(object):
         if lista:
             for l in lista:
                 setattr(l, fk, self.clave)
-                l.guardar(donde)
+                if guardar:
+                    l.guardar(donde)
         return self._relacionados[tipo].buscar(donde, filtro_fk)

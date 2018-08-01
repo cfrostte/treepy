@@ -19,8 +19,6 @@ class Arbol(Base):
     areaCopa = None
     primero = None
     id_parcelas = None
-    id_arboles_faltanes = None
-    id_surcos_detectados = None
 
     def __init__(self, clave=None):
         Base.__init__(self, clave)
@@ -47,9 +45,5 @@ class Arbol(Base):
         areaCopa TEXT NOT NULL,
         primero TEXT NOT NULL,
         id_parcelas INTEGER NOT NULL,
-        id_arboles_faltanes INTEGER NOT NULL,
-        id_surcos_detectados INTEGER NOT NULL,
-        FOREIGN KEY(id_parcelas) REFERENCES parcelas(clave),
-        FOREIGN KEY(id_arboles_faltanes) REFERENCES arboles_faltanes(clave),
-        FOREIGN KEY(id_surcos_detectados) REFERENCES surcos_detectados(clave))"""
+        FOREIGN KEY(id_parcelas) REFERENCES parcelas(clave))"""
         return s.format(cls._tabla)
