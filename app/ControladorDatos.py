@@ -10,8 +10,6 @@ crea y lista objetos de tipo Base, vuelca datos de prueba y respalda la BD.
 """
 
 import sqlite3
-import sys
-import datetime
 
 from Datos.Arbol import Arbol
 from Datos.ArbolFaltante import ArbolFaltante
@@ -22,11 +20,7 @@ from Datos.Imagen import Imagen
 from Datos.Parcela import Parcela
 from Datos.Repeticion import Repeticion
 from Datos.SurcoDetectado import SurcoDetectado
-
-now = datetime.datetime.now()
-log = "Datos/logs/ControladorDatos_{}-{}-{}_{}-{}-{}.log"
-log = log.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
-sys.stdout = open(log, "w")
+from Utilidades import Logger as log
 
 class ControladorDatos(object):
 
@@ -73,7 +67,7 @@ class ControladorDatos(object):
     @classmethod
     def crear_estructura(cls):
         """..."""
-        cls.log_tarea('Creando estructura')
+        log.debug('Creando estructura')
         for nombre, clase in cls.controlados.items():
             print(nombre)
             clase.crear_tabla(cls.db)
@@ -83,7 +77,7 @@ class ControladorDatos(object):
     @classmethod
     def volcar_datos_prueba(cls):
         """..."""
-        cls.log_tarea('Volcando datos de prueba')
+        log.debug('Volcando datos de prueba')
         ensayos = cls.crear_objetos_prueba(Ensayo, 0, 1)
         repeticiones = cls.crear_objetos_prueba(Repeticion, 0, 2, False)
         bloques = cls.crear_objetos_prueba(Bloque, 0, 3, False)
@@ -129,19 +123,13 @@ class ControladorDatos(object):
     @classmethod
     def respaldar_datos(cls):
         """..."""
-        cls.log_tarea('Respaldando datos')
+        log.debug('Respaldando datos')
         conexion = sqlite3.connect(cls.db)
         with open(cls.sql, 'w') as a:
             for linea in conexion.iterdump():
                 print(linea)
                 a.write('%s\n' % linea)
 
-    ############################################################################
+############################################################################
 
-    @staticmethod
-    def log_tarea(texto):
-        texto = '\n[LOG] {}:{}:{} > ' + texto.upper() + '\n'
-        h = datetime.datetime.now().hour
-        m = datetime.datetime.now().minute
-        s = datetime.datetime.now().second
-        print(texto.format(h, m, s))
+log.init(ControladorDatos) # Inicializa el Logger para que guarde correctamente
