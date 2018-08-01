@@ -15,7 +15,7 @@ class Parcela(Base):
     fila = None
     columna = None
     id_bloques = None
-    id_repeticiones = None
+    id_clones = None
 
     def __init__(self, clave=None):
         Base.__init__(self, clave)

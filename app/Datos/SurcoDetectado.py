@@ -9,6 +9,7 @@ class SurcoDetectado(Base):
 
     distanciaMedia = None
     anguloMedio = None
+    id_imagenes = None
 
     def __init__(self, clave=None):
         Base.__init__(self, clave)
@@ -25,5 +26,7 @@ class SurcoDetectado(Base):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
         distanciaMedia TEXT NOT NULL,
-        anguloMedio TEXT NOT NULL)"""
+        anguloMedio TEXT NOT NULL,
+        id_imagenes INTEGER NOT NULL,
+        FOREIGN KEY(id_imagenes) REFERENCES imagenes(clave))"""
         return s.format(cls._tabla)
