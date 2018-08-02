@@ -53,18 +53,18 @@ class Ensayo(Base):
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        nro TEXT NOT NULL,
+        nro INTEGER NOT NULL,
         establecimiento TEXT NOT NULL,
-        nroCuadro TEXT NOT NULL,
+        nroCuadro INTEGER NOT NULL,
         suelo TEXT NOT NULL,
         espaciamientoX TEXT NOT NULL,
         espaciamientoY TEXT NOT NULL,
-        plantasHa TEXT NOT NULL,
+        plantasHa INTEGER NOT NULL,
         fechaPlantacion TEXT NOT NULL,
-        nroTratamientos TEXT NOT NULL,
-        totalPlantas TEXT NOT NULL,
-        totalHas TEXT NOT NULL,
-        plantasParcela TEXT NOT NULL,
+        nroTratamientos INTEGER NOT NULL,
+        totalPlantas INTEGER NOT NULL,
+        totalHas INTEGER NOT NULL,
+        plantasParcela INTEGER NOT NULL,
         tipoClonal TEXT NOT NULL,
-        nroRepeticiones TEXT NOT NULL)"""
+        nroRepeticiones INTEGER NOT NULL)"""
         return s.format(cls._tabla)

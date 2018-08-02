@@ -25,8 +25,8 @@ class SurcoDetectado(Base):
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        distanciaMedia TEXT NOT NULL,
-        anguloMedio TEXT NOT NULL,
+        distanciaMedia REAL NOT NULL,
+        anguloMedio REAL NOT NULL,
         id_imagenes INTEGER NOT NULL,
         FOREIGN KEY(id_imagenes) REFERENCES imagenes(clave))"""
         return s.format(cls._tabla)

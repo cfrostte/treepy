@@ -31,8 +31,8 @@ class Parcela(Base):
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        fila TEXT NOT NULL,
-        columna TEXT NOT NULL,
+        fila INTEGER NOT NULL,
+        columna INTEGER NOT NULL,
         id_bloques INTEGER NOT NULL,
         id_clones INTEGER NOT NULL,
         FOREIGN KEY(id_bloques) REFERENCES bloques(clave),

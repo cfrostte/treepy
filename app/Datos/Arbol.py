@@ -14,10 +14,10 @@ class Arbol(Base):
 
     latitud = None
     longitud = None
-    arbolIzq = None
-    arbolDer = None
     areaCopa = None
     primero = None
+    arbolIzq = None # FK
+    arbolDer = None # FK
     id_parcelas = None
 
     def __init__(self, clave=None):
@@ -26,24 +26,24 @@ class Arbol(Base):
     @staticmethod
     def aleatorio():
         a = Arbol()
-        a.latitud = random.randint(123, 987)
-        a.longitud = random.randint(123, 987)
-        a.arbolIzq = random.randint(123, 987)
-        a.arbolDer = random.randint(123, 987)
-        a.areaCopa = random.randint(123, 987)
-        a.primero = random.randint(123, 987)
+        a.latitud = random.uniform(-180, 180)
+        a.longitud = random.uniform(-90, 90)
+        a.areaCopa = random.random() * random.randint(123, 987)
+        a.primero = random.randint(0, 1)
         return a
 
     @classmethod
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        latitud TEXT NOT NULL,
-        longitud TEXT NOT NULL,
-        arbolIzq TEXT NOT NULL,
-        arbolDer TEXT NOT NULL,
-        areaCopa TEXT NOT NULL,
-        primero TEXT NOT NULL,
+        latitud REAL NOT NULL,
+        longitud REAL NOT NULL,
+        areaCopa REAL NOT NULL,
+        primero INTEGER NOT NULL,
+        arbolIzq INTEGER,
+        arbolDer INTEGER,
         id_parcelas INTEGER NOT NULL,
+        FOREIGN KEY(arbolIzq) REFERENCES arboles(clave),
+        FOREIGN KEY(arbolDer) REFERENCES arboles(clave),
         FOREIGN KEY(id_parcelas) REFERENCES parcelas(clave))"""
         return s.format(cls._tabla)

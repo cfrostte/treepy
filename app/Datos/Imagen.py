@@ -52,18 +52,18 @@ class Imagen(Base):
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        etapa TEXT NOT NULL,
+        etapa INTEGER NOT NULL,
         fecha TEXT NOT NULL,
         url TEXT NOT NULL,
-        largo TEXT NOT NULL,
-        ancho TEXT NOT NULL,
-        latitud TEXT NOT NULL,
-        longitud TEXT NOT NULL,
-        altitud TEXT NOT NULL,
-        latitudCono1 TEXT NOT NULL,
-        longitudCono1 TEXT NOT NULL,
-        latitudCono2 TEXT NOT NULL,
-        longitudCono2 TEXT NOT NULL,
+        largo REAL NOT NULL,
+        ancho REAL NOT NULL,
+        latitud REAL NOT NULL,
+        longitud REAL NOT NULL,
+        altitud REAL NOT NULL,
+        latitudCono1 REAL NOT NULL,
+        longitudCono1 REAL NOT NULL,
+        latitudCono2 REAL NOT NULL,
+        longitudCono2 REAL NOT NULL,
         id_repeticiones INTEGER NOT NULL,
         FOREIGN KEY(id_repeticiones) REFERENCES repeticiones(clave))"""
         return s.format(cls._tabla)

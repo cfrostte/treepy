@@ -10,6 +10,7 @@ crea y lista objetos de tipo Base, vuelca datos de prueba y respalda la BD.
 """
 
 import sqlite3
+import random
 
 from Datos.Arbol import Arbol
 from Datos.ArbolFaltante import ArbolFaltante
@@ -20,6 +21,8 @@ from Datos.Imagen import Imagen
 from Datos.Parcela import Parcela
 from Datos.Repeticion import Repeticion
 from Datos.SurcoDetectado import SurcoDetectado
+from Datos.SurcoDetectadoParcela import SurcoDetectadoParcela
+
 from Utilidades import Logger as log
 
 class ControladorDatos(object):
@@ -38,6 +41,7 @@ class ControladorDatos(object):
         'Parcela' : Parcela,
         'Repeticion' : Repeticion,
         'SurcoDetectado' : SurcoDetectado,
+        'SurcoDetectadoParcela' : SurcoDetectadoParcela,
     }
 
     ############################################################################
@@ -62,6 +66,19 @@ class ControladorDatos(object):
         """..."""
         return uno.lista(cls.db, muchos, guardar, lista, None, fk)
 
+    @classmethod
+    def relacionar_muchos_muchos(cls, muchos_x, muchos_y):
+        """..."""
+        n1 = muchos_x[0].__class__.__name__
+        n2 = muchos_y[0].__class__.__name__
+        pivot = cls.controlados[n1 + n2]
+        for x in muchos_x:
+            for y in muchos_y:
+                p = pivot()
+                setattr(p, x.foranea(), x.clave)
+                setattr(p, y.foranea(), y.clave)
+                p.guardar(cls.db, False)
+
     ############################################################################
 
     @classmethod
@@ -78,23 +95,21 @@ class ControladorDatos(object):
     def volcar_datos_prueba(cls):
         """..."""
         log.debug('Volcando datos de prueba')
-        ensayos = cls.crear_objetos_prueba(Ensayo, 0, 1)
-        repeticiones = cls.crear_objetos_prueba(Repeticion, 0, 2, False)
-        bloques = cls.crear_objetos_prueba(Bloque, 0, 3, False)
-        clones = cls.crear_objetos_prueba(Clon, 0, 4)
-        parcelas = cls.crear_objetos_prueba(Parcela, 0, 5, False)
-        arboles = cls.crear_objetos_prueba(Arbol, 0, 6, False)
-        imagenes = cls.crear_objetos_prueba(Imagen, 0, 7, False)
-        arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, 0, 8, False)
-        surcos_detectados = cls.crear_objetos_prueba(SurcoDetectado, 0, 9, False)
         def f(padres, hijos, guardar):
-            for p in padres:
-                print(p)
-                for h in hijos:
-                    print(h)
-                    setattr(h, p.foranea(), p.clave)
-                    if guardar:
-                        h.guardar(cls.db)
+            r = random.choice(padres)
+            n = hijos[0].__class__.__name__
+            cls.relacionar_uno_muchos(r, n, guardar, hijos)
+        def g():
+            return random.randint(1, 256)
+        arboles = cls.crear_objetos_prueba(Arbol, g(), False)
+        arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, g(), False)
+        bloques = cls.crear_objetos_prueba(Bloque, g(), False)
+        clones = cls.crear_objetos_prueba(Clon, g())
+        ensayos = cls.crear_objetos_prueba(Ensayo, g())
+        imagenes = cls.crear_objetos_prueba(Imagen, g(), False)
+        parcelas = cls.crear_objetos_prueba(Parcela, g(), False)
+        repeticiones = cls.crear_objetos_prueba(Repeticion, g(), False)
+        surcos_detectados = cls.crear_objetos_prueba(SurcoDetectado, g(), False)
         f(ensayos, repeticiones, True)
         f(repeticiones, bloques, True)
         f(repeticiones, imagenes, True)
@@ -104,12 +119,13 @@ class ControladorDatos(object):
         f(arboles, arboles_faltantes, False)
         f(imagenes, arboles_faltantes, True)
         f(imagenes, surcos_detectados, True)
+        cls.relacionar_muchos_muchos(surcos_detectados, parcelas)
 
     @classmethod
-    def crear_objetos_prueba(cls, estatico, a, b, guardar=True):
+    def crear_objetos_prueba(cls, estatico, n, guardar=True):
         """..."""
         objetos_creados = []
-        for r in range(a, b):
+        for r in range(0, n):
             if guardar:
                 o = estatico.aleatorio().guardar(cls.db)
             else:
@@ -130,6 +146,6 @@ class ControladorDatos(object):
                 print(linea)
                 a.write('%s\n' % linea)
 
-############################################################################
+################################################################################
 
 log.init(ControladorDatos) # Inicializa el Logger para que guarde correctamente

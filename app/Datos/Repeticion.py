@@ -34,9 +34,9 @@ class Repeticion(Base):
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        nro TEXT NOT NULL,
-        nroFilas TEXT NOT NULL,
-        nroColumnas TEXT NOT NULL,
+        nro INTEGER NOT NULL,
+        nroFilas INTEGER NOT NULL,
+        nroColumnas INTEGER NOT NULL,
         id_ensayos INTEGER NOT NULL, 
         FOREIGN KEY(id_ensayos) REFERENCES ensayos(clave))"""
         return s.format(cls._tabla)
