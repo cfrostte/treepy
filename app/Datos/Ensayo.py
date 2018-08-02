@@ -1,6 +1,7 @@
 """..."""
 
 import random
+import string
 from .core.Base import Base
 from .Repeticion import Repeticion
 
@@ -34,18 +35,18 @@ class Ensayo(Base):
     def aleatorio():
         a = Ensayo()
         a.nro = random.randint(123, 987)
-        a.establecimiento = random.randint(123, 987)
+        a.establecimiento = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(16)])
         a.nroCuadro = random.randint(123, 987)
         a.suelo = random.randint(123, 987)
         a.espaciamientoX = random.randint(123, 987)
         a.espaciamientoY = random.randint(123, 987)
         a.plantasHa = random.randint(123, 987)
-        a.fechaPlantacion = random.randint(123, 987)
+        a.fechaPlantacion = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(12)])
         a.nroTratamientos = random.randint(123, 987)
         a.totalPlantas = random.randint(123, 987)
         a.totalHas = random.randint(123, 987)
         a.plantasParcela = random.randint(123, 987)
-        a.tipoClonal = random.randint(123, 987)
+        a.tipoClonal = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(4)])
         a.nroRepeticiones = random.randint(123, 987)
         return a
 

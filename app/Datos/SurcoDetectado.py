@@ -17,8 +17,8 @@ class SurcoDetectado(Base):
     @staticmethod
     def aleatorio():
         a = SurcoDetectado()
-        a.distanciaMedia = random.randint(123, 987)
-        a.anguloMedio = random.randint(123, 987)
+        a.distanciaMedia = random.random() * random.randint(123, 987)
+        a.anguloMedio = random.random() * random.randint(123, 987)
         return a
 
     @classmethod

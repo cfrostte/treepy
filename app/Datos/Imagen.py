@@ -1,6 +1,7 @@
 """..."""
 
 import random
+import string
 from .core.Base import Base
 from .ArbolFaltante import ArbolFaltante
 from .SurcoDetectado import SurcoDetectado
@@ -35,17 +36,17 @@ class Imagen(Base):
     def aleatorio():
         a = Imagen()
         a.etapa = random.randint(123, 987)
-        a.fecha = random.randint(123, 987)
-        a.url = random.randint(123, 987)
-        a.largo = random.randint(123, 987)
-        a.ancho = random.randint(123, 987)
-        a.latitud = random.randint(123, 987)
-        a.longitud = random.randint(123, 987)
-        a.altitud = random.randint(123, 987)
-        a.latitudCono1 = random.randint(123, 987)
-        a.longitudCono1 = random.randint(123, 987)
-        a.latitudCono2 = random.randint(123, 987)
-        a.longitudCono2 = random.randint(123, 987)
+        a.fecha = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(12)])
+        a.url = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(64)])
+        a.largo = random.random() * random.randint(123, 987)
+        a.ancho = random.random() * random.randint(123, 987)
+        a.latitud = random.uniform(-180, 180)
+        a.longitud = random.uniform(-90, 90)
+        a.altitud = random.random() * random.randint(123, 987)
+        a.latitudCono1 = random.uniform(-180, 180)
+        a.longitudCono1 = random.uniform(-90, 90)
+        a.latitudCono2 = random.uniform(-180, 180)
+        a.longitudCono2 = random.uniform(-90, 90)
         return a
 
     @classmethod
