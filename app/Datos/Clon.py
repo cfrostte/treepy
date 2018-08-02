@@ -27,5 +27,5 @@ class Clon(Base):
     def sentencia(cls):
         s = """CREATE TABLE IF NOT EXISTS {} (
         clave INTEGER PRIMARY KEY NOT NULL,
-        nro TEXT NOT NULL)"""
+        nro INTEGER NOT NULL)"""
         return s.format(cls._tabla)

@@ -143,9 +143,10 @@ class Base(object):
 
     ############################################################################
 
-    def guardar(self, donde):
+    def guardar(self, donde, modificable=True):
         """Crea o modifica los datos del objeto y lo retorna (si se guardo)"""
-        if self.obtener(donde, {'clave' : self.clave}): # Existe, modificar:
+        m = modificable and self.obtener(donde, {'clave' : self.clave})
+        if m: # Modificar (se actualizan los campos):
             atributos_sin_clave = self.atributos()
             valores_sin_clave = ()
             for a in atributos_sin_clave:
@@ -154,20 +155,19 @@ class Base(object):
             consulta = """UPDATE {} SET {} WHERE clave = ?"""
             consulta = consulta.format(self._tabla, atributos)
             self.consultar(donde, consulta, valores_sin_clave + (self.clave, ))
-        else: # No existe, crear (se obtiene una nueva clave para el filtro):
+        else: # Crear (se obtiene una nueva clave para el filtro):
             atributos_con_clave = self.atributos(True)
             valores_con_clave = ()
+            self.clave = self.id_disponible(donde)
             for a in atributos_con_clave:
                 valores_con_clave += (getattr(self, a), )
             atributos = ', '.join(atributos_con_clave)
-            clave = self.id_disponible(donde)
             def f(x):
                 return '?'
             signos = ', '.join(map(f, valores_con_clave))
             consulta = """INSERT INTO {} ({}) VALUES ({})"""
             consulta = consulta.format(self._tabla, atributos, signos)
             self.consultar(donde, consulta, valores_con_clave)
-            self.clave = clave
         return self.obtener(donde, {'clave' : self.clave})
 
     def lista(self, donde, tipo, guardar=True, lista=None, filtro=None, fk=None):
@@ -178,7 +178,7 @@ class Base(object):
             1)  Primero se asigna la lista y luego se retornan todos
                 (la lista retornada deberia contener a los asignados)
             2)  Luego se toma el nombre de la clave foranea 'fk'
-                y se le asigna el valor de la clave objeto apuntado
+                y se le asigna el valor de la clave del objeto apuntado
         """
         fk = fk if fk else self.foranea()
         filtro_fk = {fk : self.clave}

@@ -1,6 +1,7 @@
 """..."""
 
 import random
+import string
 from .core.Base import Base
 from .Parcela import Parcela
 
@@ -22,8 +23,8 @@ class Bloque(Base):
     @staticmethod
     def aleatorio():
         a = Bloque()
-        a.color = random.randint(123, 987)
-        a.tipoSuelo = random.randint(123, 987)
+        a.color = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(4)])
+        a.tipoSuelo = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(8)])
         return a
 
     @classmethod
