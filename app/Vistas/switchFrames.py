@@ -1,30 +1,28 @@
-from tkinter import *
+import tkinter as tk
 
 
-def raise_frame(frame):
-    # frame.tkraise()
-    # print("hola")
-root = Tk()
+def on_entry_click(event):
+    """function that gets called whenever entry is clicked"""
+    if entry.get() == 'Enter your user name...':
+       entry.delete(0, "end") # delete all the text in the entry
+       entry.insert(0, '') #Insert blank for user input
+       entry.config(fg = 'black')
+def on_focusout(event):
+    if entry.get() == '':
+        entry.insert(0, 'Enter your username...')
+        entry.config(fg = 'grey')
 
-f1 = Frame(root)
-f2 = Frame(root)
-f3 = Frame(root)
-f4 = Frame(root)
 
-for frame in (f1, f2, f3, f4):
-    frame.grid(row=0, column=0, sticky='news')
+root = tk.Tk()
 
-Button(f1, text='Go to frame 2', command=lambda:raise_frame(f2)).pack()
-Label(f1, text='FRAME 1').pack()
+label = tk.Label(root, text="User: ")
+label.pack(side="left")
 
-Label(f2, text='FRAME 2').pack()
-Button(f2, text='Go to frame 3', command=lambda:raise_frame(f3)).pack()
+entry = tk.Entry(root, bd=1)
+entry.insert(0, 'Enter your user name...')
+entry.bind('<FocusIn>', on_entry_click)
+entry.bind('<FocusOut>', on_focusout)
+entry.config(fg = 'grey')
+entry.pack(side="left")
 
-Label(f3, text='FRAME 3').pack(side='left')
-Button(f3, text='Go to frame 4', command=lambda:raise_frame(f4)).pack(side='left')
-
-Label(f4, text='FRAME 4').pack()
-Button(f4, text='Goto to frame 1', command=lambda:raise_frame(f1)).pack()
-
-raise_frame(f1)
 root.mainloop()

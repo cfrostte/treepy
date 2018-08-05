@@ -7,6 +7,7 @@ import cgitb
 from inspect import getmembers
 from pprint import pprint
 import random
+from esquemaParcelas import esquemaParcelas
 
 
 actualFrame = 1
@@ -25,7 +26,7 @@ def donothing():
 # 		self.filemenu.add_command(label="New", command=donothing)
 # 		self.filemenu.add_command(label="Exit", command=donothing)
 
-class Inicio():
+class Inicio(object):
 	def __init__(self):
 		self.root = tk.Tk()
 		self.root.geometry("1280x768")
@@ -39,31 +40,169 @@ class Inicio():
 		# self.frame.set_name("FRAME DE INICIO")
 		self.misframes['Inicio'].pack(fill=tk.BOTH, padx=0, pady=0, expand=True)
 
+		self.ensayosRecientes()
+		self.verEnsayo()
+		self.verRepeticion()
 		# self.frame2 = VerticalScrolledFrame(self.root)
 		# self.frame2.set_name("SEGUNDO FRAME")
 
 		# self.frame.pack()
 		# raise_frame(self.frame)
-		self.root.state('zoomed')
-		self.labelUno = ttk.Label(self.misframes['Inicio'].interior, text=self.misframes['Inicio'].nameFrame)
-		self.labelUno2 = ttk.Label(self.misframes['Ensayo'].interior, text=self.misframes['Ensayo'].nameFrame)
+		# self.root.state('zoomed')
+		# self.labelUno = ttk.Label(self.misframes['Inicio'].interior, text=self.misframes['Inicio'].nameFrame)
+		# self.labelUno2 = ttk.Label(self.misframes['Ensayo'].interior, text=self.misframes['Ensayo'].nameFrame)
 		# self.labelUno.grid(row=0, column=0, sticky=tk.W)
 		# self.subframe
-		self.labelUno.pack(side=tk.TOP)
-		self.labelUno2.pack(side=tk.TOP)
+		# self.labelUno.pack(side=tk.TOP)
+		# self.labelUno2.pack(side=tk.TOP)
 
-		self.ensayosRecientes = self.ensayosRecientes()
 		
 		# self.frame.grid_rowconfigure(1, minsize=10)
 		self.root.config(menu=self.mimenu(self.root))
 		self.root.mainloop()
 
+	def createCampo(self, frameContainer, texto):
+		entry = tk.Entry(frameContainer)
+		entry.insert(0, texto)
+		entry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+		entry.config(state=tk.DISABLED)
+		return entry
+
+	def verRepeticion(self):
+		totalFrame, frameContainer = [], []
+
+		totalFrame.append(tk.Frame(self.misframes['Repeticion'].interior))
+		totalFrame[-1].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		totalFrame.append(tk.Frame(self.misframes['Repeticion'].interior))
+		totalFrame[-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+		totalFrame.append(tk.Frame(self.misframes['Repeticion'].interior))
+		totalFrame[-1].pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+		frameContainer.append(tk.Frame(totalFrame[0]))
+		frameContainer[-1].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+		tituloRepeticion = tk.Label(frameContainer[-1], text='Repeticion X')
+		tituloRepeticion.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		tituloRepeticion.config(font=('Courier', 33))
+
+		frameContainer.append(tk.Frame(totalFrame[1], height=100, background="bisque"))
+		frameContainer[-1].pack(side=tk.TOP, fill=tk.BOTH)
+		frameContainer[-1].pack_propagate(0)
+		# frameContainer[-1].place(relx=.5, rely=.5, anchor="c")
+		# frameContainer[-1].config(height=5)
+
+		subtituloEsquema = tk.Label(frameContainer[-1], text='Esquema de parcelas')
+		subtituloEsquema.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		subtituloEsquema.config(font=('Courier', 22))
+		# subtituloEsquema.config(height=5)
+
+		frameContainer.append(tk.Frame(totalFrame[2]))
+		frameContainer[-1].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+		subtituloImagenes = tk.Label(frameContainer[-1], text='Imagenes')
+		subtituloImagenes.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		subtituloImagenes.config(font=('Courier', 22))
+
+		# cargo el frame de esquema parcelas
+		frameesquema = esquemaParcelas(totalFrame[1])
+		frameesquema.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		# 
+
+		# cargo la imagenes de la repeticion
+		for x in range(0, 5):
+			fotosRepeticion = []
+			frameContainerIn = []
+			frameContainerIn.append(tk.Frame(totalFrame[2]))
+			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+			frameContainerIn.append(tk.Frame(totalFrame[2]))
+			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+
+			datos = []
+			nombre = 'Imagen ' + str(x)
+			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
+			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+			ensayoImage = Image.open('iconImage.png')
+			ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
+			photo = ImageTk.PhotoImage(ensayoImage)
+			label = tk.Label(frameContainerIn[1], image=photo)
+			label.image = photo
+			label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+			datos.append(label)
+			datos.append(nombrelabel)
+			fotosRepeticion.append(datos)
+			label.bind("<Button-1>", lambda event, arg=datos[1]["text"]:self.clickEnsayoReciente(event,arg))
+			# label.bind("<Button-1>", self.clickEnsayoReciente(self,datos[1]["text"]))
+			if len(fotosRepeticion) % 3 ==0:
+				print("salto imegen repe")
+				# rand = random.choice(colores)
+				frameContainer.append(tk.Frame(totalFrame[2]))
+				frameContainer[-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+		#####
+
+
+
+	def verEnsayo(self):
+		print('émpieza ver ensayo')
+
+		totalFrame = []
+		totalFrame.append(tk.Frame(self.misframes['Ensayo'].interior))
+		totalFrame[-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+		totalFrame.append(tk.Frame(self.misframes['Ensayo'].interior))
+		totalFrame[-1].pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+
+
+		frameContainer = []
+		frameContainer.append(tk.Frame(totalFrame[0]))
+		frameContainer[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+
+		tituloEnsayo = 'Ensayo Nro 2131'
+		titulo = tk.Label(frameContainer[-1], text=tituloEnsayo)
+		titulo.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'N° Repeticiones: ', '3')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Establecimento: ', 'La Tribu')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'N° Cuadro: ', 'H007')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Suelo: ', '9.3')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Espaciamiento: ', '4 X 1.9')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Plantas/Ha: ', '1315')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Fecha de plantacion: ', '15/09/2017')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'N° Tratamientos: ', '27')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Total de plantas: ', '1620')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Total Has: ', '1.23')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'N° Repeticiones: ', '3')
+		self.frameCreateCampo(frameContainer, totalFrame[0], 'Plantas por parcela: ', '20')
+
+		frameContainer.append(tk.Frame(totalFrame[1]))
+		frameContainer[-1].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+		tituloRepeticiones = 'Repeticiones'
+		tituloRepeticiones = tk.Label(frameContainer[-1], text='Repeticiones')
+		tituloRepeticiones.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		tituloRepeticiones.config(font=("Courier",33))
+
+		totalRepeticiones = '3'
+		for x in range(0, int(totalRepeticiones)):
+			labelRepeticion = tk.Label(frameContainer[-1], text='Repeticion '+str(x+1))
+			labelRepeticion.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+			labelRepeticion.bind("<Button-1>", lambda event, arg='Repeticion '+ str(x+1):self.clickVerRepeticion(event,arg))
+
+
+
+	def frameCreateCampo(self, frameContainer, parent, textLabel, textDato):
+		frameContainer.append(tk.Frame(parent))
+		frameContainer[-1].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		label = tk.Label(frameContainer[-1], text=textLabel).pack(side=tk.LEFT, fill=tk.BOTH)
+		entry = self.createCampo(frameContainer[-1], textDato)
+
 	def ensayosRecientes(self):
 		fotosEnsayos = []
 		frameContainer=[]
-		colores = ['blue', 'red', 'green','black', 'yellow', 'white']
+		# colores = ['blue', 'red', 'green','black', 'yellow', 'white']
 		# rand = random.choice(colores)
 
+		labelTitulo = ttk.Label(self.misframes['Inicio'].interior, text='Ensayos Recientes')
+		labelTitulo.pack(side=tk.TOP, fill=tk.BOTH)
+		labelTitulo.config(font=("Courier", 33))
 		frameContainer.append(tk.Frame(self.misframes['Inicio'].interior))
 		# frameContainer[-1].geometry("175x75")
 		frameContainer[-1].pack(side=tk.LEFT,fill=tk.BOTH, expand=True)
@@ -129,18 +268,25 @@ class Inicio():
 			frame = VerticalScrolledFrame(self.root)
 			frame.set_name(x)
 			framesGenerados[x]=frame
+
 		return framesGenerados
 
 	def raise_frame(self, frame, newframe):
 	    # frame.tkraise()
 	    frame.pack_forget()
-	    newframe.pack()
+	    newframe.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 	    self.frameActivo = newframe.get_name()
 	    print("raise")
+
+	def clickVerRepeticion(self, event, nombre):
+		print("Click REPE")
+		print(nombre)
+		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion'])
 
 	def clickEnsayoReciente(self, event, nombre):
 		print("Click izquierdo")
 		print(nombre)
+
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
 
 
