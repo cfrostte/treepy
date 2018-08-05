@@ -23,12 +23,16 @@ from Datos.Repeticion import Repeticion
 from Datos.SurcoDetectado import SurcoDetectado
 from Datos.SurcoDetectadoParcela import SurcoDetectadoParcela
 
+from Datos.core.Exportador import CSV as csv
+
 from Utilidades import Logger as log
 
 class ControladorDatos(object):
 
     db = 'Datos/store/treepy.db' # Donde se guarda la BD
     sql = 'Datos/store/treepy.sql' # Donde se exporta la BD
+    csv = 'Datos/store/out/csv' # Donde se exportan los CSV
+    kml = 'Datos/store/out/kml' # Donde se exportan los KML
 
     # Tipos de objeto manejados:
     controlados = {
@@ -71,13 +75,18 @@ class ControladorDatos(object):
         """..."""
         n1 = muchos_x[0].__class__.__name__
         n2 = muchos_y[0].__class__.__name__
-        pivot = cls.controlados[n1 + n2]
+        k = n1 + n2 if n1 + n2 in cls.controlados else n2 + n1
+        pivot = cls.controlados[k]
         for x in muchos_x:
             for y in muchos_y:
                 p = pivot()
                 setattr(p, x.foranea(), x.clave)
                 setattr(p, y.foranea(), y.clave)
                 p.guardar(cls.db, False)
+
+    @classmethod
+    def exportar_informe_csv(cls, nombre):
+        csv.informe(cls.db, cls.csv + '/' + nombre + '.csv')
 
     ############################################################################
 
@@ -100,7 +109,7 @@ class ControladorDatos(object):
             n = hijos[0].__class__.__name__
             cls.relacionar_uno_muchos(r, n, guardar, hijos)
         def g():
-            return random.randint(1, 256)
+            return random.randint(1, 32)
         arboles = cls.crear_objetos_prueba(Arbol, g(), False)
         arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, g(), False)
         bloques = cls.crear_objetos_prueba(Bloque, g(), False)
@@ -119,7 +128,8 @@ class ControladorDatos(object):
         f(arboles, arboles_faltantes, False)
         f(imagenes, arboles_faltantes, True)
         f(imagenes, surcos_detectados, True)
-        cls.relacionar_muchos_muchos(surcos_detectados, parcelas)
+        # cls.relacionar_muchos_muchos(surcos_detectados, parcelas) # Opcion 1
+        cls.relacionar_muchos_muchos(parcelas, surcos_detectados) # Opcion 2
 
     @classmethod
     def crear_objetos_prueba(cls, estatico, n, guardar=True):

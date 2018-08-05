@@ -1,7 +1,9 @@
 """..."""
 
+import datetime
 import random
 import string
+
 from .core.Base import Base
 from .Repeticion import Repeticion
 
@@ -41,7 +43,7 @@ class Ensayo(Base):
         a.espaciamientoX = random.randint(123, 987)
         a.espaciamientoY = random.randint(123, 987)
         a.plantasHa = random.randint(123, 987)
-        a.fechaPlantacion = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(12)])
+        a.fechaPlantacion = datetime.datetime(random.randint(2008, 2018), random.randint(1, 12), random.randint(1, 28))
         a.nroTratamientos = random.randint(123, 987)
         a.totalPlantas = random.randint(123, 987)
         a.totalHas = random.randint(123, 987)

@@ -1,7 +1,9 @@
 """..."""
 
+import datetime
 import random
 import string
+
 from .core.Base import Base
 from .ArbolFaltante import ArbolFaltante
 from .SurcoDetectado import SurcoDetectado
@@ -36,8 +38,8 @@ class Imagen(Base):
     def aleatorio():
         a = Imagen()
         a.etapa = random.randint(123, 987)
-        a.fecha = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(12)])
-        a.url = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(64)])
+        a.fecha = datetime.datetime(random.randint(2008, 2018), random.randint(1, 12), random.randint(1, 28))
+        a.url = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(128)])
         a.largo = random.random() * random.randint(123, 987)
         a.ancho = random.random() * random.randint(123, 987)
         a.latitud = random.uniform(-180, 180)
