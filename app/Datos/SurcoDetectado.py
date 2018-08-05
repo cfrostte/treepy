@@ -1,6 +1,7 @@
 """..."""
 
 import random
+
 from .core.Base import Base
 
 class SurcoDetectado(Base):

@@ -1,6 +1,7 @@
 """..."""
 
 import random
+
 from .core.Base import Base
 from .Bloque import Bloque
 from .Imagen import Imagen
