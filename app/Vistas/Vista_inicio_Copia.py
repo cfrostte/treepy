@@ -8,12 +8,24 @@ from inspect import getmembers
 from pprint import pprint
 import random
 from esquemaParcelas import esquemaParcelas
+from AbrirEnsayo import AbrirEnsayo
 
 
 actualFrame = 1
 def donothing():
 	print("donothing")
 
+car_list = [
+('Hyundai', 'brakes', 'Uruguay') ,
+('Honda', 'light', 'Brasil') ,
+('Lexus', 'battery', 'Uruguay') ,
+('Benz', 'wiper', 'Uruguay') ,
+('Ford', 'tire', 'India') ,
+('Chevy', 'air','Mexico') ,
+('Chrysler', 'piston', 'India') ,
+('Toyota', 'brake pedal', 'Chile') ,
+('BMW', 'seat', 'Italia')
+]
 # def dounpack(frame):
 # 	frame.pack_forget()
 # 	print("forget")
@@ -31,9 +43,10 @@ class Inicio(object):
 		self.root = tk.Tk()
 		self.root.geometry("1280x768")
 		self.root.title("TreePy Analisis de Imagenes")
+		self.root.state('zoomed')
 		self.frameActivo = "Inicio"
 
-		misframes = ['Inicio', 'Ensayo', 'Repeticion', 'Analisis']
+		misframes = ['Inicio', 'Ensayo', 'Repeticion', 'Analisis', 'ListaEnsayos']
 		self.misframes = self.generarFrames(misframes)
 		
 		# self.frame = VerticalScrolledFrame(self.root)
@@ -109,7 +122,7 @@ class Inicio(object):
 		# 
 
 		# cargo la imagenes de la repeticion
-		for x in range(0, 5):
+		for x in range(0, 3):
 			fotosRepeticion = []
 			frameContainerIn = []
 			frameContainerIn.append(tk.Frame(totalFrame[2]))
@@ -121,7 +134,7 @@ class Inicio(object):
 			nombre = 'Imagen ' + str(x)
 			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			ensayoImage = Image.open('iconImage.png')
+			ensayoImage = Image.open('arboles_00.jpg')
 			ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
 			photo = ImageTk.PhotoImage(ensayoImage)
 			label = tk.Label(frameContainerIn[1], image=photo)
@@ -245,7 +258,8 @@ class Inicio(object):
 		menu_ayuda = tk.Menu(MENU, tearoff=0)
 
 		menu_archivo.add_command(label="Nuevo ensayo", command=donothing)
-		menu_archivo.add_command(label="Abrir ensayo", command=donothing)
+		menu_archivo.add_command(label="Abrir ensayo", command= lambda:self.AbrirEnsayo(self.misframes['ListaEnsayos']))
+		# menu_archivo.add_command(label="Abrir ensayo", command=AbrirEnsayo(self.root))
 		menu_archivo.add_separator()
 		menu_archivo.add_command(label="Salir", command=root.quit)
 
@@ -261,6 +275,12 @@ class Inicio(object):
 		MENU.add_cascade(label="Ayuda", menu=menu_ayuda)
 		
 		return MENU
+
+	def AbrirEnsayo(self, frameEnsayo):
+		frameEnsayo.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		ok = AbrirEnsayo(frameEnsayo)
+		# ok.listaDeEnsayos.build_tree(car_list)
+		self.raise_frame(self.misframes[self.frameActivo], frameEnsayo)
 
 	def generarFrames(self, misframes):
 		framesGenerados = {}

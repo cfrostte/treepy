@@ -13,9 +13,10 @@ class esquemaParcelas(Frame):
         self.bloqueseleccionado = None
         self.controles = Frame(self)
         self.controles.pack()
-        self.colores = []
+        self.colores = [Bloque("Bloque 1", "#33FFD4"), Bloque("Bloque 2","#FF336B"), Bloque("Bloque 3", "#311F63")]
+        # self.colores = ['#33FFD4', '#FF336B', '#311F63']
         self.grilla = None
-        self.b1 = Button(self.controles,text="Leer Porta Papeles",command=self.pegar)
+        self.b1 = Button(self.controles,text="Pegar",command=self.pegar)
         self.b1.pack(pady=5, padx=5, side=LEFT)
         self.b2 = None
     def listo(self):
@@ -32,9 +33,10 @@ class esquemaParcelas(Frame):
         self.grilla = Frame(self)     
         self.grilla.pack(padx=5, pady=5)
         if self.b2==None:
-            self.b2 = Button(self.controles,text="Editar Bloques",command=lambda:EditorBloques(self.colores,self))
-            self.b2.pack(pady=5, padx=5, side=LEFT)
-            Button(self.controles,text="Listo",command=self.listo).pack(pady=5, padx=5, side=LEFT)
+            # self.b2 = Button(self.controles,text="Colorear bloque",command=lambda:EditorBloques(self.colores,self))
+            self.b2 = EditorBloques(self.colores,self)
+            # self.b2.pack(pady=5, padx=5, side=LEFT)
+            Button(self.controles,text="Guardar",command=self.listo).pack(pady=5, padx=5, side=LEFT)
         copiado = pyperclip.paste()
         d = []
         self.matriz = []
