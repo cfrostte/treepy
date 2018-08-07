@@ -85,8 +85,8 @@ class ControladorDatos(object):
                 p.guardar(cls.db, False)
 
     @classmethod
-    def exportar_informe_csv(cls, nombre):
-        csv.informe(cls.db, cls.csv + '/' + nombre + '.csv')
+    def exportar_informe_csv(cls):
+        csv.informe(cls.db, cls.csv)
 
     ############################################################################
 

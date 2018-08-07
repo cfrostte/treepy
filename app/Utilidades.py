@@ -7,9 +7,9 @@ class Logger(object):
 
     @staticmethod
     def init(clase):
-        now = datetime.datetime.now()
-        log = "Logs/{}_{}-{}-{}_{}-{}-{}.log"
-        log = log.format(clase.__name__, now.year, now.month, now.day, now.hour, now.minute, now.second)
+        n = datetime.datetime.now()
+        l = "Logs/{}_{}-{}-{}_{}-{}-{}.log"
+        log = l.format(clase.__name__, n.year, n.month, n.day, n.hour, n.minute, n.second)
         sys.stdout = open(log, "w")
 
     @staticmethod

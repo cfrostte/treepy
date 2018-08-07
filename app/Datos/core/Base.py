@@ -17,6 +17,7 @@ cualquier otra documentacion debe figurar unicamente en este modulo.
 """
 
 import sqlite3
+import time
 
 class Base(object):
 
@@ -141,12 +142,41 @@ class Base(object):
             return [a for a in dir(cls) if not a.startswith('__') and not a.startswith('_') and not callable(getattr(cls, a))]
         return [a for a in dir(cls) if not a.startswith('__') and not a.startswith('_') and not callable(getattr(cls, a)) and not a == 'clave']
 
+    @staticmethod
+    def historial(donde, en_memoria, en_bd):
+        tabla = "historial" # Nombre de la tabla para guardar historial
+        creacion = """CREATE TABLE IF NOT EXISTS {} (
+        quien TEXT NOT NULL, que TEXT NOT NULL, antes TEXT NOT NULL, 
+        despues TEXT NOT NULL, cuando TEXT NOT NULL)""".format(tabla)
+        Base.consultar(donde, creacion) # Crear la tabla para auditar
+        def f(en_memoria, en_bd):
+            lista = []
+            for a in en_memoria.atributos(True):
+                if getattr(en_memoria, a) != getattr(en_bd, a):
+                    lista.append({
+                        'que' : a,
+                        'antes' : getattr(en_bd, a),
+                        'despues' : getattr(en_memoria, a),
+                    })
+            return lista
+        modificados = f(en_memoria, en_bd)
+        if modificados:
+            for m in modificados:
+                auditoria = """INSERT INTO {} (quien, que, antes, despues, cuando)
+                VALUES (?, ?, ?, ?, ?)""".format(tabla) # Guardar modificaciones
+                quien = en_memoria.__class__.__name__
+                que = m['que']
+                antes = m['antes']
+                despues = m['despues']
+                cuando = time.time()
+                Base.consultar(donde, auditoria, (quien, que, antes, despues, cuando))
+
     ############################################################################
 
     def guardar(self, donde, modificable=True):
         """Crea o modifica los datos del objeto y lo retorna (si se guardo)"""
-        m = modificable and self.obtener(donde, {'clave' : self.clave})
-        if m: # Modificar (se actualizan los campos):
+        existente = self.obtener(donde, {'clave' : self.clave})
+        if modificable and existente: # Modificar (se actualizan los campos):
             atributos_sin_clave = self.atributos()
             valores_sin_clave = ()
             for a in atributos_sin_clave:
@@ -155,6 +185,7 @@ class Base(object):
             consulta = """UPDATE {} SET {} WHERE clave = ?"""
             consulta = consulta.format(self._tabla, atributos)
             self.consultar(donde, consulta, valores_sin_clave + (self.clave, ))
+            self.historial(donde, self, existente)
         else: # Crear (se obtiene una nueva clave para el filtro):
             atributos_con_clave = self.atributos(True)
             valores_con_clave = ()
