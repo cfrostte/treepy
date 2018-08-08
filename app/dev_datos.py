@@ -10,14 +10,20 @@ from ControladorDatos import ControladorDatos as CD
 
 # for x in CD.buscar_objetos('Ensayo', {'nro' : 123}, ['clave'], False, None):
 #     print(x)
-#     for r in CD.ver_relacionados_de(x, 'Repeticion', {'nro' : 987}):
+#     for r in CD.obtener_relaciones_de(x, 'Repeticion', {'nro' : 987}):
 #         print(r)
 
 # CD.exportar_informe_csv()
 
 for x in CD.buscar_objetos('Ensayo', {'clave' : 1}, ['clave'], False, None):
     print(x)
-    x.nro = 1
-    x.suelo = 2
     x.establecimiento = 3
     x.guardar(CD.db)
+
+for x in CD.buscar_objetos('Ensayo', {'clave' : 2}, ['clave'], False, None):
+    print(x)
+    x.establecimiento = 4
+    x.guardar(CD.db)
+
+for x in CD.ultimos_modificados('Ensayo', 3):
+    print(x)

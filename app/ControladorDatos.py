@@ -61,6 +61,11 @@ class ControladorDatos(object):
         return cls.controlados[tipo].buscar(cls.db, filtro, orden, asc, limite)
 
     @classmethod
+    def ultimos_modificados(cls, tipo, limite=9):
+        """..."""
+        return cls.controlados[tipo].modificados(cls.db, limite)
+
+    @classmethod
     def obtener_relaciones_de(cls, uno, muchos, guardar=True, filtro=None, fk=None):
         """..."""
         return uno.lista(cls.db, muchos, guardar, None, filtro, fk)
@@ -84,8 +89,11 @@ class ControladorDatos(object):
                 setattr(p, y.foranea(), y.clave)
                 p.guardar(cls.db, False)
 
+    ############################################################################
+
     @classmethod
     def exportar_informe_csv(cls):
+        """..."""
         csv.informe(cls.db, cls.csv)
 
     ############################################################################

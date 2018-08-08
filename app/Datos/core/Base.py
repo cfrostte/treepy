@@ -50,6 +50,61 @@ class Base(object):
         """Retorna un objeto con datos aleatorios"""
         pass
 
+    @staticmethod
+    def registrar(donde, objeto):
+        """Registrar cuando un objeto se ha creado o cambiado"""
+        tabla = "objetos" # Nombre de la tabla en donde registrar
+        q = """CREATE TABLE IF NOT EXISTS {} (id INTEGER NOT NULL, tipo TEXT NOT NULL,
+        creacion TEXT NOT NULL, modificacion TEXT NOT NULL, PRIMARY KEY(id, tipo))""".format(tabla)
+        Base.consultar(donde, q) # Crear la tabla para registrar todo
+        q = """SELECT 1 FROM {} WHERE id = ? AND tipo = ?""".format(tabla)
+        existe = Base.consultar(donde, q, (objeto.clave, objeto.__class__.__name__))
+        marca = time.time() # Segundos en los que se modifico o creo
+        if existe:
+            # Modificaciones existentes
+            q = """UPDATE {} SET modificacion = ? WHERE id = ? AND tipo = ?""".format(tabla)
+            Base.consultar(donde, q, (marca, objeto.clave, objeto.__class__.__name__))
+        else:
+            # Nuevas modificaciones
+            q = """INSERT INTO {} (id, tipo, creacion, modificacion) VALUES (?, ?, ?, ?)""".format(tabla)
+            Base.consultar(donde, q, (objeto.clave, objeto.__class__.__name__, marca, marca))
+
+    @staticmethod
+    def historial(donde, en_memoria, en_bd):
+        """Registra el historial de cambios sobre un objeto Base"""
+        tabla = "historial" # Nombre de la tabla en donde registrar
+        q = """CREATE TABLE IF NOT EXISTS {} (id INTEGER NOT NULL,
+        tabla TEXT NOT NULL, campo TEXT NOT NULL, anterior TEXT NOT NULL, 
+        posterior TEXT NOT NULL, cuando TEXT NOT NULL)""".format(tabla)
+        Base.consultar(donde, q) # Crear la tabla para registrar todo
+        def f(en_memoria, en_bd):
+            lista = []
+            for a in en_memoria.atributos(True):
+                en_memoria_a = str(getattr(en_memoria, a))
+                en_bd_a = str(getattr(en_bd, a))
+                if en_memoria_a != en_bd_a:
+                    print("en_memoria_{}='{}'".format(a, en_memoria_a))
+                    print("en_bd_{}='{}'".format(a, en_bd_a))
+                    print("{} == {} ? {}".format(en_memoria_a, en_bd_a, en_memoria_a == en_bd_a))
+                    lista.append({
+                        'campo' : a,
+                        'anterior' : getattr(en_bd, a),
+                        'posterior' : getattr(en_memoria, a),
+                    })
+            return lista
+        modificados = f(en_memoria, en_bd)
+        if modificados:
+            q = """INSERT INTO {} (id, tabla, campo, anterior, posterior, cuando)
+            VALUES (?, ?, ?, ?, ?, ?)""".format(tabla) # Registrar modificaciones
+            c = en_memoria.clave
+            t = en_memoria._tabla
+            for m in modificados:
+                campo = m['campo']
+                anterior = m['anterior']
+                posterior = m['posterior']
+                cuando = time.time()
+                Base.consultar(donde, q, (c, t, campo, anterior, posterior, cuando))
+
     ############################################################################
 
     @classmethod
@@ -142,34 +197,16 @@ class Base(object):
             return [a for a in dir(cls) if not a.startswith('__') and not a.startswith('_') and not callable(getattr(cls, a))]
         return [a for a in dir(cls) if not a.startswith('__') and not a.startswith('_') and not callable(getattr(cls, a)) and not a == 'clave']
 
-    @staticmethod
-    def historial(donde, en_memoria, en_bd):
-        tabla = "historial" # Nombre de la tabla para guardar historial
-        creacion = """CREATE TABLE IF NOT EXISTS {} (
-        quien TEXT NOT NULL, que TEXT NOT NULL, antes TEXT NOT NULL, 
-        despues TEXT NOT NULL, cuando TEXT NOT NULL)""".format(tabla)
-        Base.consultar(donde, creacion) # Crear la tabla para auditar
-        def f(en_memoria, en_bd):
-            lista = []
-            for a in en_memoria.atributos(True):
-                if getattr(en_memoria, a) != getattr(en_bd, a):
-                    lista.append({
-                        'que' : a,
-                        'antes' : getattr(en_bd, a),
-                        'despues' : getattr(en_memoria, a),
-                    })
-            return lista
-        modificados = f(en_memoria, en_bd)
-        if modificados:
-            for m in modificados:
-                auditoria = """INSERT INTO {} (quien, que, antes, despues, cuando)
-                VALUES (?, ?, ?, ?, ?)""".format(tabla) # Guardar modificaciones
-                quien = en_memoria.__class__.__name__
-                que = m['que']
-                antes = m['antes']
-                despues = m['despues']
-                cuando = time.time()
-                Base.consultar(donde, auditoria, (quien, que, antes, despues, cuando))
+    @classmethod
+    def modificados(cls, donde, limite):
+        """Retorna los ultimos 'limite' objetos modificados"""
+        consulta = """SELECT {}.* FROM {} JOIN objetos ON clave = id AND tipo = ?
+        ORDER BY modificacion DESC LIMIT {}""".format(cls._tabla, cls._tabla, limite)
+        filas = cls.consultar(donde, consulta, (cls.__name__, ))
+        lista = []
+        for f in filas:
+            lista.append(cls.desde_fila(f))
+        return lista
 
     ############################################################################
 
@@ -185,6 +222,7 @@ class Base(object):
             consulta = """UPDATE {} SET {} WHERE clave = ?"""
             consulta = consulta.format(self._tabla, atributos)
             self.consultar(donde, consulta, valores_sin_clave + (self.clave, ))
+            self.registrar(donde, self)
             self.historial(donde, self, existente)
         else: # Crear (se obtiene una nueva clave para el filtro):
             atributos_con_clave = self.atributos(True)
@@ -199,6 +237,7 @@ class Base(object):
             consulta = """INSERT INTO {} ({}) VALUES ({})"""
             consulta = consulta.format(self._tabla, atributos, signos)
             self.consultar(donde, consulta, valores_con_clave)
+            self.registrar(donde, self)
         return self.obtener(donde, {'clave' : self.clave})
 
     def lista(self, donde, tipo, guardar=True, lista=None, filtro=None, fk=None):
