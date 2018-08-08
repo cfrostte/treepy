@@ -12,6 +12,10 @@ crea y lista objetos de tipo Base, vuelca datos de prueba y respalda la BD.
 import sqlite3
 import random
 
+from Datos.core.Exportador import Base as Base
+from Datos.core.Exportador import CSV as csv
+from Datos.core.Exportador import KML as kml
+
 from Datos.Arbol import Arbol
 from Datos.ArbolFaltante import ArbolFaltante
 from Datos.Bloque import Bloque
@@ -22,8 +26,6 @@ from Datos.Parcela import Parcela
 from Datos.Repeticion import Repeticion
 from Datos.SurcoDetectado import SurcoDetectado
 from Datos.SurcoDetectadoParcela import SurcoDetectadoParcela
-
-from Datos.core.Exportador import CSV as csv
 
 from Utilidades import Logger as log
 
@@ -96,12 +98,25 @@ class ControladorDatos(object):
         """..."""
         csv.informe(cls.db, cls.csv)
 
+    @classmethod
+    def exportar_informe_kml(cls):
+        """..."""
+        kml.informe(cls.db, cls.kml)
+
     ############################################################################
 
     @classmethod
     def crear_estructura(cls):
         """..."""
         log.debug('Creando estructura')
+        q = """CREATE TABLE IF NOT EXISTS objetos (id INTEGER NOT NULL,
+        tipo TEXT NOT NULL, creacion TEXT NOT NULL, modificacion TEXT NOT NULL, 
+        eliminado INTEGER NOT NULL, PRIMARY KEY(id, tipo))"""
+        Base.consultar(cls.db, q) # Tabla para registrar estado de objetos
+        q = """CREATE TABLE IF NOT EXISTS historial (id INTEGER NOT NULL,
+        tabla TEXT NOT NULL, campo TEXT NOT NULL, anterior TEXT NOT NULL, 
+        posterior TEXT NOT NULL, cuando TEXT NOT NULL)"""
+        Base.consultar(cls.db, q) # Tabla para guardar historial de cambios
         for nombre, clase in cls.controlados.items():
             print(nombre)
             clase.crear_tabla(cls.db)
