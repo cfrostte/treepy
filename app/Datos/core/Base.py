@@ -52,11 +52,8 @@ class Base(object):
 
     @staticmethod
     def registrar(donde, objeto):
-        """Registrar cuando un objeto se ha creado o cambiado"""
-        tabla = "objetos" # Nombre de la tabla en donde registrar
-        q = """CREATE TABLE IF NOT EXISTS {} (id INTEGER NOT NULL, tipo TEXT NOT NULL,
-        creacion TEXT NOT NULL, modificacion TEXT NOT NULL, PRIMARY KEY(id, tipo))""".format(tabla)
-        Base.consultar(donde, q) # Crear la tabla para registrar todo
+        """Registrar cuando un objeto se ha creado o modificado"""
+        tabla = "objetos" # Se opera siempre sobre esta tabla
         q = """SELECT 1 FROM {} WHERE id = ? AND tipo = ?""".format(tabla)
         existe = Base.consultar(donde, q, (objeto.clave, objeto.__class__.__name__))
         marca = time.time() # Segundos en los que se modifico o creo
@@ -66,26 +63,16 @@ class Base(object):
             Base.consultar(donde, q, (marca, objeto.clave, objeto.__class__.__name__))
         else:
             # Nuevas modificaciones
-            q = """INSERT INTO {} (id, tipo, creacion, modificacion) VALUES (?, ?, ?, ?)""".format(tabla)
-            Base.consultar(donde, q, (objeto.clave, objeto.__class__.__name__, marca, marca))
+            q = """INSERT INTO {} (id, tipo, creacion, modificacion, eliminado) VALUES (?, ?, ?, ?, ?)""".format(tabla)
+            Base.consultar(donde, q, (objeto.clave, objeto.__class__.__name__, marca, marca, 0))
 
     @staticmethod
     def historial(donde, en_memoria, en_bd):
-        """Registra el historial de cambios sobre un objeto Base"""
-        tabla = "historial" # Nombre de la tabla en donde registrar
-        q = """CREATE TABLE IF NOT EXISTS {} (id INTEGER NOT NULL,
-        tabla TEXT NOT NULL, campo TEXT NOT NULL, anterior TEXT NOT NULL, 
-        posterior TEXT NOT NULL, cuando TEXT NOT NULL)""".format(tabla)
-        Base.consultar(donde, q) # Crear la tabla para registrar todo
+        """Guarda el historial de cambios sobre campos de un objeto"""
         def f(en_memoria, en_bd):
             lista = []
             for a in en_memoria.atributos(True):
-                en_memoria_a = str(getattr(en_memoria, a))
-                en_bd_a = str(getattr(en_bd, a))
-                if en_memoria_a != en_bd_a:
-                    print("en_memoria_{}='{}'".format(a, en_memoria_a))
-                    print("en_bd_{}='{}'".format(a, en_bd_a))
-                    print("{} == {} ? {}".format(en_memoria_a, en_bd_a, en_memoria_a == en_bd_a))
+                if str(getattr(en_memoria, a)) != str(getattr(en_bd, a)):
                     lista.append({
                         'campo' : a,
                         'anterior' : getattr(en_bd, a),
@@ -94,8 +81,8 @@ class Base(object):
             return lista
         modificados = f(en_memoria, en_bd)
         if modificados:
-            q = """INSERT INTO {} (id, tabla, campo, anterior, posterior, cuando)
-            VALUES (?, ?, ?, ?, ?, ?)""".format(tabla) # Registrar modificaciones
+            q = """INSERT INTO historial (id, tabla, campo, anterior, posterior, cuando)
+            VALUES (?, ?, ?, ?, ?, ?)""" # Registrar modificaciones de valores de campos
             c = en_memoria.clave
             t = en_memoria._tabla
             for m in modificados:
@@ -182,8 +169,8 @@ class Base(object):
         asc = ' ASC' if asc else ' DESC'
         orden = 'ORDER BY ' + (', '.join(orden)) + asc if orden else ''
         limite = 'LIMIT {}'.format(limite) if limite else ''
-        consulta = """SELECT * FROM {} WHERE {} {} {}"""
-        consulta = consulta.format(cls._tabla, condiciones, orden, limite)
+        consulta = """SELECT {}.* FROM {} JOIN objetos ON clave = id AND eliminado = 0 WHERE {} {} {}"""
+        consulta = consulta.format(cls._tabla, cls._tabla, condiciones, orden, limite)
         filas = cls.consultar(donde, consulta, valores if filtro else None)
         lista = []
         for f in filas:
@@ -208,7 +195,20 @@ class Base(object):
             lista.append(cls.desde_fila(f))
         return lista
 
+    @classmethod
+    def recuperar(cls, donde, clave):
+        """Recupera un registro eliminado previamente"""
+        consulta = "UPDATE objetos SET eliminado = 0 WHERE id = ? AND tipo = ?"
+        cls.consultar(donde, consulta, (clave, cls.__name__))
+        return cls.obtener(donde, {'clave' : clave})
+
     ############################################################################
+
+    def eliminar(self, donde):
+        """Elimina un registro de manera logica"""
+        consulta = "UPDATE objetos SET eliminado = 1 WHERE id = ? AND tipo = ?"
+        self.consultar(donde, consulta, (self.clave, self.__class__.__name__))
+        del self # Puede que otro objeto lo apunte
 
     def guardar(self, donde, modificable=True):
         """Crea o modifica los datos del objeto y lo retorna (si se guardo)"""

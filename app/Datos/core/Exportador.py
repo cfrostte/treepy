@@ -3,6 +3,7 @@
 import csv
 import datetime
 import os
+import simplekml
 
 from .Base import Base
 
@@ -31,13 +32,33 @@ class Exportador(object):
             os.makedirs(r)
             print("'", r, "' creado")
 
+    @staticmethod
+    def nuevo_archivo(carpeta, extencion):
+        Exportador.crear_ruta(carpeta)
+        n = datetime.datetime.now()
+        o = "{}/Informe del día {} de {} de {}.{}"
+        d = n.day
+        m = Exportador.meses[n.month]
+        y = n.year
+        return o.format(carpeta, d, m, y, extencion)
+
+    @staticmethod
+    def correr_consulta(db):
+        q = """SELECT e.nro AS A, r.nro AS B, c.nro AS C,
+        a.clave AS D, a.latitud AS E, a.longitud AS F, 
+        CASE WHEN (SELECT 1 FROM arboles_faltantes 
+        WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
+        a.areaCopa AS H FROM arboles AS a JOIN parcelas AS p 
+        JOIN bloques AS b JOIN repeticiones AS r JOIN ensayos AS e 
+        JOIN clones AS c WHERE a.id_parcelas = p.clave 
+        AND p.id_bloques = b.clave AND b.id_repeticiones = r.clave 
+        AND r.id_ensayos = e.clave AND c.clave = p.id_clones"""
+        return Base.consultar(db, q)
+
 class CSV(Exportador):
     @staticmethod
     def informe(db, carpeta):
-        Exportador.crear_ruta(carpeta)
-        n = datetime.datetime.now()
-        o = "{}/Informe del día {} de {} de {}.csv"
-        archivo = o.format(carpeta, n.day, Exportador.meses[n.month], n.year)
+        archivo = Exportador.nuevo_archivo(carpeta, 'csv')
         # Escribir en archivo
         with open(archivo, 'w') as a:
             A = 'N° de Ensayo'
@@ -51,16 +72,7 @@ class CSV(Exportador):
             header = [A, B, C, D, E, F, G, H]
             dw = csv.DictWriter(a, fieldnames=header)
             dw.writeheader() # Escribir el header
-            q = """SELECT e.nro AS A, r.nro AS B, c.nro AS C,
-            a.clave AS D, a.latitud AS E, a.longitud AS F, 
-            CASE WHEN (SELECT 1 FROM arboles_faltantes 
-            WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
-            a.areaCopa AS H FROM arboles AS a JOIN parcelas AS p 
-            JOIN bloques AS b JOIN repeticiones AS r JOIN ensayos AS e 
-            JOIN clones AS c WHERE a.id_parcelas = p.clave 
-            AND p.id_bloques = b.clave AND b.id_repeticiones = r.clave 
-            AND r.id_ensayos = e.clave AND c.clave = p.id_clones"""
-            for x in Base.consultar(db, q):
+            for x in Exportador.correr_consulta(db):
                 fila = {
                     '{}'.format(header[0]) : x['A'],
                     '{}'.format(header[1]) : x['B'],
@@ -81,4 +93,8 @@ class CSV(Exportador):
 class KML(Exportador):
     @staticmethod
     def informe(db, carpeta):
-        Exportador.crear_ruta(carpeta)
+        kml = simplekml.Kml()
+        for x in Exportador.correr_consulta(db):
+            p = kml.newpoint(name=str(x['D']), coords=[(x['E'], x['F'])])
+            p.style.labelstyle.color = simplekml.Color.red if x['G'] == 'Si' else simplekml.Color.green
+        kml.save(Exportador.nuevo_archivo(carpeta, 'kml'))
