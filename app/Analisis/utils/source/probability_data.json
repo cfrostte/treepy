@@ -1,0 +1,22 @@
+{
+    "general": {
+        "datetime": "Tue Jun 26 16:03:34 2018",
+        "image": "arboles_03.jpg",
+        "patch_size": 9,
+        "intersection": -1
+    },
+    "trees": {
+        "mean": -1,
+        "std": -1,
+        "samples_n": 0,
+        "coords": [],
+        "values": []
+    },
+    "background": {
+        "mean": -1,
+        "std": -1,
+        "samples_n": 0,
+        "coords": [],
+        "values": []
+    }
+}
