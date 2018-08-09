@@ -161,7 +161,7 @@ class Base(object):
         """Retorna todos los registros que coinciden con el filtro"""
         if filtro:
             condiciones = ' = ? AND '.join(list(filtro.keys())) + ' = ?'
-            valores = ()
+            valores = (cls.__name__, )
             for v in list(filtro.values()):
                 valores += (v, )
         else:
@@ -169,7 +169,7 @@ class Base(object):
         asc = ' ASC' if asc else ' DESC'
         orden = 'ORDER BY ' + (', '.join(orden)) + asc if orden else ''
         limite = 'LIMIT {}'.format(limite) if limite else ''
-        consulta = """SELECT {}.* FROM {} JOIN objetos ON clave = id AND eliminado = 0 WHERE {} {} {}"""
+        consulta = """SELECT {}.* FROM {} JOIN objetos ON clave = id AND tipo = ? AND eliminado = 0 WHERE {} {} {}"""
         consulta = consulta.format(cls._tabla, cls._tabla, condiciones, orden, limite)
         filas = cls.consultar(donde, consulta, valores if filtro else None)
         lista = []
