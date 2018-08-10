@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2">
+    <Document id="feat_1">
+        <Style id="stylesel_0">
+            <LabelStyle id="substyle_0">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_1">
+            <LabelStyle id="substyle_1">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_2">
+            <LabelStyle id="substyle_2">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_3">
+            <LabelStyle id="substyle_3">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_4">
+            <LabelStyle id="substyle_4">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_5">
+            <LabelStyle id="substyle_5">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_6">
+            <LabelStyle id="substyle_6">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_7">
+            <LabelStyle id="substyle_7">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_8">
+            <LabelStyle id="substyle_8">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_9">
+            <LabelStyle id="substyle_9">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_10">
+            <LabelStyle id="substyle_10">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_11">
+            <LabelStyle id="substyle_11">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_12">
+            <LabelStyle id="substyle_12">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_13">
+            <LabelStyle id="substyle_13">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_14">
+            <LabelStyle id="substyle_14">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_15">
+            <LabelStyle id="substyle_15">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_16">
+            <LabelStyle id="substyle_16">
+                <color>ff0000ff</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_17">
+            <LabelStyle id="substyle_17">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_18">
+            <LabelStyle id="substyle_18">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_19">
+            <LabelStyle id="substyle_19">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_20">
+            <LabelStyle id="substyle_20">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Style id="stylesel_21">
+            <LabelStyle id="substyle_21">
+                <color>ff008000</color>
+                <colorMode>normal</colorMode>
+                <scale>1</scale>
+            </LabelStyle>
+        </Style>
+        <Placemark id="feat_2">
+            <name>1</name>
+            <styleUrl>#stylesel_0</styleUrl>
+            <Point id="geom_0">
+                <coordinates>111.64012552334259,54.42047716045036,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_3">
+            <name>2</name>
+            <styleUrl>#stylesel_1</styleUrl>
+            <Point id="geom_1">
+                <coordinates>140.96379100722612,-64.10498506054665,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_4">
+            <name>3</name>
+            <styleUrl>#stylesel_2</styleUrl>
+            <Point id="geom_2">
+                <coordinates>-69.37541702304415,87.90879411910231,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_5">
+            <name>4</name>
+            <styleUrl>#stylesel_3</styleUrl>
+            <Point id="geom_3">
+                <coordinates>21.449279746552605,23.71850210196871,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_6">
+            <name>5</name>
+            <styleUrl>#stylesel_4</styleUrl>
+            <Point id="geom_4">
+                <coordinates>106.08693884212983,-41.41009356847693,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_7">
+            <name>6</name>
+            <styleUrl>#stylesel_5</styleUrl>
+            <Point id="geom_5">
+                <coordinates>-164.37546648462433,-19.278857138996216,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_8">
+            <name>7</name>
+            <styleUrl>#stylesel_6</styleUrl>
+            <Point id="geom_6">
+                <coordinates>-89.85110984817067,-26.442738410278288,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_9">
+            <name>8</name>
+            <styleUrl>#stylesel_7</styleUrl>
+            <Point id="geom_7">
+                <coordinates>166.1560126538859,-45.85449834462209,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_10">
+            <name>9</name>
+            <styleUrl>#stylesel_8</styleUrl>
+            <Point id="geom_8">
+                <coordinates>-8.378779700672027,-80.50799161149719,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_11">
+            <name>10</name>
+            <styleUrl>#stylesel_9</styleUrl>
+            <Point id="geom_9">
+                <coordinates>52.70382906440011,-60.94151497652674,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_12">
+            <name>11</name>
+            <styleUrl>#stylesel_10</styleUrl>
+            <Point id="geom_10">
+                <coordinates>-79.6199131602665,18.794100529093654,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_13">
+            <name>12</name>
+            <styleUrl>#stylesel_11</styleUrl>
+            <Point id="geom_11">
+                <coordinates>28.049058451172897,-13.818002963255722,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_14">
+            <name>13</name>
+            <styleUrl>#stylesel_12</styleUrl>
+            <Point id="geom_12">
+                <coordinates>171.1939202280539,1.4230972665792478,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_15">
+            <name>14</name>
+            <styleUrl>#stylesel_13</styleUrl>
+            <Point id="geom_13">
+                <coordinates>-133.81415428315475,63.05311336004402,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_16">
+            <name>15</name>
+            <styleUrl>#stylesel_14</styleUrl>
+            <Point id="geom_14">
+                <coordinates>82.96711348476072,6.878594240988377,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_17">
+            <name>16</name>
+            <styleUrl>#stylesel_15</styleUrl>
+            <Point id="geom_15">
+                <coordinates>-121.32397976871285,14.710025069811792,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_18">
+            <name>17</name>
+            <styleUrl>#stylesel_16</styleUrl>
+            <Point id="geom_16">
+                <coordinates>-12.203114476333297,-66.83684125045875,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_19">
+            <name>18</name>
+            <styleUrl>#stylesel_17</styleUrl>
+            <Point id="geom_17">
+                <coordinates>8.752396803479286,36.41693627765319,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_20">
+            <name>19</name>
+            <styleUrl>#stylesel_18</styleUrl>
+            <Point id="geom_18">
+                <coordinates>-149.10438375998822,-88.07197488296323,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_21">
+            <name>20</name>
+            <styleUrl>#stylesel_19</styleUrl>
+            <Point id="geom_19">
+                <coordinates>-163.19917193535537,85.80785680238941,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_22">
+            <name>21</name>
+            <styleUrl>#stylesel_20</styleUrl>
+            <Point id="geom_20">
+                <coordinates>100.6224431173934,-2.853758479001897,0.0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark id="feat_23">
+            <name>22</name>
+            <styleUrl>#stylesel_21</styleUrl>
+            <Point id="geom_21">
+                <coordinates>-60.997078165476694,60.20166047220343,0.0</coordinates>
+            </Point>
+        </Placemark>
+    </Document>
+</kml>
