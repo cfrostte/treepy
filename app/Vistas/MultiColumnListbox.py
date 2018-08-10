@@ -10,8 +10,9 @@ class MultiColumnListbox(object):
         self.car_header = car_header
         self.car_list = car_list
         self.parent = parent
+       
         self._setup_widgets()
-        # self.build_tree()
+        self.build_tree(self.car_list)
 
     def _setup_widgets(self):
         s = """\click on header to sort by that column
@@ -34,6 +35,8 @@ to change width of column drag boundary
         self.tree.configure(yscrollcommand=vsb.set,
             xscrollcommand=hsb.set)
         self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
+        self.tree.bind("<Double-1>", lambda event, :self.OnDoubleClick(event))
+                                    # lambda event, arg=x:self.clickEnsayoReciente(event,arg)
         # self.tree.pack(fill=tk.BOTH, expand=True, in_=container)
         vsb.grid(column=1, row=0, sticky='ns', in_=container)
         hsb.grid(column=0, row=1, sticky='ew', in_=container)
@@ -49,13 +52,23 @@ to change width of column drag boundary
                 width=tkFont.Font().measure(col.title()))
 
         for item in car_list:
-            self.tree.insert('', 'end', values=item)
+            itemArray = [item.nro, item.establecimiento, item.fechaPlantacion, item.tipoClonal, item.nroRepeticiones, item.nroTratamientos, item.espaciamientoX + ' X ' + item.espaciamientoY, item.nroCuadro, item.plantasHa, item.plantasParcela, item.suelo, item.totalHas, item.totalPlantas, '    ', '    ', '    ', '    ']
+            self.tree.insert('', 'end', values=itemArray)
             # adjust column's width if necessary to fit each value
-            for ix, val in enumerate(item):
+            
+            # print("=======ITEM ITEM ITEM ITEM ITEM========")
+            # print(item)
+            # print("=======ITEM ITEM ITEM ITEM ITEM ========")
+            for ix, val in enumerate(itemArray):
                 col_w = tkFont.Font().measure(val)
                 if self.tree.column(self.car_header[ix],width=None)<col_w:
                     self.tree.column(self.car_header[ix], width=col_w)
 
+    # @staticmethod
+    def OnDoubleClick(self, event):
+        item = self.tree.identify('item',event.x,event.y)
+        print("you clicked on", self.tree.item(item, "values"))
+        
     @staticmethod
     def sortby(tree, col, descending):
         """sort tree contents when a column header is clicked on"""
@@ -71,6 +84,11 @@ to change width of column drag boundary
         # switch the heading so it will sort in the opposite direction
         tree.heading(col, command=lambda col=col: MultiColumnListbox.sortby(tree, col, \
             int(not descending)))
+
+    # @staticmethod
+    # def convertObjetToArray(item):
+
+
 '''
 	Datos de ejemplo
 	car_header = ['car', 'repair', 'Country']

@@ -1,8 +1,8 @@
 import pyperclip
 import tkinter
 from tkinter import *
-from bloques import EditorBloques, Bloque
-from celda import Celda        
+from Vistas.bloques import EditorBloques, Bloque
+from Vistas.celda import Celda        
 
 class esquemaParcelas(Frame):
     def __init__(self, parent, *args, **kwargs):
