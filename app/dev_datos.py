@@ -2,8 +2,8 @@
 
 from ControladorDatos import ControladorDatos as CD
 
-CD.crear_estructura()
-CD.volcar_datos_prueba()
+# CD.crear_estructura()
+# CD.volcar_datos_prueba()
 # CD.respaldar_datos()
 
 ################################################################################
@@ -34,13 +34,8 @@ CD.volcar_datos_prueba()
 # CD.exportar_informe_csv()
 # CD.exportar_informe_kml()
 
-# Para re-construir la matriz que representa la Repeticion:
+# for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
+#     print(repeticion.matriz(CD.db))
 
-# 1) Obtener nroFilas * nroColumnas de la Repeticion
-
-# 2) Por cada (fila, columna) ver si existe en la Parcela
-
-# 3) Si existe, mostrar en dicha (fila, columna) color del Bloque al que pertenece la Parcela y nro de Clon relacionado a esta.
-
-for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
-    print(repeticion.matriz(CD.db))
+for x in CD.buscar_objetos('Ensayo'):
+    print(x)
