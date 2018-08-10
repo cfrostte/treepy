@@ -24,8 +24,8 @@ class Parcela(Base):
     @staticmethod
     def aleatorio():
         a = Parcela()
-        a.fila = random.randint(123, 987)
-        a.columna = random.randint(123, 987)
+        a.fila = random.randint(0, 9)
+        a.columna = random.randint(0, 9)
         return a
 
     @classmethod
