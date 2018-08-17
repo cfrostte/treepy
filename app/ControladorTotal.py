@@ -9,7 +9,7 @@ todosLosEnsayo = CD.buscar_objetos('Ensayo')
 # repeticiones = []
 # print(ultimosModificados)
 # for ensayo in ultimosModificados:
-# 	print("+++++++++++++++++++++++++++++++++")
+# 	print("+++++++++++++++++++++++++++++++++")	
 # 	# print(x)
 # 	print(ensayo)
 # 	print("+++++++++++++++++++++++++++++++++")
@@ -23,11 +23,14 @@ todosLosEnsayo = CD.buscar_objetos('Ensayo')
 		# print("---------------")
 
 
-inicio = mainInicio(ultimosModificados, todosLosEnsayo)
 # inicio.miapp(ultimosModificados)
 
 # class getAllEnsayos(object):
 # 	"""docstring for getAllEnsayos"""
-# 	def __init__(self):
+# 	def __init__(self):espaciamientoY
 # 		super(getAllEnsayos, self).__init__()
 # 		self.arg = CD.
+
+# print(CD.buscar_objetos('Repeticion', ))
+
+inicio = mainInicio(ultimosModificados, todosLosEnsayo)

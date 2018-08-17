@@ -1,9 +1,15 @@
 import tkinter as tk
 import tkinter.font as tkFont
 import tkinter.ttk as ttk
+# from Vistas.Vista_inicio_Copia import Inicio
+# from .Vista_inicio_Copia import Inicio
+
 
 class MultiColumnListbox(object):
-    """use a ttk.TreeView as a multicolumn ListBox"""
+    """use a ttk.TreeView as a multicolumn ListBox
+    self.listaDeEnsayos = MultiColumnListbox(self.frame, ensayos_header, self.ensayos_list)
+
+    """
 
     def __init__(self, parent, car_header, car_list=None):
         self.tree = None
@@ -20,6 +26,7 @@ to change width of column drag boundary
         """
         # contenedor = tk.Frame()
         # contenedor.pack()
+        self.itemVar = None
         msg = ttk.Label(wraplength="4i", justify="left", anchor="n",
             padding=(10, 2, 10, 6), text=s)
         msg.pack(side=tk.TOP, fill='x', expand=True)
@@ -36,6 +43,7 @@ to change width of column drag boundary
             xscrollcommand=hsb.set)
         self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
         self.tree.bind("<Double-1>", lambda event, :self.OnDoubleClick(event))
+        # self.tree.bind("<Double-1>", lambda event, arg=self.itemVar :self.OnDoubleClick(event, arg))
                                     # lambda event, arg=x:self.clickEnsayoReciente(event,arg)
         # self.tree.pack(fill=tk.BOTH, expand=True, in_=container)
         vsb.grid(column=1, row=0, sticky='ns', in_=container)
@@ -54,6 +62,7 @@ to change width of column drag boundary
         for item in car_list:
             itemArray = [item.nro, item.establecimiento, item.fechaPlantacion, item.tipoClonal, item.nroRepeticiones, item.nroTratamientos, item.espaciamientoX + ' X ' + item.espaciamientoY, item.nroCuadro, item.plantasHa, item.plantasParcela, item.suelo, item.totalHas, item.totalPlantas, '    ', '    ', '    ', '    ']
             self.tree.insert('', 'end', values=itemArray)
+            # self.itemVar = item
             # adjust column's width if necessary to fit each value
             
             # print("=======ITEM ITEM ITEM ITEM ITEM========")
@@ -68,20 +77,17 @@ to change width of column drag boundary
     def OnDoubleClick(self, event):
         item = self.tree.identify('item',event.x,event.y)
         print("you clicked on", self.tree.item(item, "values"))
-        
+        print("you clicked on", item)
+        # aux = Inicio()
+        # self.root.updateFrameEnsayo(arg)
+        # .updateFrameEnsayo(self, ensayo)
     @staticmethod
     def sortby(tree, col, descending):
-        """sort tree contents when a column header is clicked on"""
-        # grab values to sort
         data = [(tree.set(child, col), child) \
             for child in tree.get_children('')]
-        # if the data to be sorted is numeric change to float
-        #data =  change_numeric(data)
-        # now sort the data in place
         data.sort(reverse=descending)
         for ix, item in enumerate(data):
             tree.move(item[1], '', ix)
-        # switch the heading so it will sort in the opposite direction
         tree.heading(col, command=lambda col=col: MultiColumnListbox.sortby(tree, col, \
             int(not descending)))
 

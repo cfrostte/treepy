@@ -6,9 +6,32 @@ from ControladorDatos import ControladorDatos as CD
 # CD.volcar_datos_prueba()
 # CD.respaldar_datos()
 
-print(CD.buscar_objetos('Ensayo'))
-# print(CD.controlados['Ensayo'].buscar('Datos/store/treepy.db'))
-# print(a)
+# print(CD.buscar_objetos('Ensayo'))
+# a = CD.buscar_objetos('Ensayo',  {'clave' : 19})
+# # print(CD.controlados['Ensayo'].buscar('Datos/store/treepy.db'))
+# print(a[0])
+# print(a[0].establecimiento)
+
+ensayo = CD.crear_objeto('Ensayo')
+print(ensayo)
+ensayo.nro = '123'
+ensayo.establecimiento = 'Hola'
+ensayo.nroCuadro = '0192233'
+ensayo.suelo = '8.742332'
+ensayo.espaciamientoX = '4'
+ensayo.espaciamientoY = '3.0'
+ensayo.plantasHa = '1000'
+ensayo.fechaPlantacion = '01/01/1970'
+ensayo.nroTratamientos = '123'
+ensayo.totalPlantas = '345'
+ensayo.totalHas = '6765'
+ensayo.plantasParcela = '534'
+ensayo.tipoClonal = '789'
+ensayo.nroRepeticiones = '567'
+print(ensayo)
+guardado = ensayo.guardar(CD.db)
+print(ensayo)
+print(guardado)
 ################################################################################
 
 # for x in CD.buscar_objetos('Ensayo', {'nro' : 123}, ['clave'], False, None):
