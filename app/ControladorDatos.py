@@ -114,8 +114,8 @@ class ControladorDatos(object):
         eliminado INTEGER NOT NULL, PRIMARY KEY(id, tipo))"""
         Base.consultar(cls.db, q) # Tabla para registrar estado de objetos
         q = """CREATE TABLE IF NOT EXISTS historial (id INTEGER NOT NULL,
-        tabla TEXT NOT NULL, campo TEXT NOT NULL, anterior TEXT NOT NULL, 
-        posterior TEXT NOT NULL, cuando TEXT NOT NULL)"""
+        tabla TEXT NOT NULL, campo TEXT NOT NULL, 
+        anterior TEXT, posterior TEXT, cuando TEXT NOT NULL)"""
         Base.consultar(cls.db, q) # Tabla para guardar historial de cambios
         for nombre, clase in cls.controlados.items():
             print(nombre)
@@ -145,6 +145,7 @@ class ControladorDatos(object):
         f(ensayos, repeticiones, True)
         f(repeticiones, bloques, True)
         f(repeticiones, imagenes, True)
+        f(repeticiones, arboles, True)
         f(clones, parcelas, False)
         f(bloques, parcelas, True)
         f(parcelas, arboles, True)
