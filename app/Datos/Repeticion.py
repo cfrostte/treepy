@@ -3,12 +3,14 @@
 import random
 
 from .core.Base import Base
+from .Arbol import Arbol
 from .Bloque import Bloque
 from .Imagen import Imagen
 
 class Repeticion(Base):
 
     _relacionados = {
+        'Arbol' : Arbol,
         'Bloque' : Bloque,
         'Imagen' : Imagen,
     }

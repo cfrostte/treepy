@@ -90,11 +90,49 @@ class CSV(Exportador):
             for fila in dr:
                 print(fila)
 
+# class KML(Exportador):
+#     @staticmethod
+#     def informe(db, carpeta):
+#         """Opcion 1 : Exportar datos sin utilizar jerarquia"""
+#         kml = simplekml.Kml()
+#         for x in Exportador.correr_consulta(db):
+#             p = kml.newpoint(name=str(x['D']), coords=[(x['E'], x['F'])])
+#             p.style.labelstyle.color = simplekml.Color.red if x['G'] == 'Si' else simplekml.Color.green
+#         kml.save(Exportador.nuevo_archivo(carpeta, 'kml'))
+
 class KML(Exportador):
     @staticmethod
     def informe(db, carpeta):
+        """Opcion 2 : Exportar datos de forma jerarquica"""
         kml = simplekml.Kml()
-        for x in Exportador.correr_consulta(db):
-            p = kml.newpoint(name=str(x['D']), coords=[(x['E'], x['F'])])
-            p.style.labelstyle.color = simplekml.Color.red if x['G'] == 'Si' else simplekml.Color.green
+        q_ensayos = """SELECT ensayos.* FROM ensayos JOIN objetos
+        WHERE clave = id AND tipo = 'Ensayo' AND eliminado = 0 AND EXISTS
+        (SELECT 1 FROM repeticiones WHERE id_ensayos = ensayos.clave)"""
+        r_ensayos = Base.consultar(db, q_ensayos)
+        if r_ensayos:
+            for e in r_ensayos:
+                f_e = kml.newfolder(name='Ensayo nro {}'.format(e['nro']))
+                q_repeticiones = """SELECT repeticiones.* FROM repeticiones JOIN objetos
+                WHERE clave = id AND tipo = 'Repeticion' AND eliminado = 0 AND EXISTS 
+                (SELECT 1 FROM arboles WHERE id_repeticiones = repeticiones.clave) AND id_ensayos = ?"""
+                r_repeticiones = Base.consultar(db, q_repeticiones, (e['clave'], ))
+                if r_repeticiones:
+                    for r in r_repeticiones:
+                        f_r = f_e.newfolder(name='Repeticion nro {}'.format(r['nro']))
+                        q_arboles = """SELECT arboles.*, CASE WHEN (SELECT 1 FROM arboles_faltantes
+                        WHERE id_arboles = arboles.clave) THEN 1 ELSE 0 END AS faltante FROM arboles 
+                        JOIN objetos WHERE clave = id AND tipo = 'Arbol' AND eliminado = 0 AND id_repeticiones = ?"""
+                        r_arboles = Base.consultar(db, q_arboles, (r['clave'], ))
+                        if r_arboles:
+                            faltantes = f_r.newfolder(name='Árboles Faltantes')
+                            presentes = f_r.newfolder(name='Árboles Presentes')
+                            for a in r_arboles:
+                                name = str(a['clave'])
+                                coords = [(a['latitud'], a['longitud'])]
+                                if a['faltante']:
+                                    p = faltantes.newpoint(name=name, coords=coords)
+                                    p.style.labelstyle.color = simplekml.Color.red
+                                else:
+                                    p = presentes.newpoint(name=name, coords=coords)
+                                    p.style.labelstyle.color = simplekml.Color.green
         kml.save(Exportador.nuevo_archivo(carpeta, 'kml'))
