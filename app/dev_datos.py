@@ -2,8 +2,8 @@
 
 from ControladorDatos import ControladorDatos as CD
 
-# CD.crear_estructura()
-# CD.volcar_datos_prueba()
+CD.crear_estructura()
+CD.volcar_datos_prueba()
 # CD.respaldar_datos()
 
 ################################################################################
@@ -31,11 +31,11 @@ from ControladorDatos import ControladorDatos as CD
 # for x in CD.ultimos_modificados('Ensayo', 3):
 #     print(x)
 
-# CD.exportar_informe_csv()
-# CD.exportar_informe_kml()
+CD.exportar_informe_csv()
+CD.exportar_informe_kml()
 
 # for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
 #     print(repeticion.matriz(CD.db))
 
-for x in CD.buscar_objetos('Ensayo'):
-    print(x)
+# for x in CD.buscar_objetos('Ensayo'):
+#     print(x)
