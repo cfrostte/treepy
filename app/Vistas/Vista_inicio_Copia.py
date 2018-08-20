@@ -12,6 +12,7 @@ from Vistas.AbrirEnsayo import AbrirEnsayo
 from ControladorDatos import ControladorDatos as CD
 import tkinter.font as tkFont
 import tkinter.ttk as tttk
+import traceback
 
 
 actualFrame = 1
@@ -67,7 +68,8 @@ class Inicio(object):
 		self.misframes['Repeticion'].camposEditables['totalFrame'].append(tk.Frame(self.misframes['Repeticion'].interior))
 		self.misframes['Repeticion'].camposEditables['totalFrame'][-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 		self.misframes['Repeticion'].camposEditables['totalFrame'].append(tk.Frame(self.misframes['Repeticion'].interior))
-		self.misframes['Repeticion'].camposEditables['totalFrame'][-1].pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+		self.misframes['Repeticion'].camposEditables['totalFrame'][-1].pack(side=tk.RIGHT, fill=tk.BOTH)
+		# self.misframes['Repeticion'].camposEditables['totalFrame'][-1].pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 		self.misframes['Repeticion'].camposEditables['totalFrame'].append(tk.Frame(self.misframes['Repeticion'].interior))
 		self.misframes['Repeticion'].camposEditables['totalFrame'][-1].pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
@@ -150,6 +152,8 @@ class Inicio(object):
 		self.misframes['Ensayo'].camposEditables['btnExportar'].pack(side=tk.RIGHT, fill=tk.X)
 		self.misframes['Ensayo'].camposEditables['btnModificarGuardar'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Modificar", command=lambda: self.clickBtnModificar('Modificar', 'Actualizar'))
 		self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].pack(side=tk.RIGHT, fill=tk.X)
+		self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Agrrgar Repeticion", command=lambda: self.clickBtnAgregarRepeticion())
+		# self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'].pack(side=tk.RIGHT, fill=tk.X)
 
 		# self.misframes['Ensayo'].camposEditables['btn']		
 		
@@ -291,15 +295,24 @@ class Inicio(object):
 		self.raise_frame(self.misframes[self.frameActivo], frameEnsayo)
 
 	def openMultiColumn(self, frameListaEnsayos, todosLosEnsayos):
-		self.frame = tk.Frame(self.misframes['ListaEnsayos'])
-		self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		try: 
+			self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack_forget()
+			self.misframes['ListaEnsayos'].camposEditables['frameTree'].destroy()
+		except Exception:
+			print("Erro en try cacth")
+
+		self.misframes['ListaEnsayos'].camposEditables['frameTree'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
+		# self.frame = tk.Frame(self.misframes['ListaEnsayos'].interior)
+		self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		# self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 		self.ensayos_list = todosLosEnsayos
 		ensayos_header = ['Nro Ensayo', 'Establecimiento', 'Fecha de Plantacion', 'Clonal', 'Repeticiones', 'Tratamientos', 'Espaciamiento', 'Cuadro', 'Plantas por Ha', 'Plantas por parcela', 'Suelo', 'Total de Has', 'Total de plantas', '    ', '     ', '     ', '      ']
 		''' Clase MultiColumnList '''
 		self.tree = None
 		self.car_header = ensayos_header
 		self.car_list = self.ensayos_list
-		self.parent = self.frame
+		# self.parent = self.frame
+		self.parent = self.misframes['ListaEnsayos'].camposEditables['frameTree']
 
 		self.tree = self._setup_widgets(self.parent, self.car_header)
 		self.build_tree(self.car_list, self.car_header, self.tree)
@@ -342,18 +355,9 @@ class Inicio(object):
 
 	def OnDoubleClick(self, event):
 		item = self.tree.identify('item',event.x,event.y)
-		# print("clickeaste en ", self.tree.item(item, "values")[0])
-		# print("Clickeaste en ", item)
 		ensayo = CD.buscar_objetos('Ensayo', {'nro' : int(self.tree.item(item, "values")[0])})[0]
-		# print("Ensayoooooo:    ")
-		# print(int(self.tree.item(item, "values")[0]))
-		# print("Ensayoooooo:    ")
-		# print(ensayo[0])
 		self.updateFrameEnsayo(ensayo)
-
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
-
-
 
 	def sortby(self, tree, col, descending):
 		data = [(tree.set(child, col), child) \
@@ -363,11 +367,6 @@ class Inicio(object):
 			tree.move(item[1], '', ix)
 		tree.heading(col, command=lambda col=col: MultiColumnListbox.sortby(tree, col, \
 			int(not descending)))
-
-
-
-
-
 
 	def generarFrames(self, misframes):
 		framesGenerados = {}
@@ -385,11 +384,8 @@ class Inicio(object):
 	    self.frameActivo = newframe.get_name()
 	    self.frameAnterior = frame.get_name()
 	    print('Nuevo : '+ self.frameActivo + '___ Anterior : ' + self.frameAnterior)
-	def clickVerRepeticion(self, event, repeticion):
-		print("Click REPE")
-		print(repeticion)
-		print("Click REPE")
-		self.updateFrameRepeticion(repeticion)
+	def clickVerRepeticion(self, event, repeticion, nroRepes):
+		self.updateFrameRepeticion(repeticion, nroRepes)
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion'])
 
 	def clickEnsayoReciente(self, event, ensayo):
@@ -399,56 +395,76 @@ class Inicio(object):
 
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
 
-	def updateFrameRepeticion(self, repeticion):
+	def updateFrameRepeticion(self, repeticion=None, nroRepes=None):
 		for x in range(0, len(self.misframes['Repeticion'].camposEditables['imagenesRepeticion'])):
 			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x].pack_forget()
 			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x].destroy()
+		
+		if repeticion:
+			imagenes = CD.buscar_objetos('Imagen', {'id_repeticiones' : repeticion.clave})
+			self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Repeticion "+str(repeticion.nro))
 
-		imagenes = CD.buscar_objetos('Imagen', {'id_repeticiones' : repeticion.clave})
-		self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Repeticion "+str(repeticion.nro))
+			for x in range(0, len(imagenes)):
+				fotosRepeticion = []
+				superFrameContainerIn = tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2])
+				superFrameContainerIn.pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+				superFrameContainerIn.config(padx=10, pady=10, relief="raised", bd=8)
+				self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x] = superFrameContainerIn
+				containerIzquierda = tk.Frame(superFrameContainerIn)
+				containerIzquierda.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+				containerDerecha = tk.Frame(superFrameContainerIn)
+				containerDerecha.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
+				frameContainerIn = []
+				frameContainerIn.append(tk.Frame(containerIzquierda))
+				# frameContainerIn.append(tk.Frame(superFrameContainerIn))
+				frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+				frameContainerIn.append(tk.Frame(containerIzquierda))
+				# frameContainerIn.append(tk.Frame(superFrameContainerIn))
+				frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 
-		# self.misframes['Repeticion'].camposEditables['imagenesRepeticion'] = []
-		# self.misframes['Repeticion'].camposEditables['imagenesRepeticion']
+				btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda: self.cambiarImagen("update"))
+				btnCambiarImagen.pack(side=tk.TOP)
+				# btnCambiarImagen.config(bd=1)
+				btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda: self.iniciarAnalisis(imagenes[x].url))
+				btnAnalizarImagen.pack(side=tk.TOP)
 
-		for x in range(0, len(imagenes)):
-			# self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x] = 
-			fotosRepeticion = []
+				datos = []
+				nombre = 'Imagen ' + str(x+1)
+				nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
+				nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				fechalabel = tk.Label(frameContainerIn[0], text=imagenes[x].fecha)
+				fechalabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				ensayoImage = Image.open(imagenes[x].url)
+				ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
+				photo = ImageTk.PhotoImage(ensayoImage)
+				label = tk.Label(frameContainerIn[1], image=photo)
+				label.image = photo
+				label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				datos.append(label)
+				datos.append(nombrelabel)
+				datos.append(fechalabel)
+				fotosRepeticion.append(datos)
+				label.bind("<Button-1>", lambda event, arg=x:self.clickEnsayoReciente(event,arg))
+				if len(fotosRepeticion) % 3 ==0:
+					print("salto imegen repe")
+					self.misframes['Repeticion'].camposEditables['frameContainer'].append(tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2]))
+					self.misframes['Repeticion'].camposEditables['frameContainer'][-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+			# else:
+			# 	fotosRepeticion = []
 			superFrameContainerIn = tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2])
 			superFrameContainerIn.pack(side=tk.TOP,fill=tk.BOTH, expand=True)
-			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x] = superFrameContainerIn
-			frameContainerIn = []
-			# frameContainerIn.append(tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2]))
-			frameContainerIn.append(tk.Frame(superFrameContainerIn))
-			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
-			frameContainerIn.append(tk.Frame(superFrameContainerIn))
-			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
-			# frameContainerIn.append(tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2]))
+			superFrameContainerIn.config(padx=10, pady=10, relief="raised", bd=8)
+			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][0] = superFrameContainerIn
+			btnCambiarImagen = tk.Button(superFrameContainerIn, text="Agregar imagen", command=lambda: self.cambiarImagen("new"))
+			btnCambiarImagen.pack(side=tk.TOP)
 
-			datos = []
-			nombre = 'Imagen ' + str(x)
-			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
-			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			ensayoImage = Image.open(imagenes[x].url)
-			ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
-			photo = ImageTk.PhotoImage(ensayoImage)
-			label = tk.Label(frameContainerIn[1], image=photo)
-			label.image = photo
-			label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			datos.append(label)
-			datos.append(nombrelabel)
-			fotosRepeticion.append(datos)
-			# self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x] = label
-			label.bind("<Button-1>", lambda event, arg=x:self.clickEnsayoReciente(event,arg))
-			if len(fotosRepeticion) % 3 ==0:
-				print("salto imegen repe")
-				self.misframes['Repeticion'].camposEditables['frameContainer'].append(tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2]))
-				self.misframes['Repeticion'].camposEditables['frameContainer'][-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+	def cambiarImagen(self, accion):
+		print("Hola!")
+		# if accion == "new":
 
+		# else:
 
 	def updateFrameEnsayo(self, ensayo):
-		
-		# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'] = None
-		# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'] = {}
 		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].destroy()
@@ -471,17 +487,24 @@ class Inicio(object):
 
 		repes = CD.buscar_objetos('Repeticion', {'id_ensayos' : ensayo.clave})
 
-		for x in range(0, len(repes)):
-			# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
-			label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
-			# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-			label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-			label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
-			label.bind("<Enter>", lambda event, :label.config(relief="raised", bd=8))
-			label.bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
-			# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
-			# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].bind("<Enter>", lambda event, :self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].config(relief="raised", bd=8))
-			# self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].bind("<Leave>", lambda event, :self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].config(relief="solid", bd=1))
+		if len(repes) > 0:
+			for x in range(0, len(repes)):
+				label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
+				label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+				label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
+				label.bind("<Enter>", lambda event, :label.config(relief="raised", bd=8))
+				label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=ensayo.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes))
+
+				self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
+			self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'].pack_forget()
+		else:
+			self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'].pack()
+
+
+	def clickBtnAgregarRepeticion(self):
+		print("------AGREGAR REPETICION~!!!!!!!!!!!!!!!!!!!!!!!!!!------------------------")
+		self.updateFrameRepeticion()
+		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion'])
 
 	def updateEntry(self, entry, text):
 		entry.config(state=tk.NORMAL)
@@ -567,10 +590,29 @@ class Inicio(object):
 		ensayo.plantasParcela = datosParaGuardar['plantasXparcela']
 		ensayo.tipoClonal =datosParaGuardar['tipoClonal']
 		# print(ensayo)
-		guardado = ensayo.guardar(CD.db)
-		messagebox.showinfo("Info", "Se a guardado correctamente") if guardado else messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
-		# print(ensayo)
-		# print(guardado)
+		try:
+			guardado = ensayo.guardar(CD.db)
+		except Exception:
+			messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
+
+		messagebox.showinfo("Info", "Se a guardado correctamente") # if guardado else messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
+
+		# Actulizar numRepeticion
+		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
+			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()
+			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].destroy()
+
+		repes = CD.buscar_objetos('Repeticion', {'id_ensayos' : ensayo.clave})
+
+		for x in range(0, len(repes)):
+			label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
+			label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+			label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
+			label.bind("<Enter>", lambda event, :label.config(relief="raised", bd=8))
+			label.bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
+
+			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
+
 
 
 class DoubleScrollbarFrame(ttk.Frame):
@@ -651,9 +693,6 @@ class mainInicio(object):
 	def __init__(self, ensayosRecientes, todosLosEnsayos):
 		super(mainInicio, self).__init__()
 		self.miapp = Inicio(ensayosRecientes, todosLosEnsayos)
-		print('++++++++++++++++++++++++++++++++++++++++++++')
-		print(self.miapp.frameActivo)
-		print('++++++++++++++++++++++++++++++++++++++++++++')
 
 	# @property
 	# def miapp(self):

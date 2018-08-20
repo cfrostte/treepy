@@ -27,7 +27,7 @@ todosLosEnsayo = CD.buscar_objetos('Ensayo')
 
 # class getAllEnsayos(object):
 # 	"""docstring for getAllEnsayos"""
-# 	def __init__(self):espaciamientoY
+# 	def __init__(self):espaciamientoYtodaLaMatriz
 # 		super(getAllEnsayos, self).__init__()
 # 		self.arg = CD.
 

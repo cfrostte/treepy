@@ -5,6 +5,8 @@ from Vistas.bloques import EditorBloques, Bloque
 from Vistas.celda import Celda        
 
 class esquemaParcelas(Frame):
+    todaLaMatriz = None
+
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, *args, **kwargs)
         self.matriz = []
@@ -22,9 +24,13 @@ class esquemaParcelas(Frame):
     def listo(self):
         for celda in self.grilla.winfo_children():
             pos = celda.grid_info()
-            self.matrizBloques[pos["row"]-1][pos["column"]] = celda.bloque.nombre if celda.bloque!=None else None
+            self.matrizBloques[pos["row"]-1][pos["column"]] = celda.bloque.color if celda.bloque!=None else None
+        print("printing matriz")
         print(self.matriz)
+        print("------------printing matriz--------------")
+        todaLaMatriz = self.matrizBloques
         print(self.matrizBloques)
+        print("printing matriz")
     def seleccionarBloque(self, b):
         self.bloqueseleccionado = b
     def pegar(self):

@@ -12,26 +12,26 @@ from ControladorDatos import ControladorDatos as CD
 # print(a[0])
 # print(a[0].establecimiento)
 
-ensayo = CD.crear_objeto('Ensayo')
-print(ensayo)
-ensayo.nro = '123'
-ensayo.establecimiento = 'Hola'
-ensayo.nroCuadro = '0192233'
-ensayo.suelo = '8.742332'
-ensayo.espaciamientoX = '4'
-ensayo.espaciamientoY = '3.0'
-ensayo.plantasHa = '1000'
-ensayo.fechaPlantacion = '01/01/1970'
-ensayo.nroTratamientos = '123'
-ensayo.totalPlantas = '345'
-ensayo.totalHas = '6765'
-ensayo.plantasParcela = '534'
-ensayo.tipoClonal = '789'
-ensayo.nroRepeticiones = '567'
-print(ensayo)
-guardado = ensayo.guardar(CD.db)
-print(ensayo)
-print(guardado)
+# ensayo = CD.crear_objeto('Ensayo')
+# print(ensayo)
+# ensayo.nro = '123'
+# ensayo.establecimiento = 'Hola'
+# ensayo.nroCuadro = '0192233'
+# ensayo.suelo = '8.742332'
+# ensayo.espaciamientoX = '4'
+# ensayo.espaciamientoY = '3.0'
+# ensayo.plantasHa = '1000'
+# ensayo.fechaPlantacion = '01/01/1970'
+# ensayo.nroTratamientos = '123'
+# ensayo.totalPlantas = '345'
+# ensayo.totalHas = '6765'
+# ensayo.plantasParcela = '534'
+# ensayo.tipoClonal = '789'
+# ensayo.nroRepeticiones = '567'
+# print(ensayo)
+# guardado = ensayo.guardar(CD.db)
+# print(ensayo)
+# print(guardado)
 ################################################################################
 
 # for x in CD.buscar_objetos('Ensayo', {'nro' : 123}, ['clave'], False, None):
@@ -58,6 +58,9 @@ print(guardado)
 
 # for x in CD.ultimos_modificados('Ensayo', 3):
 #     print(x)
+
+for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
+    print(repeticion.matriz(CD.db))
 
 # CD.exportar_informe_csv()
 # CD.exportar_informe_kml()
