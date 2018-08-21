@@ -1,5 +1,5 @@
 from .utils.source.detection import *
-import .utils.source.settings as config
+from .utils.source import settings as config
 import os
 import datetime, time
 import threading, queue
