@@ -12,26 +12,36 @@ CD.volcar_datos_prueba()
 # print(a[0])
 # print(a[0].establecimiento)
 
-# ensayo = CD.crear_objeto('Ensayo')
+ensayo = CD.crear_objeto('Ensayo')
+print(ensayo)
+print('-----------------------')
+ensayo.nro = '44444'
+ensayo.establecimiento = 'nananana'
+ensayo.nroCuadro = '5555'
+ensayo.suelo = '55555555742355532'
+ensayo.espaciamientoX = '555'
+ensayo.espaciamientoY = '5.55555'
+ensayo.plantasHa = '5555555'
+ensayo.fechaPlantacion = '01/01/5555'
+ensayo.nroTratamientos = '5555'
+ensayo.totalPlantas = ''
+ensayo.totalHas = '5555'
+ensayo.plantasParcela = '55555'
+ensayo.tipoClonal = '555555'
+ensayo.nroRepeticiones = '555555'
 # print(ensayo)
-# ensayo.nro = '123'
-# ensayo.establecimiento = 'Hola'
-# ensayo.nroCuadro = '0192233'
-# ensayo.suelo = '8.742332'
-# ensayo.espaciamientoX = '4'
-# ensayo.espaciamientoY = '3.0'
-# ensayo.plantasHa = '1000'
-# ensayo.fechaPlantacion = '01/01/1970'
-# ensayo.nroTratamientos = '123'
-# ensayo.totalPlantas = '345'
-# ensayo.totalHas = '6765'
-# ensayo.plantasParcela = '534'
-# ensayo.tipoClonal = '789'
-# ensayo.nroRepeticiones = '567'
-# print(ensayo)
-# guardado = ensayo.guardar(CD.db)
-# print(ensayo)
-# print(guardado)
+print(ensayo)
+print('-----------------------')
+guardado = ensayo.guardar(CD.db)
+print(guardado)
+guardado.totalPlantas = '1111111'
+print('-------anten----------------')
+print(guardado)
+print('------------antes-----------')
+guardado2 =  guardado.guardar(CD.db)
+
+print(guardado2)
+print('-----------------------')
 ################################################################################
 
 # for x in CD.buscar_objetos('Ensayo', {'nro' : 123}, ['clave'], False, None):
@@ -74,8 +84,8 @@ CD.volcar_datos_prueba()
 # for x in CD.ultimos_modificados('Ensayo', 3):
 #     print(x)
 
-for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
-    print(repeticion.matriz(CD.db))
+# for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
+#     print(repeticion.matriz(CD.db))
 
 # CD.exportar_informe_csv()
 # CD.exportar_informe_kml()
