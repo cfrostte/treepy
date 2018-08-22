@@ -156,7 +156,7 @@ class Inicio(object):
 		self.misframes['Ensayo'].camposEditables['btnExportar'].pack(side=tk.RIGHT, fill=tk.X)
 		self.misframes['Ensayo'].camposEditables['btnModificarGuardar'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Modificar", command=lambda: self.clickBtnModificar('Modificar', 'Actualizar'))
 		self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].pack(side=tk.RIGHT, fill=tk.X)
-		self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Agrrgar Repeticion", command=lambda: self.clickBtnAgregarRepeticion())
+		self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Agregar Repeticion", command=lambda: self.clickBtnAgregarRepeticion())
 		# self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'].pack(side=tk.RIGHT, fill=tk.X)
 
 		# self.misframes['Ensayo'].camposEditables['btn']		
@@ -295,6 +295,7 @@ class Inicio(object):
 	def AbrirEnsayo(self, frameEnsayo, todosLosEnsayos):
 		frameEnsayo.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 		# ok = AbrirEnsayo(frameEnsayo, todosLosEnsayos)
+		# todosLosEnsayos = CD.buscar_objetos('Ensayo')
 		self.openMultiColumn(frameEnsayo, todosLosEnsayos)
 		self.raise_frame(self.misframes[self.frameActivo], frameEnsayo)
 
@@ -303,7 +304,7 @@ class Inicio(object):
 			self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack_forget()
 			self.misframes['ListaEnsayos'].camposEditables['frameTree'].destroy()
 		except Exception:
-			print("Erro en try cacth")
+			print("Error en try cacth")
 
 		self.misframes['ListaEnsayos'].camposEditables['frameTree'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
 		# self.frame = tk.Frame(self.misframes['ListaEnsayos'].interior)
@@ -369,7 +370,8 @@ class Inicio(object):
 		data.sort(reverse=descending)
 		for ix, item in enumerate(data):
 			tree.move(item[1], '', ix)
-		tree.heading(col, command=lambda col=col: MultiColumnListbox.sortby(tree, col, \
+		# tree.heading(col, command=lambda col=col: MultiColumnListbox.sortby(tree, col, \
+		tree.heading(col, command=lambda col=col: self.sortby(tree, col, \
 			int(not descending)))
 
 	def generarFrames(self, misframes):
@@ -597,8 +599,8 @@ class Inicio(object):
 			for x in range(0, len(repes)):
 				label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
 				label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-				label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
-				label.bind("<Enter>", lambda event, :label.config(relief="raised", bd=8))
+				label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
+				label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
 				label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=ensayo.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes))
 
 				self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
