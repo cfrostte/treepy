@@ -17,6 +17,7 @@ from Vistas.metadataInfo import metadataInfo
 import shutil,os
 import pathlib
 # import tkinter.filedialog as filedialog
+from Vistas.VisorResultados import VisorResultados
 
 
 actualFrame = 1
@@ -60,10 +61,12 @@ class Inicio(object):
 		self.ensayosRecientes(self.misEnsayosRecientes)
 		self.verEnsayo()
 		self.verRepeticion()
+		self.verAnalisis()
 
 		self.root.config(menu=self.mimenu(self.root))
 		self.root.mainloop()
-
+	def verAnalisis(self):
+		self.visorAnalisis = VisorResultados(self.misframes['Analisis'].interior)
 	def verRepeticion(self):
 		self.misframes['Repeticion'].camposEditables['totalFrame'], self.misframes['Repeticion'].camposEditables['frameContainer'] = [], []
 
@@ -569,7 +572,9 @@ class Inicio(object):
 			datos.append(fechalabel)
 
 		# else:
-
+	def iniciarAnalisis(self, imagen, repe=None):
+		self.visorAnalisis.Analisis(imagen)
+		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Analisis'])
 	def updateFrameEnsayo(self, ensayo):
 		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()

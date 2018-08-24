@@ -1,6 +1,7 @@
-from .utils.source.detection import *
-from .utils.source import settings as config
-import os
+import os,sys
+sys.path.append("Analisis\\utils\\source")
+from detection import *
+import settings as config
 import datetime, time
 import threading, queue
 from shapely.geometry import Polygon
@@ -23,20 +24,17 @@ class InterfaceDeteccion(object):
 		config.multiprocess_VARI = False
 		config.algorithm = 2
 		config.use_polynomial_regression = False
-		self.detector = Detection()
+		self.detector = None
 		self.queue = queue.Queue()
 	def SetImage(self, img):
 		self.img = img
 		dir, filename = os.path.split(self.img)
 		config.setSourceFolderName(dir)
 		config.setImageFilename(filename)
+		self.detector = Detection()
 	def SetPoly(self, coords):
 		self.polygon =  Polygon(coords)
-	def Analisis(self):
-		Tarea = threading.Thread(name="Analizar", target=self.Analizar)
-		Tarea.deamon = True
-		Tarea.start()
-		self.Espera()
+
 	def BorrarNodo(self,id):
 		self.queue.put(str("Removiendo nodo" + str(id)))
 		self.grafo = removeNodes(id,self.grafo)
@@ -50,26 +48,6 @@ class InterfaceDeteccion(object):
 		self.grafo.findSubgraphs()
 		self.queue.put("Listo")
 
-	# def Espera(self):
-	# 	try:
-	# 		msg = self.queue.get(0)
-	# 		print(msg)
-	# 		if(str(msg)!="Listo"):
-	# 			time.sleep(1)
-	# 			self.Espera()
-	# 		else:
-	# 			print(self.grafo)
-	# 			# import matplotlib.pyplot as plt
-	# 			# fig, ax = plt.subplots()
-	# 			# ax.imshow(config.arr_overlay)
-	# 			# ax = self.detector.drawRegions(self.grafo, ax)
-	# 			# drawGraph(self.grafo)
-	# 			# ax.set_axis_off()
-	# 			# plt.tight_layout()
-	# 			# plt.savefig("nombre.jpg")
-	# 	except queue.Empty:
-	# 		time.sleep(1)
-	# 		self.Espera()
 	def Analizar(self):
 		print("Inicio")
 		self.queue.put("Inicio Segmentacion")
@@ -110,24 +88,3 @@ class InterfaceDeteccion(object):
 		grf2.findSubgraphs()
 		self.grafo = grf2
 		self.queue.put("Listo")
-
-# inicio = datetime.datetime.now()
-# I = InterfaceDeteccion()
-# coords = [
-# 				(522.2272727272726, 846.9025974025972), 
-# 				(1017.3571428571428, 733.2662337662332), 
-# 				(1171.5779220779218, 156.96753246753178), 
-# 				(3314.4350649350654, 205.66883116883082), 
-# 				(3119.6298701298706, 1382.6168831168827), 
-# 				(2064.435064935065, 2843.655844155844), 
-# 				(1228.3961038961038, 2827.4220779220777), 
-# 				(984.8896103896103, 2251.1233766233763), 
-# 				(895.6038961038961, 1480.01948051948), 
-# 				(408.5909090909089, 1755.9935064935062), 
-# 				(165.0844155844154, 1228.3961038961033)
-# 		]
-# I.SetPoly(coords)
-# I.SetImage("data/arboles_0.jpg")
-# I.Analisis()
-# fin = datetime.datetime.now()
-# print(inicio, fin, (fin-inicio))
