@@ -519,8 +519,8 @@ class Inicio(object):
 			nuevaImagen.latitudCono2 = ' '
 			nuevaImagen.longitudCono2 = ' '
 			guardado = nuevaImagen.guardar(CD.db)
-			path = 'C://Users//v785712//Desktop//projectoMultiColumn//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
-			pathlib.Path('C://Users//v785712//Desktop//projectoMultiColumn//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
+			path = 'C://Users//Carlos Frostte/_TESIS//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
+			pathlib.Path('C://Users//Carlos Frostte/_TESIS//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
 			shutil.copy(src, path) 
 			guardado.url = path
 			nuevaImagen = guardado.guardar(CD.db)
