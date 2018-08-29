@@ -49,9 +49,9 @@ class VisorResultados(Frame):
 			else:
 				self.canvas.ANCHO_ARBOL = 20
 				self.canvas.grafos = [self.deteccion.grafo.subgraphs[i] for i in self.deteccion.grafo.subgraphs]
-				# print(self.canvas.grafos)
 				self.canvas.centros = self.deteccion.grafo.node_props.centroids
 				self.canvas._actualizado = False
+				self.canvas.desbloquear()
 				self.Controles.activarEdicion()
 		except queue.Empty:
 			self.after(10,self.Espera)
@@ -79,7 +79,7 @@ class Controles(Frame):
 
 		self.Volver = Button(self, text ="Volver a Repetición", command = self.addNode)
 		self.Volver.pack(side=RIGHT)
-		self.Guardar = Button(self, text ="Guardar Análisis", command = self.addNode)
+		self.Guardar = Button(self, text ="Siguiente", command = self.addNode)
 		self.Guardar.pack(side=RIGHT)
 	def activarEdicion(self):
 		self.Rem_edge.config(state=NORMAL)
@@ -143,6 +143,14 @@ class CanvasVisorResultados(Canvas):
 		self.poligono = None
 		self.puntospoligono=[]
 
+		self.objetoBloqueo = None
+		self.cursor_anterior = "arrow"
+	def bloquear(self):
+		self.config(cursor="wait")
+		self.objetoBloqueo = self.create_rectangle(0, 0, self.winfo_width(),self.winfo_height(),  fill='red',stipple="gray12")
+	def desbloquear(self):
+		self.config(cursor=self.cursor_anterior)
+		if self.objetoBloqueo != None: self.delete(self.objetoBloqueo)
 	def ClickEvent(self,event):
 		if not self.editando:
 			self.AddPuntoPoligono(event.x,event.y)
@@ -151,8 +159,8 @@ class CanvasVisorResultados(Canvas):
 			for g in self.grafos_canvas:
 				seleccionado = g.GetNodo(id_seleccionado)
 				if seleccionado != None:
+					self.bloquear()
 					self.parent.BorrarNodo(seleccionado.id_grafo)
-					self.removiendoNodo = False
 					break
 		elif self.removiendoArista:
 			id_seleccionado = event.widget.find_closest(event.x, event.y)[0]
@@ -160,8 +168,8 @@ class CanvasVisorResultados(Canvas):
 				seleccionado = g.GetArista(id_seleccionado)
 				if seleccionado != None:
 					self.seleccionado = seleccionado
+					self.bloquear()
 					self.parent.BorrarArista(seleccionado.id_a,seleccionado.id_b)
-					self.removiendoArista = False
 					break
 		else:
 			id_nodo = event.widget.find_closest(event.x, event.y)[0]
@@ -174,6 +182,7 @@ class CanvasVisorResultados(Canvas):
 	def verDeteccion(self):
 		if self.poligono: self.delete(self.poligono)
 		self.puntospoligono = []
+		self.bloquear()
 		self.editando=True
 	def AddPuntoPoligono(self, x,y):
 		self.parent.poligono.append((x*self.aspecto_x,y*self.aspecto_y))
@@ -226,7 +235,7 @@ class CanvasVisorResultados(Canvas):
 			threading.Thread(name="desocultar", target=g.desocultar()).start()
 		self.oculto = not self.oculto
 
-	def Limpiar(self): # hay que agregar que los grafos se borren solos
+	def Limpiar(self):
 		self.editando = False
 		for g in self.grafos_canvas: 
 			g.borrar()

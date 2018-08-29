@@ -12,36 +12,36 @@ CD.volcar_datos_prueba()
 # print(a[0])
 # print(a[0].establecimiento)
 
-ensayo = CD.crear_objeto('Ensayo')
-print(ensayo)
-print('-----------------------')
-ensayo.nro = '44444'
-ensayo.establecimiento = 'nananana'
-ensayo.nroCuadro = '5555'
-ensayo.suelo = '55555555742355532'
-ensayo.espaciamientoX = '555'
-ensayo.espaciamientoY = '5.55555'
-ensayo.plantasHa = '5555555'
-ensayo.fechaPlantacion = '01/01/5555'
-ensayo.nroTratamientos = '5555'
-ensayo.totalPlantas = ''
-ensayo.totalHas = '5555'
-ensayo.plantasParcela = '55555'
-ensayo.tipoClonal = '555555'
-ensayo.nroRepeticiones = '555555'
+# ensayo = CD.crear_objeto('Ensayo')
 # print(ensayo)
-print(ensayo)
-print('-----------------------')
-guardado = ensayo.guardar(CD.db)
-print(guardado)
-guardado.totalPlantas = '1111111'
-print('-------anten----------------')
-print(guardado)
-print('------------antes-----------')
-guardado2 =  guardado.guardar(CD.db)
+# print('-----------------------')
+# ensayo.nro = '44444'
+# ensayo.establecimiento = 'nananana'
+# ensayo.nroCuadro = '5555'
+# ensayo.suelo = '55555555742355532'
+# ensayo.espaciamientoX = '555'
+# ensayo.espaciamientoY = '5.55555'
+# ensayo.plantasHa = '5555555'
+# ensayo.fechaPlantacion = '01/01/5555'
+# ensayo.nroTratamientos = '5555'
+# ensayo.totalPlantas = ''
+# ensayo.totalHas = '5555'
+# ensayo.plantasParcela = '55555'
+# ensayo.tipoClonal = '555555'
+# ensayo.nroRepeticiones = '555555'
+# # print(ensayo)
+# print(ensayo)
+# print('-----------------------')
+# guardado = ensayo.guardar(CD.db)
+# print(guardado)
+# guardado.totalPlantas = '1111111'
+# print('-------anten----------------')
+# print(guardado)
+# print('------------antes-----------')
+# guardado2 =  guardado.guardar(CD.db)
 
-print(guardado2)
-print('-----------------------')
+# print(guardado2)
+# print('-----------------------')
 ################################################################################
 
 # for x in CD.buscar_objetos('Ensayo', {'nro' : 123}, ['clave'], False, None):

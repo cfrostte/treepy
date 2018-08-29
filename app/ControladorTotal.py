@@ -1,5 +1,5 @@
 from ControladorDatos import ControladorDatos as CD
-from Vistas.Vista_inicio_Copia import mainInicio
+from Vistas.Vista_inicio import mainInicio
 # from Vistas.Vista_inicio_Copia import mainInicio
 
 ultimosModificados = CD.ultimos_modificados('Ensayo', 9)
@@ -25,7 +25,7 @@ todosLosEnsayo = CD.buscar_objetos('Ensayo')
 
 # inicio.miapp(ultimosModificados)
 
-# class getAllEnsayos(object):
+# class getAllEnsayos(object):WPC0U495
 # 	"""docstring for getAllEnsayos"""
 # 	def __init__(self):espaciamientoYtodaLaMatriz
 # 		super(getAllEnsayos, self).__init__()

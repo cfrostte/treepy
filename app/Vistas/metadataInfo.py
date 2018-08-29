@@ -7,9 +7,16 @@ def metadataInfo(image):
 	# img = Image.open("./arboles_00.jpg")
 	img = Image.open(image)
 
+	info = {}
 	getExif = img._getexif()
 	if not getExif:
-		return getExif
+		info['lat'] = ' '
+		info['lon'] = ' '
+		info['altitud'] =' '
+		info['width'] = ' '
+		info['height'] = ' '
+		info['fecha'] = ' '
+		return info
 
 	exif = { ExifTags.TAGS[k]: v for k, v in img._getexif().items() if k in ExifTags.TAGS }
 
@@ -18,7 +25,6 @@ def metadataInfo(image):
 	alt = float(exif['GPSInfo'][6][0]) / float(exif['GPSInfo'][6][1])
 	timestamp = exif['DateTimeOriginal']
 
-	info = {}
 	info['lat'] = (lat[0] + lat[1] / 60)
 	info['lon'] = (lon[0] + lon[1] / 60)
 	info['altitud'] = alt
