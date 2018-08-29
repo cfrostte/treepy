@@ -16,6 +16,8 @@ import traceback
 from Vistas.metadataInfo import metadataInfo
 import shutil,os
 import pathlib
+from pathlib import Path
+
 # import tkinter.filedialog as filedialog
 
 
@@ -23,17 +25,6 @@ actualFrame = 1
 def donothing():
 	print("donothing")
 
-car_list = [
-('Hyundai', 'brakes', 'Uruguay') ,
-('Honda', 'light', 'Brasil') ,
-('Lexus', 'battery', 'Uruguay') ,
-('Benz', 'wiper', 'Uruguay') ,
-('Ford', 'tire', 'India') ,
-('Chevy', 'air','Mexico') ,
-('Chrysler', 'piston', 'India') ,
-('Toyota', 'brake pedal', 'Chile') ,
-('BMW', 'seat', 'Italia')
-]
 
 class Inicio(object):
 	__instance = None
@@ -100,6 +91,10 @@ class Inicio(object):
 
 		self.misframes['Repeticion'].camposEditables['frameesquema'] = esquemaParcelas(self.misframes['Repeticion'].camposEditables['totalFrame'][1])
 		self.misframes['Repeticion'].camposEditables['frameesquema'].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+		# self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = "Claveeeeee"
+		# print("llllllllllllllllllllllllllllll")
+		# print(self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave)
+		# print("llllllllllllllllllllllllllllll")
 
 		self.misframes['Repeticion'].camposEditables['imagenesRepeticion'] = {}
 
@@ -284,6 +279,10 @@ class Inicio(object):
 		self.misframes['Ensayo'].camposEditables['tipoClonal'].config(state=tk.NORMAL)
 		self.misframes['Ensayo'].camposEditables['tipoClonal'].delete(0, tk.END)
 		self.misframes['Ensayo'].camposEditables['tipoClonal'].insert(0, '')
+		
+		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
+			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()
+			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].destroy()
 
 		# self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].pack_forget()
 		self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].config(text='Guardar', command= lambda: self.clickBtnModificar('Guardar', 'Nuevo'))
@@ -415,6 +414,10 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x].destroy()
 		
 		if repeticion:
+			self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = repeticion.clave
+			print("-----------Al ver repeticion clave del frmae-------------------")
+			print(self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave)
+			print("-----------Al ver repeticion-------------------")
 			pathImg = '//'+str(repeticion.id_ensayos)+'//'+str(repeticion.clave)
 			imagenes = CD.buscar_objetos('Imagen', {'id_repeticiones' : repeticion.clave})
 			self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Repeticion "+str(repeticion.nro))
@@ -468,7 +471,12 @@ class Inicio(object):
 				nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 				fechalabel = tk.Label(frameContainerIn[0], text=imagenes[x].fecha)
 				fechalabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				ensayoImage = Image.open(imagenes[x].url)
+				path = str(Path().absolute())
+				try:
+					ensayoImage = Image.open(imagenes[x].url)
+				except:
+					ensayoImage = Image.open(path + '\\Vistas\\notFound.jpg')
+					# ensayoImage = Image.open('C:/Users/v785712/Desktop/projectoMerge/treepy/app/Vistas/notFound.jpg')
 				ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
 				photo = ImageTk.PhotoImage(ensayoImage)
 				label = tk.Label(frameContainerIn[1], image=photo)
@@ -528,8 +536,8 @@ class Inicio(object):
 		nuevaImagen.latitudCono2 = ' '
 		nuevaImagen.longitudCono2 = ' '
 		guardado = nuevaImagen.guardar(CD.db)
-		path = 'C://Users//v785712//Desktop//projectoMultiColumn//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
-		pathlib.Path('C://Users//v785712//Desktop//projectoMultiColumn//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
+		path =   str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
+		pathlib.Path(str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
 		shutil.copy(src, path) 
 		guardado.url = path
 		nuevaImagen = guardado.guardar(CD.db)
@@ -731,6 +739,7 @@ class Inicio(object):
 			self.guardarEnsayo(datosParaGuardar, tipo)
 			print("GUARDANDO-------------------------------------------------------------------")
 
+
 	def guardarEnsayo(self, datosParaGuardar, tipo):
 		if tipo == "Nuevo":
 			ensayo = CD.crear_objeto('Ensayo')
@@ -761,6 +770,13 @@ class Inicio(object):
 
 		messagebox.showinfo("Info", "Se a guardado correctamente") # if guardado else messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
 
+		#Si es nuevo creao tantas repeticiones vacias como diga el nro de repeticiones
+		if tipo == "Nuevo":
+			for x in range(0, int(guardado.nroRepeticiones)):
+				new = CD.crear_objeto('Repeticion')
+				new.nro = str(x + 1); new.nroFilas = ' '; new.nroColumnas = ' '; new.id_ensayos = guardado.clave
+				new.guardar(CD.db) 
+
 		# Actulizar numRepeticion
 		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()
@@ -771,9 +787,11 @@ class Inicio(object):
 		for x in range(0, len(repes)):
 			label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
 			label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-			label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
-			label.bind("<Enter>", lambda event, :label.config(relief="raised", bd=8))
-			label.bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
+			# label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
+			label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
+			label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
+			# label.bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
+			label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=guardado.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes))
 
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
 

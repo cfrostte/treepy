@@ -2,10 +2,13 @@ import pyperclip
 import tkinter
 from tkinter import *
 from Vistas.bloques import EditorBloques, Bloque
-from Vistas.celda import Celda        
+from Vistas.celda import Celda
+from tkinter import messagebox
+from ControladorDatos import ControladorDatos as CD
 
 class esquemaParcelas(Frame):
     todaLaMatriz = None
+    repeticionClave = None
 
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, *args, **kwargs)
@@ -22,15 +25,68 @@ class esquemaParcelas(Frame):
         self.b1.pack(pady=5, padx=5, side=LEFT)
         self.b2 = None
     def listo(self):
+        bloques = []
+        bloquesObj = {}
+        clones = []
+        clonesObj = {}
+        repe = CD.buscar_objetos('Repeticion', {'clave' : self.repeticionClave})[0]
+        # repe.nro
+        repe.nroColumnas = len(self.matriz)
+        repe.nroFilas    = len(self.matriz[0])
+        repe.guardar(CD.db)
         for celda in self.grilla.winfo_children():
             pos = celda.grid_info()
             self.matrizBloques[pos["row"]-1][pos["column"]] = celda.bloque.color if celda.bloque!=None else None
-        print("printing matriz")
-        print(self.matriz)
-        print("------------printing matriz--------------")
-        todaLaMatriz = self.matrizBloques
-        print(self.matrizBloques)
-        print("printing matriz")
+            if celda.bloque!=None:
+                print("------Dentro de if")
+                print(celda.bloque.color)
+                if not celda.bloque.color in bloques:
+                    bloque = CD.buscar_objetos('Bloque', {'id_repeticiones' : self.repeticionClave, 'color' : celda.bloque.color})
+                    if bloque==[]:
+                        new = CD.crear_objeto('Bloque')
+                        new.color = celda.bloque.color
+                        new.id_repeticiones = self.repeticionClave
+                        new.tipoSuelo = ' '
+                        bloque = new.guardar(CD.db)
+                        bloquesObj[bloque.color] = bloque
+                        bloques.append(bloque.color)
+                    else:
+                        bloquesObj[bloque[0].color] = bloque[0]
+                        bloques.append(bloque[0].color)
+
+        for x in range(len(self.matriz)):
+            for j in range(len(self.matriz[x])):
+                if self.matriz[x][j].strip() != '':
+                    clon = CD.buscar_objetos('Clon', {'nro' : self.matriz[x][j]})
+                    if clon==[]:
+                        newClon = CD.crear_objeto('Clon')
+                        newClon.nro = self.matriz[x][j]
+                        clon = newClon.guardar(CD.db)
+                        clonesObj[clon.nro] = clon
+                        clones.append(clon.nro)
+                    else:
+                        clonesObj[clon[0].nro] = clon[0]
+                        clones.append(clon[0].nro)
+
+        for x in range(len(self.matriz)):
+            for j in range(len(self.matriz[x])):
+                if self.matriz[x][j].strip() != '':
+                    #Guardo la parcela
+                    parcela = CD.crear_objeto('Parcela')
+                    parcela.columna = str(x)
+                    parcela.fila = str(j)
+                    parcela.id_bloques = bloquesObj[self.matrizBloques[x][j]].clave
+                    parcela.id_clones = clonesObj[int(self.matriz[x][j])].clave
+                    parcelaGuardada = parcela.guardar(CD.db)
+                    print("Parcela guardada")
+                    print(parcelaGuardada)
+                    print("Parcela guardada")
+                    #
+
+        #Primero guardo los bloques y me quedo con la clave
+        
+        messagebox.showinfo("Info", "El esquema se ha guardado satisfactoriamente")
+
     def seleccionarBloque(self, b):
         self.bloqueseleccionado = b
     def pegar(self):
