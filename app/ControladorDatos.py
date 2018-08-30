@@ -10,7 +10,6 @@ crea y lista objetos de tipo Base, vuelca datos de prueba y respalda la BD.
 """
 
 import sqlite3
-import random
 
 from Datos.core.Exportador import Base as Base
 from Datos.core.Exportador import CSV as csv
@@ -154,7 +153,7 @@ class ControladorDatos(object):
         for iteracion in range(0, iteraciones):
             log.debug('Volcando datos de prueba iteracion={}'.format(iteracion))
             ensayo = Ensayo.aleatorio().guardar(cls.db)
-            repeticiones = cls.crear_objetos_prueba(Repeticion, ensayo.repeticiones)
+            repeticiones = cls.crear_objetos_prueba(Repeticion, ensayo.nroRepeticiones, False)
             cls.relacionar_uno_muchos(ensayo, 'Repeticion', True, repeticiones)
             for r in repeticiones:
                 imagenes = cls.crear_objetos_prueba(Imagen, 1, False)
