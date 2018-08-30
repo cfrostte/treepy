@@ -107,12 +107,12 @@ class ControladorDatos(object):
             surcos_detectado.distanciaMedia = -1 # PREGUNTAR COMO OBTENER
             surcos_detectado.anguloMedio = -1 # PREGUNTAR COMO OBTENER
             surcos_detectado.guardar(cls.db)
-            for n in s.nodes():
+            for n in grafo.subgraphs[s].nodes():
                 c = grafo.node_props.centroids[n]
                 arbol = Arbol()
                 arbol.id_repeticiones = imagen.id_repeticiones
                 arbol.id_surcos_detectados = surcos_detectado.clave
-                arbol.latitud, arbol.longitud = g.transform([c])[0]
+                arbol.latitud, arbol.longitud = g.transform(c)[0]
                 arbol.areaCopa = grafo.node_props.areas[n]
                 arbol.guardar(cls.db)
 
