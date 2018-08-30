@@ -3,8 +3,8 @@
 from ControladorDatos import ControladorDatos as CD
 from Datos.core.GeoEspacial import GeoEspacial as GE
 
-# CD.crear_estructura()
-# CD.volcar_datos_prueba()
+CD.crear_estructura()
+CD.volcar_datos_prueba(3)
 # CD.respaldar_datos()
 
 # print(CD.buscar_objetos('Ensayo'))
