@@ -15,6 +15,7 @@ import random
 from Datos.core.Exportador import Base as Base
 from Datos.core.Exportador import CSV as csv
 from Datos.core.Exportador import KML as kml
+from Datos.core.GeoEspacial import GeoEspacial as GE
 
 from Datos.Arbol import Arbol
 from Datos.ArbolFaltante import ArbolFaltante
@@ -94,6 +95,30 @@ class ControladorDatos(object):
     ############################################################################
 
     @classmethod
+    def analisis_a_objetos(cls, imagen, grafo, xy2, xy3):
+        xy1 = int(imagen.largo/2), int(imagen.ancho/2)
+        coord1 = imagen.latitud, imagen.longitud
+        coord2 = imagen.latitudCono1, imagen.longitudCono1
+        coord3 = imagen.latitudCono2, imagen.longitudCono2
+        g = GE.from_tiepoints([xy1, xy2, xy3], [coord1, coord2, coord3])
+        for s in grafo.subgraphs:
+            surcos_detectado = SurcoDetectado()
+            surcos_detectado.id_imagenes = imagen.clave
+            surcos_detectado.distanciaMedia = -1 # PREGUNTAR COMO OBTENER
+            surcos_detectado.anguloMedio = -1 # PREGUNTAR COMO OBTENER
+            surcos_detectado.guardar(cls.db)
+            for n in s.nodes():
+                c = grafo.node_props.centroids[n]
+                arbol = Arbol()
+                arbol.id_repeticiones = imagen.id_repeticiones
+                arbol.id_surcos_detectados = surcos_detectado.clave
+                arbol.latitud, arbol.longitud = g.transform([c])[0]
+                arbol.areaCopa = grafo.node_props.areas[n]
+                arbol.guardar(cls.db)
+
+    ############################################################################
+
+    @classmethod
     def exportar_informe_csv(cls):
         """..."""
         csv.informe(cls.db, cls.csv)
@@ -123,37 +148,66 @@ class ControladorDatos(object):
 
     ############################################################################
 
+    # @classmethod
+    # def volcar_datos_prueba(cls):
+    #     """..."""
+    #     log.debug('Volcando datos de prueba')
+    #     def f(padres, hijos, guardar):
+    #         r = random.choice(padres)
+    #         n = hijos[0].__class__.__name__
+    #         cls.relacionar_uno_muchos(r, n, guardar, hijos)
+    #     def g():
+    #         return random.randint(1, 32)
+    #     arboles = cls.crear_objetos_prueba(Arbol, g(), False)
+    #     arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, g(), False)
+    #     bloques = cls.crear_objetos_prueba(Bloque, g(), False)
+    #     clones = cls.crear_objetos_prueba(Clon, g())
+    #     ensayos = cls.crear_objetos_prueba(Ensayo, g())
+    #     imagenes = cls.crear_objetos_prueba(Imagen, g(), False)
+    #     parcelas = cls.crear_objetos_prueba(Parcela, g(), False)
+    #     repeticiones = cls.crear_objetos_prueba(Repeticion, g(), False)
+    #     surcos_detectados = cls.crear_objetos_prueba(SurcoDetectado, g(), False)
+    #     f(ensayos, repeticiones, True)
+    #     f(repeticiones, bloques, True)
+    #     f(repeticiones, imagenes, True)
+    #     f(repeticiones, arboles, True)
+    #     f(clones, parcelas, False)
+    #     f(bloques, parcelas, True)
+    #     f(parcelas, arboles, True)
+    #     f(arboles, arboles_faltantes, False)
+    #     f(imagenes, arboles_faltantes, True)
+    #     f(imagenes, surcos_detectados, True)
+    #     # cls.relacionar_muchos_muchos(surcos_detectados, parcelas) # Opcion 1
+    #     cls.relacionar_muchos_muchos(parcelas, surcos_detectados) # Opcion 2
+
     @classmethod
     def volcar_datos_prueba(cls):
         """..."""
         log.debug('Volcando datos de prueba')
-        def f(padres, hijos, guardar):
-            r = random.choice(padres)
-            n = hijos[0].__class__.__name__
-            cls.relacionar_uno_muchos(r, n, guardar, hijos)
-        def g():
-            return random.randint(1, 32)
-        arboles = cls.crear_objetos_prueba(Arbol, g(), False)
-        arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, g(), False)
-        bloques = cls.crear_objetos_prueba(Bloque, g(), False)
-        clones = cls.crear_objetos_prueba(Clon, g())
-        ensayos = cls.crear_objetos_prueba(Ensayo, g())
-        imagenes = cls.crear_objetos_prueba(Imagen, g(), False)
-        parcelas = cls.crear_objetos_prueba(Parcela, g(), False)
-        repeticiones = cls.crear_objetos_prueba(Repeticion, g(), False)
-        surcos_detectados = cls.crear_objetos_prueba(SurcoDetectado, g(), False)
-        f(ensayos, repeticiones, True)
-        f(repeticiones, bloques, True)
-        f(repeticiones, imagenes, True)
-        f(repeticiones, arboles, True)
-        f(clones, parcelas, False)
-        f(bloques, parcelas, True)
-        f(parcelas, arboles, True)
-        f(arboles, arboles_faltantes, False)
-        f(imagenes, arboles_faltantes, True)
-        f(imagenes, surcos_detectados, True)
-        # cls.relacionar_muchos_muchos(surcos_detectados, parcelas) # Opcion 1
-        cls.relacionar_muchos_muchos(parcelas, surcos_detectados) # Opcion 2
+        arboles = cls.crear_objetos_prueba(Arbol, 9, False)
+        arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, 3, False)
+        bloques = cls.crear_objetos_prueba(Bloque, 6, False)
+        ensayos = cls.crear_objetos_prueba(Ensayo, 6)
+        imagenes = cls.crear_objetos_prueba(Imagen, 3, False)
+        parcelas = cls.crear_objetos_prueba(Parcela, 3, False)
+        repeticiones = cls.crear_objetos_prueba(Repeticion, 3, False)
+        surcos_detectados = cls.crear_objetos_prueba(SurcoDetectado, 6, False)
+        def f_3(bloque):
+            for p in parcelas:
+                cls.relacionar_uno_muchos(p, 'Arbol', True, arboles)
+            cls.relacionar_uno_muchos(bloque, 'Parcela', False, parcelas)
+            cls.relacionar_uno_muchos(Clon.aleatorio(), 'Parcela', True, parcelas)
+        def f_2(repeticion):
+            for b in bloques:
+                f_3(b)
+            cls.relacionar_uno_muchos(repeticion, 'Bloque', True, bloques)
+            cls.relacionar_uno_muchos(repeticion, 'Arbol', True, arboles)
+        def f_1(ensayo):
+            for r in repeticiones:
+                f_2(r)
+            cls.relacionar_uno_muchos(ensayo, 'Repeticion', True, repeticiones)
+        for e in ensayos:
+            f_1(e)     
 
     @classmethod
     def crear_objetos_prueba(cls, estatico, n, guardar=True):
