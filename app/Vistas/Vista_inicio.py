@@ -18,6 +18,7 @@ import shutil,os
 import pathlib
 # import tkinter.filedialog as filedialog
 
+from Vistas.VisorResultados import VisorResultados
 
 actualFrame = 1
 def donothing():
@@ -60,7 +61,8 @@ class Inicio(object):
 		self.ensayosRecientes(self.misEnsayosRecientes)
 		self.verEnsayo()
 		self.verRepeticion()
-
+		self.verAnalisis()
+		
 		self.root.config(menu=self.mimenu(self.root))
 		self.root.mainloop()
 
@@ -451,7 +453,7 @@ class Inicio(object):
 				btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=repeticion.clave, claveEnsayoArg=repeticion.id_ensayos, y=x, izquierda=containerIzquierda, centro=containerCentro, derecha=containerDerecha, claveImagen=imagenes[x].clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
 				# btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda y=x: self.cambiarImagen("update", self.misframes['Repeticion'].camposEditables['imagenesRepeticion'],repeticion.clave, repeticion.id_ensayos, y))
 				btnCambiarImagen.pack(side=tk.TOP)
-				btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda: self.iniciarAnalisis(imagenes[x].url))
+				btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda: self.iniciarAnalisis(imagenes[x]))
 				btnAnalizarImagen.pack(side=tk.TOP)
 
 				subtituloDatos = tk.Label(containerCentro, text="Datos de la imagen")
@@ -513,7 +515,7 @@ class Inicio(object):
 			nuevaImagen = CD.crear_objeto('Imagen')
 		else:
 			nuevaImagen =  CD.buscar_objetos('Imagen',  {'clave' : claveImagen})[0]
-			
+					
 		nuevaImagen.fecha = info['fecha']
 		nuevaImagen.largo = info['height']
 		nuevaImagen.ancho = info['width']
@@ -521,15 +523,15 @@ class Inicio(object):
 		nuevaImagen.longitud = info['lon']
 		nuevaImagen.altitud = info['altitud']
 		nuevaImagen.id_repeticiones = claveRepe
-		nuevaImagen.etapa = ' '
-		nuevaImagen.url = ' '
-		nuevaImagen.latitudCono1 = ' '
-		nuevaImagen.longitudCono1 = ' '
-		nuevaImagen.latitudCono2 = ' '
-		nuevaImagen.longitudCono2 = ' '
+		# nuevaImagen.etapa = ' '
+		# nuevaImagen.url = ' '
+		# nuevaImagen.latitudCono1 = ' '
+		# nuevaImagen.longitudCono1 = ' '
+		# nuevaImagen.latitudCono2 = ' '
+		# nuevaImagen.longitudCono2 = ' '
 		guardado = nuevaImagen.guardar(CD.db)
-		path = 'C://Users//v785712//Desktop//projectoMultiColumn//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
-		pathlib.Path('C://Users//v785712//Desktop//projectoMultiColumn//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
+		path = 'C://Users//franc//Documents//HackLab//Tesis//integrando_treepy//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
+		pathlib.Path('C://Users//franc//Documents//HackLab//Tesis//integrando_treepy//treepy//app//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
 		shutil.copy(src, path) 
 		guardado.url = path
 		nuevaImagen = guardado.guardar(CD.db)
@@ -558,7 +560,7 @@ class Inicio(object):
 			btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), izquierda=containerIzquierda, centro=containerCentro, derecha=containerDerecha, claveImagen=nuevaImagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
 			# btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda y=len(frame), izquierda=containerIzquierda, centro=containerCentro, derecha=containerDerecha: self.cambiarImagen("update", self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepe, claveEnsayo, y, izquierda, centro, derecha))
 			btnCambiarImagen.pack(side=tk.TOP)
-			btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen.url))
+			btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen))
 			btnAnalizarImagen.pack(side=tk.TOP)
 
 			subtituloDatos = tk.Label(containerCentro, text="Datos de la imagen")
@@ -598,7 +600,7 @@ class Inicio(object):
 			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 			btnCambiarImagen = tk.Button(derecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), izquierda1=izquierda, centro1=centro, derecha1=derecha: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda1, centro1, derecha1))
 			btnCambiarImagen.pack(side=tk.TOP)
-			btnAnalizarImagen = tk.Button(derecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen.url))
+			btnAnalizarImagen = tk.Button(derecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen))
 			btnAnalizarImagen.pack(side=tk.TOP)
 
 			subtituloDatos = tk.Label(centro, text="Datos de la imagen")
@@ -624,9 +626,12 @@ class Inicio(object):
 			datos.append(label)
 			datos.append(nombrelabel)
 			datos.append(fechalabel)
+	def verAnalisis(self):
+		self.visorAnalisis = VisorResultados(self.misframes['Analisis'].interior, self)
 
-
-
+	def iniciarAnalisis(self, imagen):
+		self.visorAnalisis.Analisis(imagen)
+		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Analisis'])
 
 	def updateFrameEnsayo(self, ensayo):
 		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
