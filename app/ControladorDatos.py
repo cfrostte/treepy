@@ -15,6 +15,7 @@ import random
 from Datos.core.Exportador import Base as Base
 from Datos.core.Exportador import CSV as csv
 from Datos.core.Exportador import KML as kml
+from Datos.core.GeoEspacial import GeoEspacial as GE
 
 from Datos.Arbol import Arbol
 from Datos.ArbolFaltante import ArbolFaltante
@@ -90,6 +91,30 @@ class ControladorDatos(object):
                 setattr(p, x.foranea(), x.clave)
                 setattr(p, y.foranea(), y.clave)
                 p.guardar(cls.db, False)
+
+    ############################################################################
+
+    @classmethod
+    def analisis_a_objetos(cls, imagen, grafo, xy2, xy3):
+        xy1 = int(imagen.largo/2), int(imagen.ancho/2)
+        coord1 = imagen.latitud, imagen.longitud
+        coord2 = imagen.latitudCono1, imagen.longitudCono1
+        coord3 = imagen.latitudCono2, imagen.longitudCono2
+        g = GE.from_tiepoints([xy1, xy2, xy3], [coord1, coord2, coord3])
+        for s in grafo.subgraphs:
+            surcos_detectado = SurcoDetectado()
+            surcos_detectado.id_imagenes = imagen.clave
+            surcos_detectado.distanciaMedia = -1 # PREGUNTAR COMO OBTENER
+            surcos_detectado.anguloMedio = -1 # PREGUNTAR COMO OBTENER
+            surcos_detectado.guardar(cls.db)
+            for n in s.nodes():
+                c = grafo.node_props.centroids[n]
+                arbol = Arbol()
+                arbol.id_repeticiones = imagen.id_repeticiones
+                arbol.id_surcos_detectados = surcos_detectado.clave
+                arbol.latitud, arbol.longitud = g.transform([c])[0]
+                arbol.areaCopa = grafo.node_props.areas[n]
+                arbol.guardar(cls.db)
 
     ############################################################################
 

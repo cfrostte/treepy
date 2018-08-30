@@ -3,10 +3,15 @@
 import random
 
 from .core.Base import Base
+from .Arbol import Arbol
 
 class SurcoDetectado(Base):
 
     _tabla = 'surcos_detectados'
+
+    _relacionados = {
+        'Arbol' : Arbol,
+    }
 
     distanciaMedia = None
     anguloMedio = None

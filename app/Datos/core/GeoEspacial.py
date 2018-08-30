@@ -6,6 +6,7 @@ puntos geograficos en base a coordenadas de pixeles
 import numpy as N
 
 class GeoEspacial(object):
+
     def __init__(self, array=None):
         self.trans_matrix = array
 
@@ -15,10 +16,6 @@ class GeoEspacial(object):
         arr = N.ones((a.shape[0], a.shape[1]+1))
         arr[:, :-1] = a
         return arr
-
-    def transform(self, points):
-        """Transformar los datos proyectados localmente utilizando la matriz de transformación"""
-        return N.dot(GeoEspacial.aumentar(N.array(points)), self.trans_matrix)
 
     @classmethod
     def from_tiepoints(cls, fromCoords, toCoords):
@@ -33,3 +30,8 @@ class GeoEspacial(object):
         solucion = N.dot(fromCoords, geoespacial.trans_matrix) # Compute la solución del modelo
         print('solucion', solucion)
         return geoespacial
+
+    def transform(self, points):
+        """Transformar los datos proyectados localmente utilizando la matriz de transformación"""
+        return N.dot(GeoEspacial.aumentar(N.array(points)), self.trans_matrix)
+        
