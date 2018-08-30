@@ -5,13 +5,17 @@ import ctypes
 from Analisis.tInterface import InterfaceDeteccion
 from .ObjetosVisor.Grafo import Grafo, Nodo
 import threading, queue
+from ControladorDatos import ControladorDatos as CD
 
 class VisorResultados(Frame):
 	"""docstring for VisorResultados"""
-	def __init__(self,parent):
+	def __init__(self, parent, controladorVista):
 		Frame.__init__(self, parent)
+		self.controladorVista = controladorVista
 		self.deteccion = InterfaceDeteccion()
 		self.poligono = []
+		self.imagen = None
+		self.repe = None
 		self.canvas = CanvasVisorResultados(self)
 		self.canvas.pack(side=BOTTOM)
 		self.Controles = Controles(self,self.canvas)
@@ -19,8 +23,9 @@ class VisorResultados(Frame):
 		self.pack()
 		self.queue = self.deteccion.queue
 	def Analisis(self,imagen):
-		self.deteccion.SetImage(imagen)
-		self.canvas.Inicio(imagen)
+		self.imagen = imagen
+		self.deteccion.SetImage(imagen.url)
+		self.canvas.Inicio(imagen.url)
 	def correrAnalisis(self):
 		self.canvas.verDeteccion()
 		self.Controles.analizar.config(state=DISABLED)
@@ -55,12 +60,33 @@ class VisorResultados(Frame):
 				self.Controles.activarEdicion()
 		except queue.Empty:
 			self.after(10,self.Espera)
-
+	def Georeferenciar(self):
+		if self.canvas.seteandoPuntos:
+			if(len(self.canvas.geoPuntos)==2):
+				punto1=(0,0)
+				punto2=(0,0)
+				for g in self.canvas.geoPuntos:
+					if g[3] == 1:
+						punto1 = g[2]
+					else:
+						punto2 = g[2]
+				CD.analisis_a_objetos(self.imagen, self.deteccion.grafo, punto1, punto2)
+				print("enviar", self.deteccion.grafo)
+			else:
+				self.Controles.mensaje.config(text="Se necesitan setar dos coordenadas en la imagen")
+		else:
+			self.canvas.seteandoPuntos = True
+			self.canvas.removiendoNodo = False
+			self.canvas.agregandoNodo = False
+			self.canvas.agregandoArista = False
+			self.canvas.removiendoArista = False
+			self.Controles.Siguiente.config(text="Guardar")
+			
 class Controles(Frame):
 	def __init__(self, parent, canvas):
 		Frame.__init__(self, parent)
-		self.Init()
 		self.parent = parent
+		self.Init()
 		self.canvas = canvas
 	def Init(self):		
 		self.Add_Node = Button(self, text ="Agregar Árbol", state=DISABLED, command = self.addNode)
@@ -71,19 +97,19 @@ class Controles(Frame):
 		self.Rem_Node.pack(side=LEFT)
 		self.Rem_edge = Button(self, text ="Remover Unión", state=DISABLED, command = self.remArista)
 		self.Rem_edge.pack(side=LEFT)
-
 		self.mensaje = Label(self, text = "Dibujar poligono",fg='red')
 		self.mensaje.pack(side=LEFT)
 		self.analizar = Button(self, text ="Analizar", command = self.correrAnalisis)
 		self.analizar.pack(side=RIGHT)
-
-		self.Volver = Button(self, text ="Volver a Repetición", command = self.addNode)
+		aux = self.parent.controladorVista
+		self.Siguiente = Button(self, state=DISABLED, text ="Siguiente", command = self.parent.Georeferenciar)
+		self.Siguiente.pack(side=RIGHT)
+		self.Volver = Button(self, text ="Volver", command=lambda: aux.raise_frame(aux.misframes["Analisis"], aux.misframes["Repeticion"]))
 		self.Volver.pack(side=RIGHT)
-		self.Guardar = Button(self, text ="Siguiente", command = self.addNode)
-		self.Guardar.pack(side=RIGHT)
 	def activarEdicion(self):
 		self.Rem_edge.config(state=NORMAL)
 		self.Rem_Node.config(state=NORMAL)
+		self.Siguiente.config(state=NORMAL)
 	def addNode(self):
 		self.mensaje.config(text="Seleccione ubicacion del nuevo árbol")
 		self.parent.canvas.agregandoNodo = True
@@ -145,6 +171,10 @@ class CanvasVisorResultados(Canvas):
 
 		self.objetoBloqueo = None
 		self.cursor_anterior = "arrow"
+
+		self.geoPuntos = []
+		self.seteandoPuntos = False
+
 	def bloquear(self):
 		self.config(cursor="wait")
 		self.objetoBloqueo = self.create_rectangle(0, 0, self.winfo_width(),self.winfo_height(),  fill='red',stipple="gray12")
@@ -171,6 +201,19 @@ class CanvasVisorResultados(Canvas):
 					self.bloquear()
 					self.parent.BorrarArista(seleccionado.id_a,seleccionado.id_b)
 					break
+		elif self.seteandoPuntos:
+			x, y = event.x, event.y
+			num = 1 if len(self.geoPuntos)==0 or self.geoPuntos[len(self.geoPuntos) - 1][3] == 2 else 2
+			self.geoPuntos.append([
+									self.create_oval(x-6,y-6,x+6,y+6,fill="red"),
+									self.create_text(x,y,text=str(num)),
+									(int(x*self.aspecto_x), int(y*self.aspecto_y)),
+									num
+								  ])
+			if len(self.geoPuntos) > 2:
+				self.delete(self.geoPuntos[0][0])
+				self.delete(self.geoPuntos[0][1])
+				del(self.geoPuntos[0])
 		else:
 			id_nodo = event.widget.find_closest(event.x, event.y)[0]
 			for i,g in enumerate(self.grafos_canvas):
@@ -196,7 +239,6 @@ class CanvasVisorResultados(Canvas):
 		self.photo = ImageTk.PhotoImage(self.im_escalada)
 		self.item_image = self.create_image(0,0,anchor=NW, image=self.photo)
 		self.config(width=self.im_escalada.size[0], height=self.im_escalada.size[1])
-
 	def CambiarImagen(self,imagen):
 		self.imagen = imagen
 		self.im = Image.open(imagen)
@@ -234,13 +276,11 @@ class CanvasVisorResultados(Canvas):
 		for g in self.grafos_canvas:
 			threading.Thread(name="desocultar", target=g.desocultar()).start()
 		self.oculto = not self.oculto
-
 	def Limpiar(self):
 		self.editando = False
 		for g in self.grafos_canvas: 
 			g.borrar()
 		self.grafos_canvas = []
-
 	def PopOPAddFN(self):
 		self.grafo_seleccionado = None
 	def AddArista(self):
@@ -277,3 +317,4 @@ class CanvasVisorResultados(Canvas):
 		self.aspecto_y = original_size[1] / new_height
 		new_res = (new_width,new_height)
 		return imagen.resize(new_res)
+		
