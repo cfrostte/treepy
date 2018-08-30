@@ -1,10 +1,10 @@
 """..."""
 
 from ControladorDatos import ControladorDatos as CD
-from Datos.core.GeoEspacial import GeoEspacial as GE
+# from Datos.core.GeoEspacial import GeoEspacial as GE
 
-# CD.crear_estructura()
-# CD.volcar_datos_prueba()
+CD.crear_estructura()
+CD.volcar_datos_prueba(3)
 # CD.respaldar_datos()
 
 # print(CD.buscar_objetos('Ensayo'))
@@ -100,15 +100,15 @@ from Datos.core.GeoEspacial import GeoEspacial as GE
 # for x in CD.buscar_objetos('Ensayo'):
 #     print(x)
 
-cnvSz = 1000, 600
+# cnvSz = 1000, 600
 
-cor1 = -32.316830, -58.087159
-cor2 = -32.317897, -58.086486
-cor3 = -32.317942, -58.085295
+# cor1 = -32.316830, -58.087159
+# cor2 = -32.317897, -58.086486
+# cor3 = -32.317942, -58.085295
 
-xy1 = 349, 142
-xy2 = 469, 448
-xy3 = 698, 472
+# xy1 = 349, 142
+# xy2 = 469, 448
+# xy3 = 698, 472
 
-g = GE.from_tiepoints([xy1, xy2, xy3], [cor1, cor2, cor3])
-print(g.transform([cnvSz])[0])
+# g = GE.from_tiepoints([xy1, xy2, xy3], [cor1, cor2, cor3])
+# print(g.transform([cnvSz])[0])
