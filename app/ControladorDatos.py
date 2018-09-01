@@ -95,10 +95,17 @@ class ControladorDatos(object):
 
     @classmethod
     def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, q=None):
+        """..."""
+        def areaCopaMetros(distanciaMediaMetros, distanciaMediaPixeles, areaCopaPixeles):
+            """Retorna el area de la copa de un arbol, expresada en metros cuadrados"""
+            pixelesPorCadaMetro = distanciaMediaPixeles/distanciaMediaMetros
+            pixelesPorCadaMetroCuadrado = pixelesPorCadaMetro**2
+            return areaCopaPixeles/pixelesPorCadaMetroCuadrado
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
         coord3 = imagen.latitudCono2, imagen.longitudCono2
+        # Este objeto permite obtener cualquier coordenada de un punto:
         g = GE.from_tiepoints([xy1, xy2, xy3], [coord1, coord2, coord3])
         total = len(grafo.subgraphs)
         contador=0
@@ -120,7 +127,13 @@ class ControladorDatos(object):
                 arbol.id_repeticiones = imagen.id_repeticiones
                 arbol.id_surcos_detectados = surcos_detectado.clave
                 arbol.latitud, arbol.longitud = g.transform(c)[0]
-                arbol.areaCopa = grafo.node_props.areas[n]
+                repeticion = cls.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
+                ensayo = cls.buscar_objetos('Ensayo', {'clave' : repeticion.id_ensayos})[0]
+                dMMetros = ensayo.espaciamientoY
+                dMPixeles = grafo.subgraph_props[n].mean_dist
+                aCPixeles = int(grafo.node_props.areas[n])
+                arbol.areaCopa = areaCopaMetros(dMMetros, dMPixeles, aCPixeles)
+                arbol.primero = 0 # PREGUNTAR COMO OBTENER
                 arbol.guardar(cls.db)
         if q!=None: q.put("Listo")
 
