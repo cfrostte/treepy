@@ -47,7 +47,7 @@ class Arbol(Base):
         arbolDer INTEGER,
         id_parcelas INTEGER,
         id_repeticiones INTEGER NOT NULL,
-        id_surcos_detectados INTEGER NOT NULL,
+        id_surcos_detectados INTEGER,
         FOREIGN KEY(arbolIzq) REFERENCES arboles(clave),
         FOREIGN KEY(arbolDer) REFERENCES arboles(clave),
         FOREIGN KEY(id_parcelas) REFERENCES parcelas(clave),
