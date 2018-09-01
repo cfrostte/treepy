@@ -95,19 +95,27 @@ class ControladorDatos(object):
     ############################################################################
 
     @classmethod
-    def analisis_a_objetos(cls, imagen, grafo, xy2, xy3):
+    def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, q=None):
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
         coord3 = imagen.latitudCono2, imagen.longitudCono2
         g = GE.from_tiepoints([xy1, xy2, xy3], [coord1, coord2, coord3])
+        total = len(grafo.subgraphs)
+        contador=0
         for s in grafo.subgraphs:
+            contador+=1
             surcos_detectado = SurcoDetectado()
             surcos_detectado.id_imagenes = imagen.clave
             surcos_detectado.distanciaMedia = -1 # PREGUNTAR COMO OBTENER
             surcos_detectado.anguloMedio = -1 # PREGUNTAR COMO OBTENER
             surcos_detectado.guardar(cls.db)
+            arboles_total = len(grafo.subgraphs[s].nodes())  
+            contador_arboles = 0
             for n in grafo.subgraphs[s].nodes():
+                contador_arboles+=1
+                if q!=None:
+                    q.put("Surco " + str(contador) + " de " + str(total) + " | Árbol " + str(contador_arboles) + " de " + str(arboles_total))
                 c = grafo.node_props.centroids[n]
                 arbol = Arbol()
                 arbol.id_repeticiones = imagen.id_repeticiones
@@ -115,6 +123,7 @@ class ControladorDatos(object):
                 arbol.latitud, arbol.longitud = g.transform(c)[0]
                 arbol.areaCopa = grafo.node_props.areas[n]
                 arbol.guardar(cls.db)
+        if q!=None: q.put("Listo")
 
     ############################################################################
 

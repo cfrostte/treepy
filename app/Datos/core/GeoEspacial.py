@@ -32,5 +32,4 @@ class GeoEspacial(object):
 
     def transform(self, points):
         """Transformar los datos proyectados localmente utilizando la matriz de transformación"""
-        print("punto ", points)
         return N.dot(aumentar(N.array(points)), self.trans_matrix)        

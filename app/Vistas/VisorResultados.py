@@ -6,6 +6,8 @@ from Analisis.tInterface import InterfaceDeteccion
 from .ObjetosVisor.Grafo import Grafo, Nodo
 import threading, queue
 from ControladorDatos import ControladorDatos as CD
+from math import acos, sqrt, pi
+
 
 class VisorResultados(Frame):
 	"""docstring for VisorResultados"""
@@ -60,6 +62,15 @@ class VisorResultados(Frame):
 				self.Controles.activarEdicion()
 		except queue.Empty:
 			self.after(10,self.Espera)
+
+	def EsperaReferenciar(self):
+		try:
+			msg = self.queue.get(0)
+			self.Controles.mensaje.config(text=msg)
+			if(str(msg)!="Listo"):
+				self.after(1,self.EsperaReferenciar)
+		except queue.Empty:
+			self.after(10,self.EsperaReferenciar)
 	def Georeferenciar(self):
 		if self.canvas.seteandoPuntos:
 			if(len(self.canvas.geoPuntos)==2):
@@ -70,8 +81,13 @@ class VisorResultados(Frame):
 						punto1 = g[2]
 					else:
 						punto2 = g[2]
-				CD.analisis_a_objetos(self.imagen, self.deteccion.grafo, punto1, punto2)
-				print("enviar", self.deteccion.grafo)
+				self.EsperaReferenciar()
+				Tarea = threading.Thread(
+					name="Georeferenciar", 
+					target=CD.analisis_a_objetos,
+					args=(self.imagen, self.deteccion.grafo, punto1, punto2, self.queue))
+				Tarea.deamon = True
+				Tarea.start()
 			else:
 				self.Controles.mensaje.config(text="Se necesitan setar dos coordenadas en la imagen")
 		else:
@@ -81,7 +97,17 @@ class VisorResultados(Frame):
 			self.canvas.agregandoArista = False
 			self.canvas.removiendoArista = False
 			self.Controles.Siguiente.config(text="Guardar")
-			
+def _angulo(p0,p1,p2):  
+	a = (p1[0]-p0[0])**2 + (p1[1]-p0[1])**2
+	b = (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2
+	c = (p2[0]-p0[0])**2 + (p2[1]-p0[1])**2
+	return acos( (a+b-c) / sqrt(4*a*b) ) * 180/pi
+
+def colorTriangulo(puntos):
+	A,B,C = puntos
+	return "#00D0FF" if _angulo(A,B,C)<130 and _angulo(C,A,B)<130 and _angulo(B,C,A)<130 else "#EE5500"
+
+
 class Controles(Frame):
 	def __init__(self, parent, canvas):
 		Frame.__init__(self, parent)
@@ -174,7 +200,10 @@ class CanvasVisorResultados(Canvas):
 
 		self.geoPuntos = []
 		self.seteandoPuntos = False
-
+		self.puntoCentro = None
+		self.triangulo = None
+	def getCentro(self):
+		return int(self.winfo_width()/2), int(self.winfo_height()/2)
 	def bloquear(self):
 		self.config(cursor="wait")
 		self.objetoBloqueo = self.create_rectangle(0, 0, self.winfo_width(),self.winfo_height(),  fill='red',stipple="gray12")
@@ -202,6 +231,10 @@ class CanvasVisorResultados(Canvas):
 					self.parent.BorrarArista(seleccionado.id_a,seleccionado.id_b)
 					break
 		elif self.seteandoPuntos:
+			if self.puntoCentro==None:
+				centro = self.getCentro()
+				x,y = centro
+				self.puntoCentro = [self.create_oval(x-6,y-6,x+6,y+6,fill="#AA3595"),self.create_text(x,y,text="c")]
 			x, y = event.x, event.y
 			num = 1 if len(self.geoPuntos)==0 or self.geoPuntos[len(self.geoPuntos) - 1][3] == 2 else 2
 			self.geoPuntos.append([
@@ -210,10 +243,17 @@ class CanvasVisorResultados(Canvas):
 									(int(x*self.aspecto_x), int(y*self.aspecto_y)),
 									num
 								  ])
-			if len(self.geoPuntos) > 2:
+			if len(self.geoPuntos) > 2:				
 				self.delete(self.geoPuntos[0][0])
 				self.delete(self.geoPuntos[0][1])
 				del(self.geoPuntos[0])
+			if len(self.geoPuntos) == 2:
+				if self.triangulo != None:
+					self.delete(self.triangulo)
+				triangulo = [[int(a[2][0]/self.aspecto_x),int(a[2][1]/self.aspecto_y)] for a in self.geoPuntos]
+				triangulo.append(self.getCentro())
+				color = colorTriangulo(triangulo)
+				self.triangulo = self.create_polygon(triangulo,stipple="gray12", outline=color, fill=color, width=1)
 		else:
 			id_nodo = event.widget.find_closest(event.x, event.y)[0]
 			for i,g in enumerate(self.grafos_canvas):
