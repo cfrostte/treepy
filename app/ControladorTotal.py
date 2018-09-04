@@ -3,7 +3,8 @@ from Vistas.Vista_inicio import mainInicio
 # from Vistas.Vista_inicio_Copia import mainInicio
 
 ultimosModificados = CD.ultimos_modificados('Ensayo', 9)
-todosLosEnsayo = CD.buscar_objetos('Ensayo')
+todosLosEnsayos = CD.buscar_objetos('Ensayo')
+# print(todosLosEnsayos)
 # ultimosModificados = CD.buscar_objetos('Ensayo',None, None , False, None)
 # ensayos = []
 # repeticiones = []
@@ -33,4 +34,4 @@ todosLosEnsayo = CD.buscar_objetos('Ensayo')
 
 # print(CD.buscar_objetos('Repeticion', ))
 
-inicio = mainInicio(ultimosModificados, todosLosEnsayo)
+inicio = mainInicio(ultimosModificados, todosLosEnsayos)

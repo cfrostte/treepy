@@ -3,6 +3,7 @@
 from ControladorDatos import ControladorDatos as CD
 # from Datos.core.GeoEspacial import GeoEspacial as GE
 
+
 CD.crear_estructura()
 CD.volcar_datos_prueba(3)
 # CD.respaldar_datos()
@@ -40,6 +41,42 @@ CD.volcar_datos_prueba(3)
 # print(guardado)
 # print('------------antes-----------')
 # guardado2 =  guardado.guardar(CD.db)
+
+# clone = CD.buscar_objetos('Clon', {'nro' : '700'})
+# print(clone)
+# if clone:
+# 	clone[0].nro = '777'
+# 	g = clone[0].guardar(CD.db)
+# else:
+# 	clone = CD.crear_objeto('Clon')
+# 	clone.nro = '7777'
+# 	g = clone.guardar(CD.db)
+# print(g)
+
+# bloque = CD.buscar_objetos('Bloque', {'id_repeticiones' : '7', 'color' : 'rojsdo'})
+# for x in bloque:self.repeticionClave
+# print(bloque)
+# print(bloque == [])
+# print(bloque == None)
+
+repeticion = CD.buscar_objetos('Repeticion', {'clave' : '12'})[0]
+print(repeticion)
+bloques = CD.buscar_objetos('Bloque', {'id_repeticiones' : repeticion.clave})
+parcelas = []
+clones = []
+for bl in bloques:
+	print(bl)
+	parcelas += CD.buscar_objetos('Parcela', {'id_bloques' : bl.clave})
+
+for x in parcelas:
+	print(x)
+	clones += CD.buscar_objetos('Clon', {'clave' : x.id_clones})
+
+for x in clones:
+	print(x)
+
+# print(bloques[1])
+# print(bloques[2])
 
 # print(guardado2)
 # print('-----------------------')
