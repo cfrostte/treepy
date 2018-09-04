@@ -587,14 +587,14 @@ def dividirSurco(grf,degree,error_max):
             x2 = [grf.getCoordCentroids(n)[0] for n in H.nodes()]
             y2 = [grf.getCoordCentroids(n)[1] for n in H.nodes()]
 
-            plt.figure()
-            plt.axis('equal')
-            plt.ylim(max(y),0)
-            xp = np.linspace(min(x), max(x), len(x)+100)
-            plt.plot(x2,y2,'.',xp,p(xp),'r-')
+        #     plt.figure()
+        #     plt.axis('equal')
+        #     plt.ylim(max(y),0)
+        #     xp = np.linspace(min(x), max(x), len(x)+100)
+        #     plt.plot(x2,y2,'.',xp,p(xp),'r-')
             removeNodes(node_cons[N],grf2)
 
-        plt.show()
+        # plt.show()
         return grf2
 
 # -------------------------------------------------------------------------------
@@ -764,14 +764,15 @@ class Detection(object):
         plt.tight_layout()
         plt.savefig(config.getLabelingPath(nombre))
 
-    def filterRegionsByArea(self, arr_labeled, node_props):
+    def filterRegionsByArea(self, arr_labeled, node_props, poly=None):
         centroids_arr = {}
         areas_arr = {}
         bboxes_arr = {}
         eccentricity = {}
         error_area = {}
         intensity = {}
-        #poly = cutRemains(self.img_RGB)
+        if not poly:
+            poly = cutRemains(self.img_RGB)
 
         # variables to get group bbox coords
         min_x_group=self.img_width
@@ -781,9 +782,9 @@ class Detection(object):
 
         cont = 0
         for region in regionprops(arr_labeled):
-            #min_y_bbox, min_x_bbox, max_y_bbox, max_x_bbox = region.bbox
-            #p = Point((min_x_bbox+max_x_bbox)/2, (min_y_bbox+max_y_bbox)/2)
-            if region.area >= config.getMinAreaSize():# and p.within(poly):
+            min_y_bbox, min_x_bbox, max_y_bbox, max_x_bbox = region.bbox
+            p = Point((min_x_bbox+max_x_bbox)/2, (min_y_bbox+max_y_bbox)/2)
+            if region.area >= config.getMinAreaSize() and p.within(poly):
 
                 # (major_axis, minor_axis)
                 eccentricity[cont] = (region.minor_axis_length/region.major_axis_length)
