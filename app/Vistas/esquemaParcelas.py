@@ -9,6 +9,7 @@ from ControladorDatos import ControladorDatos as CD
 class esquemaParcelas(Frame):
     todaLaMatriz = None
     repeticionClave = None
+    grilla = None
 
     def __init__(self, parent, *args, **kwargs):
         Frame.__init__(self, parent, *args, **kwargs)
@@ -78,13 +79,6 @@ class esquemaParcelas(Frame):
                     parcela.id_bloques = bloquesObj[self.matrizBloques[x][j]].clave
                     parcela.id_clones = clonesObj[int(self.matriz[x][j])].clave
                     parcelaGuardada = parcela.guardar(CD.db)
-                    print("Parcela guardada")
-                    print(parcelaGuardada)
-                    print("Parcela guardada")
-                    #
-
-        #Primero guardo los bloques y me quedo con la clave
-        
         messagebox.showinfo("Info", "El esquema se ha guardado satisfactoriamente")
 
     def seleccionarBloque(self, b):
@@ -95,9 +89,7 @@ class esquemaParcelas(Frame):
         self.grilla = Frame(self)     
         self.grilla.pack(padx=5, pady=5)
         if self.b2==None:
-            # self.b2 = Button(self.controles,text="Colorear bloque",command=lambda:EditorBloques(self.colores,self))
             self.b2 = EditorBloques(self.colores,self)
-            # self.b2.pack(pady=5, padx=5, side=LEFT)
             Button(self.controles,text="Guardar",command=self.listo).pack(pady=5, padx=5, side=LEFT)
         copiado = pyperclip.paste()
         d = []
@@ -118,15 +110,42 @@ class esquemaParcelas(Frame):
                 b.grid(row=i + 1, column=j)
                 if(texto == "" or texto == " "):
                     b.config(state = DISABLED )
-
-
-# if __name__ == "__main__":
-#     root = Tk()
-#     root.title("Creando Repetición")
-#     mainapp = esquemaParcelas(root).pack(side="top", fill="both", expand=True)
-#     print(mainapp)
-#     root.mainloop()
-
-
-
-
+    
+    def dibujar(self, claveRepeticion):
+        repeticion = CD.buscar_objetos('Repeticion', {'clave' : claveRepeticion})[0]
+        matrizinicial = [ [ None for i in range(int(repeticion.nroFilas)) ] for j in range(int(repeticion.nroColumnas)) ]
+        bloques = CD.buscar_objetos('Bloque', {'id_repeticiones' : repeticion.clave})
+        parcelas = []
+        clones = []
+        for bl in bloques:
+            parcelas += CD.buscar_objetos('Parcela', {'id_bloques' : bl.clave})
+        for x in parcelas:
+            clon = CD.buscar_objetos('Clon', {'clave' : x.id_clones})
+            clones += clon
+            nroBloque = CD.buscar_objetos('Bloque', {'clave' : x.id_bloques})[0]
+            matrizinicial[int(x.columna)][int(x.fila)] = [clon[0].nro, nroBloque.color]
+        if self.grilla!=None:
+            self.grilla.destroy()   
+        self.grilla = Frame(self)     
+        self.grilla.pack(padx=5, pady=5)
+        if self.b2==None:
+            self.b2 = EditorBloques(self.colores,self)
+            Button(self.controles,text="Guardar",command=self.listo).pack(pady=5, padx=5, side=LEFT)
+        d = []
+        self.matriz = []
+        self.matrizBloques = []
+        for i, linea in enumerate(matrizinicial): 
+            self.matriz.append([])
+            self.matrizBloques.append([])
+            for j,texto in enumerate(linea):
+                if texto != None:
+                    self.matriz[len(self.matriz) - 1].append(texto[0])                 
+                    self.matrizBloques[len(self.matrizBloques) - 1].append(texto[1])                 
+                    b = Celda(self.grilla, justify='center',bg=texto[1], width=8)
+                    b.insert(0,texto[0])
+                    b.grid(row=i + 1, column=j)
+                else:
+                    b = Celda(self.grilla, justify='center', width=8)
+                    b.insert(0,"")
+                    b.grid(row=i + 1, column=j)
+                    b.config(state = DISABLED )

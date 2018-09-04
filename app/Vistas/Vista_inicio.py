@@ -401,6 +401,13 @@ class Inicio(object):
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
 
 	def updateFrameRepeticion(self, repeticion=None, nroRepes=None):
+		# self.misframes['Repeticion'].camposEditables['frameesquema'].dibujar()
+		# print("------TIPO--------")
+		# print(type(self.misframes['Repeticion'].camposEditables['frameesquema']))
+		# print(self.misframes['Repeticion'].camposEditables['frameesquema'])
+		# print(self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave)
+		# self.misframes['Repeticion'].camposEditables['frameesquema'].dibujar()
+		# print("------TIPO--------")
 		if 'frameAgregarNuevaImagen' in self.misframes['Repeticion'].camposEditables.keys():
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].pack_forget()
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].destroy()
@@ -412,9 +419,16 @@ class Inicio(object):
 		for x in list(self.misframes['Repeticion'].camposEditables['imagenesRepeticion'].keys()):
 			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x].pack_forget()
 			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x].destroy()
+		if self.misframes['Repeticion'].camposEditables['frameesquema'].grilla!=None:
+			self.misframes['Repeticion'].camposEditables['frameesquema'].grilla.destroy() 
 		
-		if repeticion:
+		if repeticion.nroFilas != ' ' and repeticion.nroColumnas != ' ':
+			#Dibujo el esquema de la repeticion
 			self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = repeticion.clave
+			print("Antes de pasar la clave")
+			print(repeticion.clave)
+			self.misframes['Repeticion'].camposEditables['frameesquema'].dibujar(repeticion.clave)
+			#
 			print("-----------Al ver repeticion clave del frmae-------------------")
 			print(self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave)
 			print("-----------Al ver repeticion-------------------")
@@ -501,6 +515,9 @@ class Inicio(object):
 
 		else:
 			# donothing
+			self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Repeticion "+str(repeticion.nro))
+			self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = repeticion.clave
+			
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'] = tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2])
 			# superFrameContainerIn = tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2])
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
@@ -657,9 +674,11 @@ class Inicio(object):
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['plantasXparcela'], ensayo.plantasParcela)
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['tipoClonal'], ensayo.tipoClonal)
 
+		print("Antes de buscar la repeticionne: ", ensayo.clave)
 		repes = CD.buscar_objetos('Repeticion', {'id_ensayos' : ensayo.clave})
-
+		print("Despues que busco: ", repes, "Largo: ", len(repes))
 		if len(repes) > 0:
+			print("Entro al for de las repes")
 			for x in range(0, len(repes)):
 				label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
 				label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
