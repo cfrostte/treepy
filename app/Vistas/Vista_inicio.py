@@ -100,7 +100,8 @@ class Inicio(object):
 
 		self.misframes['Repeticion'].camposEditables['imagenesRepeticion'] = {}
 
-		self.misframes['Repeticion'].camposEditables['btnVolver'] = tk.Button(self.misframes['Repeticion'].camposEditables['totalFrame'][3], text="Volver", command=lambda: self.raise_frame(self.misframes[self.frameActivo], self.misframes[self.frameAnterior]))
+		# self.misframes['Repeticion'].camposEditables['btnVolver'] = tk.Button(self.misframes['Repeticion'].camposEditables['totalFrame'][3], text="Volver", command=lambda: self.raise_frame(self.misframes[self.frameActivo], self.misframes[self.frameAnterior]))
+		self.misframes['Repeticion'].camposEditables['btnVolver'] = tk.Button(self.misframes['Repeticion'].camposEditables['totalFrame'][3], text="Volver", command=lambda: self.raise_frame(self.misframes['Repeticion'], self.misframes['Ensayo']))
 		self.misframes['Repeticion'].camposEditables['btnVolver'].pack(side=tk.BOTTOM)
 
 	def verEnsayo(self):
@@ -158,7 +159,7 @@ class Inicio(object):
 
 		# self.misframes['Ensayo'].camposEditables['btn']		
 		
-		self.misframes['Ensayo'].camposEditables['btnVolver'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Volver", command=lambda: self.raise_frame(self.misframes[self.frameActivo], self.misframes[self.frameAnterior]))
+		self.misframes['Ensayo'].camposEditables['btnVolver'] = tk.Button(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text="Volver", command=lambda: self.raise_frame(self.misframes['Ensayo'], self.misframes['Inicio']))
 		self.misframes['Ensayo'].camposEditables['btnVolver'].pack(side=tk.BOTTOM)
 
 	def frameCreateCampo(self, frameContainer, parent, textLabel, textDato):
@@ -334,12 +335,13 @@ class Inicio(object):
 		container = self.parent
 		self.tree = tttk.Treeview(columns=self.car_header, show="headings")
 		vsb = tttk.Scrollbar(orient="vertical", command=self.tree.yview)
-		hsb = tttk.Scrollbar(orient="horizontal", command=self.tree.xview)
-		self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+		# hsb = tttk.Scrollbar(orient="horizontal", command=self.tree.xview)
+		# self.tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+		self.tree.configure(yscrollcommand=vsb.set)
 		self.tree.grid(column=0, row=0, sticky='nsew', in_=container)
 		self.tree.bind("<Double-1>", lambda event, :self.OnDoubleClick(event))
 		vsb.grid(column=1, row=0, sticky='ns', in_=container)
-		hsb.grid(column=0, row=1, sticky='ew', in_=container)
+		# hsb.grid(column=0, row=1, sticky='ew', in_=container)
 		container.grid_columnconfigure(0, weight=1)
 		container.grid_rowconfigure(0, weight=1)
 		return self.tree
@@ -403,13 +405,6 @@ class Inicio(object):
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
 
 	def updateFrameRepeticion(self, repeticion=None, nroRepes=None):
-		# self.misframes['Repeticion'].camposEditables['frameesquema'].dibujar()
-		# print("------TIPO--------")
-		# print(type(self.misframes['Repeticion'].camposEditables['frameesquema']))
-		# print(self.misframes['Repeticion'].camposEditables['frameesquema'])
-		# print(self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave)
-		# self.misframes['Repeticion'].camposEditables['frameesquema'].dibujar()
-		# print("------TIPO--------")
 		if 'frameAgregarNuevaImagen' in self.misframes['Repeticion'].camposEditables.keys():
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].pack_forget()
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].destroy()
@@ -427,13 +422,10 @@ class Inicio(object):
 		if repeticion.nroFilas != ' ' and repeticion.nroColumnas != ' ':
 			#Dibujo el esquema de la repeticion
 			self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = repeticion.clave
-			print("Antes de pasar la clave")
-			print(repeticion.clave)
 			self.misframes['Repeticion'].camposEditables['frameesquema'].dibujar(repeticion.clave)
 			#
-			print("-----------Al ver repeticion clave del frmae-------------------")
-			print(self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave)
-			print("-----------Al ver repeticion-------------------")
+
+		if repeticion != None:
 			pathImg = '//'+str(repeticion.id_ensayos)+'//'+str(repeticion.clave)
 			imagenes = CD.buscar_objetos('Imagen', {'id_repeticiones' : repeticion.clave})
 			self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Repeticion "+str(repeticion.nro))
@@ -555,8 +547,10 @@ class Inicio(object):
 		# nuevaImagen.latitudCono2 = ' '
 		# nuevaImagen.longitudCono2 = ' '
 		guardado = nuevaImagen.guardar(CD.db)
-		path =   str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
-		pathlib.Path(str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
+		# path =   str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
+		# pathlib.Path(str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
+		path =   str(Path().absolute()) + '//Datos//store//img//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
+		pathlib.Path(str(Path().absolute()) + '//Datos//store//img//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
 		shutil.copy(src, path) 
 		guardado.url = path
 		nuevaImagen = guardado.guardar(CD.db)
