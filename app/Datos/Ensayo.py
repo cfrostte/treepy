@@ -49,7 +49,7 @@ class Ensayo(Base):
         a.totalHas = random.randint(123, 987)
         a.plantasParcela = random.randint(123, 987)
         a.tipoClonal = ''.join([random.choice(string.ascii_letters + string.digits) for r in range(4)])
-        a.nroRepeticiones = random.randint(123, 987)
+        a.nroRepeticiones = random.randint(1, 3)
         return a
 
     @classmethod

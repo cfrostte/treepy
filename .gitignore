@@ -101,4 +101,6 @@ ENV/
 .mypy_cache/
 
 # CUSTOM
-app/Datos/store
+app/Datos/store/*
+probability_data.json
+app/probability_data.json

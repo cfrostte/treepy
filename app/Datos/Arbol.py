@@ -21,6 +21,7 @@ class Arbol(Base):
     arbolDer = None # FK
     id_parcelas = None
     id_repeticiones = None
+    id_surcos_detectados = None
 
     def __init__(self, clave=None):
         Base.__init__(self, clave)
@@ -46,8 +47,10 @@ class Arbol(Base):
         arbolDer INTEGER,
         id_parcelas INTEGER,
         id_repeticiones INTEGER NOT NULL,
+        id_surcos_detectados INTEGER,
         FOREIGN KEY(arbolIzq) REFERENCES arboles(clave),
         FOREIGN KEY(arbolDer) REFERENCES arboles(clave),
         FOREIGN KEY(id_parcelas) REFERENCES parcelas(clave),
-        FOREIGN KEY(id_repeticiones) REFERENCES repeticiones(clave))"""
+        FOREIGN KEY(id_repeticiones) REFERENCES repeticiones(clave),
+        FOREIGN KEY(id_surcos_detectados) REFERENCES surcos_detectados(clave))"""
         return s.format(cls._tabla)
