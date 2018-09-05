@@ -98,9 +98,9 @@ class ControladorDatos(object):
         """..."""
         def areaCopaMetros(distanciaMediaMetros, distanciaMediaPixeles, areaCopaPixeles):
             """Retorna el area de la copa de un arbol, expresada en metros cuadrados"""
-            pixelesPorCadaMetro = distanciaMediaPixeles/distanciaMediaMetros
+            pixelesPorCadaMetro = float(distanciaMediaPixeles)/float(distanciaMediaMetros)
             pixelesPorCadaMetroCuadrado = pixelesPorCadaMetro**2
-            return areaCopaPixeles/pixelesPorCadaMetroCuadrado
+            return float(areaCopaPixeles)/float(pixelesPorCadaMetroCuadrado)
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
@@ -130,7 +130,7 @@ class ControladorDatos(object):
                 repeticion = cls.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
                 ensayo = cls.buscar_objetos('Ensayo', {'clave' : repeticion.id_ensayos})[0]
                 dMMetros = ensayo.espaciamientoY
-                dMPixeles = grafo.subgraph_props[n].mean_dist
+                dMPixeles = grafo.subgraph_props.mean_dist[s]
                 aCPixeles = int(grafo.node_props.areas[n])
                 arbol.areaCopa = areaCopaMetros(dMMetros, dMPixeles, aCPixeles)
                 arbol.primero = 0 # PREGUNTAR COMO OBTENER
