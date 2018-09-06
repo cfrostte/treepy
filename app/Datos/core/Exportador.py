@@ -42,22 +42,32 @@ class Exportador(object):
         y = n.year
         return o.format(carpeta, d, m, y, extencion)
 
+    # @staticmethod
+    # def correr_consulta(db, clave=None):
+    #     q = """SELECT e.nro AS A, r.nro AS B, c.nro AS C,
+    #     a.clave AS D, a.latitud AS E, a.longitud AS F, 
+    #     CASE WHEN (SELECT 1 FROM arboles_faltantes 
+    #     WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
+    #     a.areaCopa AS H FROM arboles AS a JOIN parcelas AS p 
+    #     JOIN bloques AS b JOIN repeticiones AS r JOIN ensayos AS e 
+    #     JOIN clones AS c WHERE a.id_parcelas = p.clave 
+    #     AND p.id_bloques = b.clave AND b.id_repeticiones = r.clave 
+    #     AND r.id_ensayos = e.clave AND c.clave = p.id_clones {}""".format('AND e.clave = ?' if clave else '')
+    #     return Base.consultar(db, q, (clave, )) if clave else Base.consultar(db, q)
+
     @staticmethod
-    def correr_consulta(db):
-        q = """SELECT e.nro AS A, r.nro AS B, c.nro AS C,
+    def correr_consulta(db, clave=None):
+        q = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C,
         a.clave AS D, a.latitud AS E, a.longitud AS F, 
         CASE WHEN (SELECT 1 FROM arboles_faltantes 
         WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
-        a.areaCopa AS H FROM arboles AS a JOIN parcelas AS p 
-        JOIN bloques AS b JOIN repeticiones AS r JOIN ensayos AS e 
-        JOIN clones AS c WHERE a.id_parcelas = p.clave 
-        AND p.id_bloques = b.clave AND b.id_repeticiones = r.clave 
-        AND r.id_ensayos = e.clave AND c.clave = p.id_clones"""
-        return Base.consultar(db, q)
+        a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
+        WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave {}""".format('AND e.clave = ?' if clave else '')
+        return Base.consultar(db, q, (clave, )) if clave else Base.consultar(db, q)
 
 class CSV(Exportador):
     @staticmethod
-    def informe(db, carpeta):
+    def informe(db, carpeta, clave=None):
         archivo = Exportador.nuevo_archivo(carpeta, 'csv')
         # Escribir en archivo
         with open(archivo, 'w') as a:
@@ -72,7 +82,7 @@ class CSV(Exportador):
             header = [A, B, C, D, E, F, G, H]
             dw = csv.DictWriter(a, fieldnames=header)
             dw.writeheader() # Escribir el header
-            for x in Exportador.correr_consulta(db):
+            for x in Exportador.correr_consulta(db, clave):
                 fila = {
                     '{}'.format(header[0]) : x['A'],
                     '{}'.format(header[1]) : x['B'],
@@ -102,13 +112,13 @@ class CSV(Exportador):
 
 class KML(Exportador):
     @staticmethod
-    def informe(db, carpeta):
+    def informe(db, carpeta, clave=None):
         """Opcion 2 : Exportar datos de forma jerarquica"""
         kml = simplekml.Kml()
         q_ensayos = """SELECT ensayos.* FROM ensayos JOIN objetos
         WHERE clave = id AND tipo = 'Ensayo' AND eliminado = 0 AND EXISTS
-        (SELECT 1 FROM repeticiones WHERE id_ensayos = ensayos.clave)"""
-        r_ensayos = Base.consultar(db, q_ensayos)
+        (SELECT 1 FROM repeticiones WHERE id_ensayos = ensayos.clave) {}""".format('AND clave = ?' if clave else '')
+        r_ensayos = Base.consultar(db, q_ensayos, (clave, )) if clave else Base.consultar(db, q_ensayos)
         if r_ensayos:
             for e in r_ensayos:
                 f_e = kml.newfolder(name='Ensayo nro {}'.format(e['nro']))
