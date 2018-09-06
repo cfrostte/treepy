@@ -140,14 +140,14 @@ class ControladorDatos(object):
     ############################################################################
 
     @classmethod
-    def exportar_informe_csv(cls):
+    def exportar_informe_csv(cls, clave=None):
         """..."""
-        csv.informe(cls.db, cls.csv)
+        csv.informe(cls.db, cls.csv, clave)
 
     @classmethod
-    def exportar_informe_kml(cls):
+    def exportar_informe_kml(cls, clave=None):
         """..."""
-        kml.informe(cls.db, cls.kml)
+        kml.informe(cls.db, cls.kml, clave)
 
     ############################################################################
 

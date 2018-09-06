@@ -540,12 +540,12 @@ class Inicio(object):
 		nuevaImagen.longitud = info['lon']
 		nuevaImagen.altitud = info['altitud']
 		nuevaImagen.id_repeticiones = claveRepe
-		# nuevaImagen.etapa = ' '
-		# nuevaImagen.url = ' '
-		# nuevaImagen.latitudCono1 = ' '
-		# nuevaImagen.longitudCono1 = ' '
-		# nuevaImagen.latitudCono2 = ' '
-		# nuevaImagen.longitudCono2 = ' '
+		nuevaImagen.etapa = '1'
+		nuevaImagen.url = ' ' # NO COMENTAR
+		nuevaImagen.latitudCono1 = -32.14
+		nuevaImagen.longitudCono1 = -56.9
+		nuevaImagen.latitudCono2 = 30.3
+		nuevaImagen.longitudCono2 = 70.8
 		guardado = nuevaImagen.guardar(CD.db)
 		# path =   str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
 		# pathlib.Path(str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
@@ -653,6 +653,12 @@ class Inicio(object):
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Analisis'])
 
 	def updateFrameEnsayo(self, ensayo):
+
+		def exportar(clave):
+			print('Exportando CSV y KML para el ensayo.clave={}'.format(clave))
+			CD.exportar_informe_csv(clave)
+			CD.exportar_informe_kml(clave)
+
 		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].destroy()
@@ -672,6 +678,7 @@ class Inicio(object):
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['totalHas'], ensayo.totalHas)
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['plantasXparcela'], ensayo.plantasParcela)
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['tipoClonal'], ensayo.tipoClonal)
+		self.misframes['Ensayo'].camposEditables['btnExportar'].config(command = lambda: exportar(ensayo.clave))
 
 		print("Antes de buscar la repeticionne: ", ensayo.clave)
 		repes = CD.buscar_objetos('Repeticion', {'id_ensayos' : ensayo.clave})
