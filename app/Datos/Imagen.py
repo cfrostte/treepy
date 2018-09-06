@@ -29,6 +29,7 @@ class Imagen(Base):
     longitudCono1 = None
     latitudCono2 = None
     longitudCono2 = None
+    grafo = None
     id_repeticiones = None
 
     def __init__(self, clave=None):
@@ -67,6 +68,7 @@ class Imagen(Base):
         longitudCono1 REAL NOT NULL,
         latitudCono2 REAL NOT NULL,
         longitudCono2 REAL NOT NULL,
+        grafo BLOB,        
         id_repeticiones INTEGER NOT NULL,
         FOREIGN KEY(id_repeticiones) REFERENCES repeticiones(clave))"""
         return s.format(cls._tabla)
