@@ -25,7 +25,11 @@ class VisorResultados(Frame):
 		self.pack()
 		self.queue = self.deteccion.queue
 	def Analisis(self,imagen):
+		self.Controles.Init()
+		self.deteccion = InterfaceDeteccion()
 		self.imagen = imagen
+		self.poligono = []
+		self.queue = self.deteccion.queue
 		self.deteccion.SetImage(imagen.url)
 		self.canvas.Inicio(imagen.url)
 	def correrAnalisis(self):
@@ -71,6 +75,7 @@ class VisorResultados(Frame):
 				self.after(1,self.EsperaReferenciar)
 		except queue.Empty:
 			self.after(10,self.EsperaReferenciar)
+
 	def Georeferenciar(self):
 		if self.canvas.seteandoPuntos:
 			if(len(self.canvas.geoPuntos)==2):
@@ -97,24 +102,31 @@ class VisorResultados(Frame):
 			self.canvas.agregandoArista = False
 			self.canvas.removiendoArista = False
 			self.Controles.Siguiente.config(text="Guardar")
-def _angulo(p0,p1,p2):  
-	a = (p1[0]-p0[0])**2 + (p1[1]-p0[1])**2
-	b = (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2
-	c = (p2[0]-p0[0])**2 + (p2[1]-p0[1])**2
-	return acos( (a+b-c) / sqrt(4*a*b) ) * 180/pi
-
-def colorTriangulo(puntos):
-	A,B,C = puntos
-	return "#00D0FF" if _angulo(A,B,C)<130 and _angulo(C,A,B)<130 and _angulo(B,C,A)<130 else "#EE5500"
-
 
 class Controles(Frame):
 	def __init__(self, parent, canvas):
 		Frame.__init__(self, parent)
 		self.parent = parent
+		self.Add_Node=None
+		self.Add_Edge=None
+		self.Rem_Node=None
+		self.Rem_edge=None
+		self.mensaje=None
+		self.analizar=None
+		self.Siguiente=None
+		self.Volver=None
 		self.Init()
 		self.canvas = canvas
-	def Init(self):		
+	def Init(self):	
+		if self.Add_Node!=None: self.Add_Node.destroy()
+		if self.Add_Edge!=None: self.Add_Edge.destroy()
+		if self.Rem_Node!=None: self.Rem_Node.destroy()
+		if self.Rem_edge!=None: self.Rem_edge.destroy()
+		if self.mensaje!=None: self.mensaje.destroy()
+		if self.analizar!=None:  self.analizar.destroy()
+		if self.Siguiente!=None: self.Siguiente.destroy()
+		if self.Volver!=None: self.Volver.destroy()
+
 		self.Add_Node = Button(self, text ="Agregar Árbol", state=DISABLED, command = self.addNode)
 		self.Add_Node.pack(side=LEFT)
 		self.Add_Edge = Button(self, text ="Agregar Unión", state=DISABLED, command = self.addArista)
@@ -127,11 +139,15 @@ class Controles(Frame):
 		self.mensaje.pack(side=LEFT)
 		self.analizar = Button(self, text ="Analizar", command = self.correrAnalisis)
 		self.analizar.pack(side=RIGHT)
-		aux = self.parent.controladorVista
 		self.Siguiente = Button(self, state=DISABLED, text ="Siguiente", command = self.parent.Georeferenciar)
 		self.Siguiente.pack(side=RIGHT)
-		self.Volver = Button(self, text ="Volver", command=lambda: aux.raise_frame(aux.misframes["Analisis"], aux.misframes["Repeticion"]))
+		self.Volver = Button(self, text ="Volver", command=self.volver)
 		self.Volver.pack(side=RIGHT)
+
+	def volver(self):
+		aux = self.parent.controladorVista
+		aux.raise_frame(aux.misframes["Analisis"], aux.misframes["Repeticion"])
+
 	def activarEdicion(self):
 		self.Rem_edge.config(state=NORMAL)
 		self.Rem_Node.config(state=NORMAL)
@@ -162,6 +178,16 @@ class Controles(Frame):
 		self.parent.canvas.removiendoArista = True
 	def correrAnalisis(self):
 		self.parent.correrAnalisis()
+
+def _angulo(p0,p1,p2):  
+	a = (p1[0]-p0[0])**2 + (p1[1]-p0[1])**2
+	b = (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2
+	c = (p2[0]-p0[0])**2 + (p2[1]-p0[1])**2
+	return acos( (a+b-c) / sqrt(4*a*b) ) * 180/pi
+
+def colorTriangulo(puntos):
+	A,B,C = puntos
+	return "#00D0FF" if _angulo(A,B,C)<130 and _angulo(C,A,B)<130 and _angulo(B,C,A)<130 else "#EE5500"
 		
 class CanvasVisorResultados(Canvas):
 	"""docstring for CanvasVisorResultados"""
@@ -202,6 +228,14 @@ class CanvasVisorResultados(Canvas):
 		self.seteandoPuntos = False
 		self.puntoCentro = None
 		self.triangulo = None
+
+	def Inicio(self, imagen):
+		self.Limpiar()
+		self.im = Image.open(imagen)
+		self.im_escalada = self.EscalarVista(self.im)
+		self.photo = ImageTk.PhotoImage(self.im_escalada)
+		self.item_image = self.create_image(0,0,anchor=NW, image=self.photo)
+		self.config(width=self.im_escalada.size[0], height=self.im_escalada.size[1])
 	def getCentro(self):
 		return int(self.winfo_width()/2), int(self.winfo_height()/2)
 	def bloquear(self):
@@ -272,13 +306,6 @@ class CanvasVisorResultados(Canvas):
 		self.puntospoligono.append((x,y))
 		if self.poligono: self.delete(self.poligono)
 		self.poligono = self.create_polygon(self.puntospoligono,stipple="gray12", outline='red', width=1)
-	def Inicio(self, imagen):
-		self.Limpiar()
-		self.im = Image.open(imagen)
-		self.im_escalada = self.EscalarVista(self.im)
-		self.photo = ImageTk.PhotoImage(self.im_escalada)
-		self.item_image = self.create_image(0,0,anchor=NW, image=self.photo)
-		self.config(width=self.im_escalada.size[0], height=self.im_escalada.size[1])
 	def CambiarImagen(self,imagen):
 		self.imagen = imagen
 		self.im = Image.open(imagen)
