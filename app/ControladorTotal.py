@@ -18,10 +18,10 @@ todosLosEnsayos = CD.buscar_objetos('Ensayo')
 # 	print("-----------------------------------")
 # 	print(CD.obtener_relaciones_de(ensayo, 'Repeticion'))
 # 	print("-----------------------------------")
-	# for repeticion in CD.obtener_relaciones_de(ensayo, 'Repeticion'):
-		# print("---------------")
-		# print(repeticion)
-		# print("---------------")
+    # for repeticion in CD.obtener_relaciones_de(ensayo, 'Repeticion'):
+        # print("---------------")►
+        # print(repeticion)
+        # print("---------------")
 
 
 # inicio.miapp(ultimosModificados)

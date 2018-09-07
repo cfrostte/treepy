@@ -123,7 +123,6 @@ class Inicio(object):
 		tituloEnsayo = 'Ensayo Nro 2131'
 		self.misframes['Ensayo'].camposEditables['tituloEnsayo'] = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-1], text=tituloEnsayo)
 		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
 		self.misframes['Ensayo'].camposEditables['numEnsayo'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'N° Ensayo: ', '3')
 		self.misframes['Ensayo'].camposEditables['numRepeticiones'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'N° Repeticiones: ', '3')
 		self.misframes['Ensayo'].camposEditables['establecimiento'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Establecimento: ', 'La Tribu')
@@ -194,7 +193,7 @@ class Inicio(object):
 			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 
 			datos = []
-			nombre = 'Ensayo' + str(ensayo.clave) + ' ' + str(ensayo.establecimiento)
+			nombre = 'Ensayo N° ' + str(ensayo.clave) + '\nEstablecimiento:  ' + str(ensayo.establecimiento)
 			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			ensayoImage = Image.open('Vistas/Image.png')
@@ -393,8 +392,8 @@ class Inicio(object):
 	    self.frameActivo = newframe.get_name()
 	    self.frameAnterior = frame.get_name()
 	    print('Nuevo : '+ self.frameActivo + '___ Anterior : ' + self.frameAnterior)
-	def clickVerRepeticion(self, event, repeticion, nroRepes):
-		self.updateFrameRepeticion(repeticion, nroRepes)
+	def clickVerRepeticion(self, event, repeticion, nroRepes, nroEnsayo):
+		self.updateFrameRepeticion(repeticion, nroRepes, nroEnsayo)
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion'])
 
 	def clickEnsayoReciente(self, event, ensayo):
@@ -404,7 +403,7 @@ class Inicio(object):
 
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
 
-	def updateFrameRepeticion(self, repeticion=None, nroRepes=None):
+	def updateFrameRepeticion(self, repeticion=None, nroRepes=None, nroEnsayo=None):
 		if 'frameAgregarNuevaImagen' in self.misframes['Repeticion'].camposEditables.keys():
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].pack_forget()
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].destroy()
@@ -428,7 +427,7 @@ class Inicio(object):
 		if repeticion != None:
 			pathImg = '//'+str(repeticion.id_ensayos)+'//'+str(repeticion.clave)
 			imagenes = CD.buscar_objetos('Imagen', {'id_repeticiones' : repeticion.clave})
-			self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Repeticion "+str(repeticion.nro))
+			self.misframes['Repeticion'].camposEditables['tituloRepeticion'].config(text="Ensayo N° "+str(nroEnsayo)+" ► Repeticion "+str(repeticion.nro))
 
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'] = tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2])
 			# superFrameContainerIn = tk.Frame(self.misframes['Repeticion'].camposEditables['totalFrame'][2])
@@ -664,7 +663,7 @@ class Inicio(object):
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].destroy()
 
 		self.misframes['Ensayo'].camposEditables['ensayoClave'] = ensayo.clave
-		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].config(text='Ensayoooo N° ' + str(ensayo.nro))
+		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].config(text='Ensayo N° ' + str(ensayo.nro),font=('Courier', 33))
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['numEnsayo'], ensayo.nro)
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['numRepeticiones'], ensayo.nroRepeticiones)
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['establecimiento'], ensayo.establecimiento)
@@ -690,7 +689,7 @@ class Inicio(object):
 				label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 				label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
 				label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
-				label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=ensayo.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes))
+				label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=ensayo.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes, ensayo.nro))
 
 				self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
 			# self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'].pack_forget()
@@ -792,9 +791,11 @@ class Inicio(object):
 			guardado = ensayo.guardar(CD.db)
 		except Exception:
 			messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
+			return
 
-		messagebox.showinfo("Info", "Se a guardado correctamente") # if guardado else messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
+		messagebox.showinfo("Info", "Se ha guardado correctamente") # if guardado else messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
 
+		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].config(text="Ensayo N° "+str(ensayo.nro))
 		#Si es nuevo creao tantas repeticiones vacias como diga el nro de repeticiones
 		if tipo == "Nuevo":
 			for x in range(0, int(guardado.nroRepeticiones)):
@@ -816,7 +817,7 @@ class Inicio(object):
 			label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
 			label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
 			# label.bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
-			label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=guardado.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes))
+			label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=guardado.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes, ensayo.nro))
 
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
 
