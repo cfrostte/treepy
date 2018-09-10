@@ -14,7 +14,7 @@ todosLosEnsayos = CD.buscar_objetos('Ensayo')
 # 	# print(x)
 # 	print(ensayo)
 # 	print("+++++++++++++++++++++++++++++++++")
-# 	ensayos.append(ensayo)\
+# 	ensayos.append(ensayo)\ 
 # 	print("-----------------------------------")
 # 	print(CD.obtener_relaciones_de(ensayo, 'Repeticion'))
 # 	print("-----------------------------------")

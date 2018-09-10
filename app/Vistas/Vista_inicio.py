@@ -18,6 +18,7 @@ import shutil,os
 import pathlib
 from pathlib import Path
 import datetime
+import os
 
 # import tkinter.filedialog as filedialog
 
@@ -692,6 +693,10 @@ class Inicio(object):
 			print('Exportando CSV y KML para el ensayo.clave={}'.format(clave))
 			CD.exportar_informe_csv(clave)
 			CD.exportar_informe_kml(clave)
+			# path="C:/Users"
+			path=CD.kml
+			path=os.path.realpath(path)
+			os.startfile(path)
 
 		for x in range(0, len(self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'])):
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x].pack_forget()
@@ -823,7 +828,7 @@ class Inicio(object):
 			check.append('numRepeticiones')
 		if datosParaGuardar['establecimiento'] == "" or  datosParaGuardar['establecimiento'].isspace():
 			check.append('establecimiento')
-		if datosParaGuardar['numCuadro'].isspace():
+		if not datosParaGuardar['numCuadro'] or datosParaGuardar['numCuadro'].isspace():
 			check.append('numCuadro')
 		try:
 			float(datosParaGuardar['suelo'])
