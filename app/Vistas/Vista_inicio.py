@@ -17,6 +17,7 @@ from Vistas.metadataInfo import metadataInfo
 import shutil,os
 import pathlib
 from pathlib import Path
+import datetime
 
 # import tkinter.filedialog as filedialog
 
@@ -305,13 +306,15 @@ class Inicio(object):
 			self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack_forget()
 			self.misframes['ListaEnsayos'].camposEditables['frameTree'].destroy()
 		except Exception:
-			print("Error en try cacth")
+			print("Error en openMulticolumn")
 
 		self.misframes['ListaEnsayos'].camposEditables['frameTree'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
 		# self.frame = tk.Frame(self.misframes['ListaEnsayos'].interior)
 		self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 		# self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-		self.ensayos_list = todosLosEnsayos
+		# self.ensayos_list = todosLosEnsayos
+		todosLosEnsayosConsulta = CD.buscar_objetos('Ensayo')
+		self.ensayos_list = todosLosEnsayosConsulta
 		ensayos_header = ['Nro Ensayo', 'Establecimiento', 'Fecha de Plantacion', 'Clonal', 'Repeticiones', 'Tratamientos', 'Espaciamiento', 'Cuadro', 'Plantas por Ha', 'Plantas por parcela', 'Suelo', 'Total de Has', 'Total de plantas', '    ', '     ', '     ', '      ']
 		''' Clase MultiColumnList '''
 		self.tree = None
@@ -524,13 +527,20 @@ class Inicio(object):
 			btnCambiarImagen.pack(side=tk.TOP)
 
 	def cambiarImagen(self, accion, frame, claveRepe, claveEnsayo, x=None, izquierda=None, centro=None, derecha=None, claveImagen=None):
-		#Seleccionar y copiar imagen al directorio
+		#########################
+		# if centro == None:
+
+		# else:
+
+		#########################
+		# if accion == "new":
+		# 	nuevaImagen = CD.crear_objeto('Imagen')
+		# else:
+		# 	nuevaImagen =  CD.buscar_objetos('Imagen',  {'clave' : claveImagen})[0]
+
+		#Seleccionar y copiar imagen al directorio y guardar en BD
 		src = askopenfilename()
 		info = metadataInfo(src)
-		if accion == "new":
-			nuevaImagen = CD.crear_objeto('Imagen')
-		else:
-			nuevaImagen =  CD.buscar_objetos('Imagen',  {'clave' : claveImagen})[0]
 					
 		nuevaImagen.fecha = info['fecha']
 		nuevaImagen.largo = info['height']
@@ -546,15 +556,16 @@ class Inicio(object):
 		nuevaImagen.latitudCono2 = 30.3
 		nuevaImagen.longitudCono2 = 70.8
 		guardado = nuevaImagen.guardar(CD.db)
-		# path =   str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
-		# pathlib.Path(str(Path().absolute()) + '//Analisis//utils//data//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
-		path =   str(Path().absolute()) + '//Datos//store//img//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
+		path =  str(Path().absolute()) + '//Datos//store//img//'+str(claveEnsayo)+'//'+str(claveRepe)+'//'+str(guardado.clave)+'.jpg'
 		pathlib.Path(str(Path().absolute()) + '//Datos//store//img//'+str(claveEnsayo)+'//'+str(claveRepe)+'//').mkdir(parents=True, exist_ok=True) 
 		shutil.copy(src, path) 
 		guardado.url = path
 		nuevaImagen = guardado.guardar(CD.db)
 		######
 		if accion == "new":
+			#creo un nuevo objeto vacio para luego setear y guardar
+			nuevaImagen = CD.crear_objeto('Imagen')
+
 			containerImg = tk.Frame(self.misframes['Repeticion'].camposEditables['containerImagenes'])
 			containerImg.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 			containerImg.config(padx=10, pady=10, relief="raised", bd=8)
@@ -576,15 +587,36 @@ class Inicio(object):
 			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 
 			btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), izquierda=containerIzquierda, centro=containerCentro, derecha=containerDerecha, claveImagen=nuevaImagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
-			# btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda y=len(frame), izquierda=containerIzquierda, centro=containerCentro, derecha=containerDerecha: self.cambiarImagen("update", self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepe, claveEnsayo, y, izquierda, centro, derecha))
-			btnCambiarImagen.pack(side=tk.TOP)
+			# btnCambiarImagen.pack(side=tk.TOP)
 			btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen))
-			btnAnalizarImagen.pack(side=tk.TOP)
+			# btnAnalizarImagen.pack(side=tk.TOP)
+
 
 			subtituloDatos = tk.Label(containerCentro, text="Datos de la imagen")
 			subtituloDatos.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			subtituloDatos.config(font=('Courier', 16))
-			etapa = tk.Label(containerCentro, text="Etapa : " + str(nuevaImagen.etapa)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+			####################################################################################
+			etapaLabel = tk.Label(containerCentro, text="¿A que etapa de la repetición pertenece la imagén?")
+			etapaEntry = tk.Entry(containerCentro); etapaEntry.insert(0, ' '); etapaEntry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+			latitudCono1Label = tk.Label(containerCentro, text="Ingrese latitud cono uno.")
+			latitudCono1Entry = tk.Entry(containerCentro); etapaEntry.insert(0, ' '); etapaEntry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+			longitudCono1Label = tk.Label(containerCentro, text="Ingrese longitud cono dos.")
+			longitudCono1Entry = tk.Entry(containerCentro); etapaEntry.insert(0, ' '); etapaEntry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+
+			latitudCono2Label = tk.Label(containerCentro, text="Ingrese latitud cono dos.")
+			latitudCono2Entry = tk.Entry(containerCentro); etapaEntry.insert(0, ' '); etapaEntry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+			longitudCono2Label = tk.Label(containerCentro, text="Ingrese longitud cono dos.")
+			longitudCono2Entry = tk.Entry(containerCentro); etapaEntry.insert(0, ' '); etapaEntry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+
+
+
+
+			entry = tk.Entry(frameContainer)
+			entry.insert(0, texto)
+			entry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+			entry.config(state=tk.DISABLED)
+			###################################################################################
+			# etapa = tk.Label(containerCentro, text="Etapa : " + str(nuevaImagen.etapa)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			ancho = tk.Label(containerCentro, text="Ancho : " + str(nuevaImagen.ancho)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			largo = tk.Label(containerCentro, text="Largo : " + str(nuevaImagen.largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			largo = tk.Label(containerCentro, text="Altitud : " + str(nuevaImagen.altitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
@@ -605,6 +637,9 @@ class Inicio(object):
 			datos.append(nombrelabel)
 
 		else:
+			#Busco el objeto imagen y me quedo con el para editarlo y despues guardarlo.
+			nuevaImagen =  CD.buscar_objetos('Imagen',  {'clave' : claveImagen})[0]
+			
 			for widget in izquierda.winfo_children():
 				widget.destroy()
 			for widget in centro.winfo_children():
@@ -711,36 +746,39 @@ class Inicio(object):
 	def clickBtnModificar(self, accion, tipo):
 		datosParaGuardar = {}
 		if accion == 'Modificar':
-			self.misframes['Ensayo'].camposEditables['numEnsayo'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['numRepeticiones'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['establecimiento'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['numCuadro'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['suelo'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['espaciamiento'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['plantasXha'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['fechaPlantacion'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['numTratamientos'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['totalPlantas'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['totalHas'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['plantasXparcela'].config(state=tk.NORMAL)
-			self.misframes['Ensayo'].camposEditables['tipoClonal'].config(state=tk.NORMAL)
+			self.misframes['Ensayo'].camposEditables['numEnsayo'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['establecimiento'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['numCuadro'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['suelo'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['espaciamiento'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['plantasXha'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['fechaPlantacion'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['numTratamientos'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['totalPlantas'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['totalHas'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['plantasXparcela'].config(state=tk.NORMAL, background="#fff")
+			self.misframes['Ensayo'].camposEditables['tipoClonal'].config(state=tk.NORMAL, background="#fff")
 			self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].config(text='Guardar', command= lambda: self.clickBtnModificar('Guardar', 'Actualizar'))
 		else:
+			checkSave = []
 			if tipo != "Nuevo":
 				datosParaGuardar['ensayoClave'] = self.misframes['Ensayo'].camposEditables['ensayoClave']
 			datosParaGuardar['numEnsayo'] = self.misframes['Ensayo'].camposEditables['numEnsayo'].get()
 			self.misframes['Ensayo'].camposEditables['numEnsayo'].config(state=tk.DISABLED)
 			datosParaGuardar['numRepeticiones'] = self.misframes['Ensayo'].camposEditables['numRepeticiones'].get()
-			self.misframes['Ensayo'].camposEditables['numRepeticiones'].config(state=tk.DISABLED)
+			self.misframes['Ensayo'].camposEditables['numRepeticiones'].config(state=tk.DISABLED, )
 			datosParaGuardar['establecimiento'] = self.misframes['Ensayo'].camposEditables['establecimiento'].get()
 			self.misframes['Ensayo'].camposEditables['establecimiento'].config(state=tk.DISABLED)
 			datosParaGuardar['numCuadro'] = self.misframes['Ensayo'].camposEditables['numCuadro'].get()
 			self.misframes['Ensayo'].camposEditables['numCuadro'].config(state=tk.DISABLED)
 			datosParaGuardar['suelo'] = self.misframes['Ensayo'].camposEditables['suelo'].get()
 			self.misframes['Ensayo'].camposEditables['suelo'].config(state=tk.DISABLED)
-			espaciamientoSplit = self.misframes['Ensayo'].camposEditables['espaciamiento'].get().split(" X ")
-			datosParaGuardar['espaciamientoX'] = espaciamientoSplit[0]
-			datosParaGuardar['espaciamientoY'] = espaciamientoSplit[1]
+			datosParaGuardar["espaciamientoSplit"] = self.misframes['Ensayo'].camposEditables['espaciamiento'].get()
+			# espaciamientoSplit = self.misframes['Ensayo'].camposEditables['espaciamiento'].get().split(" X ")
+			# datosParaGuardar['espaciamientoX'] = espaciamientoSplit[0]
+			# datosParaGuardar['espaciamientoY'] = espaciamientoSplit[1]
+			datosParaGuardar['espaciamientoX'] = ""
+			datosParaGuardar['espaciamientoY'] = ""
 			self.misframes['Ensayo'].camposEditables['espaciamiento'].config(state=tk.DISABLED)
 			datosParaGuardar['plantasXha'] = self.misframes['Ensayo'].camposEditables['plantasXha'].get()
 			self.misframes['Ensayo'].camposEditables['plantasXha'].config(state=tk.DISABLED)
@@ -757,11 +795,73 @@ class Inicio(object):
 			datosParaGuardar['tipoClonal'] = self.misframes['Ensayo'].camposEditables['tipoClonal'].get()
 			self.misframes['Ensayo'].camposEditables['tipoClonal'].config(state=tk.DISABLED)
 			self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].config(text='Modificar', command= lambda: self.clickBtnModificar('Modificar', 'Actualizar'))
-			# Funcion para tomar los datos y guardar
-			print("GUARDANDO-------------------------------------------------------------------")
-			print(datosParaGuardar)
-			self.guardarEnsayo(datosParaGuardar, tipo)
-			print("GUARDANDO-------------------------------------------------------------------")
+
+			checkeo = self.checkearCamposEnsayo(datosParaGuardar)
+			if not checkeo:
+				espaciamientoSplit = datosParaGuardar["espaciamientoSplit"].lower().replace(" ","").split("x")
+				datosParaGuardar['espaciamientoX'] = espaciamientoSplit[0]
+				datosParaGuardar['espaciamientoY'] = espaciamientoSplit[1]
+				self.guardarEnsayo(datosParaGuardar, tipo)
+			else:
+				messagebox.showinfo("Error", "Controle el formato de datos ingresado y que no haya campos vacios e intente nuevamente.")
+				self.clickBtnModificar('Modificar', 'Actualizar')
+				for x in checkeo:
+					self.misframes['Ensayo'].camposEditables[x].config(state=tk.NORMAL, background="#ff8282")
+					
+
+	def checkearCamposEnsayo(self, datosParaGuardar):
+		check = []
+		try:
+			int(datosParaGuardar['numEnsayo'])
+			if not datosParaGuardar['numEnsayo']:
+				check.append('numEnsayo')
+		except:
+			check.append('numEnsayo')
+		try:
+			int(datosParaGuardar['numRepeticiones'])
+		except:
+			check.append('numRepeticiones')
+		if datosParaGuardar['establecimiento'] == "" or  datosParaGuardar['establecimiento'].isspace():
+			check.append('establecimiento')
+		if datosParaGuardar['numCuadro'].isspace():
+			check.append('numCuadro')
+		try:
+			float(datosParaGuardar['suelo'])
+		except:
+			check.append('suelo')
+		try:
+			espaciamientoSplit = datosParaGuardar["espaciamientoSplit"].lower().split('x')
+			float(espaciamientoSplit[0])
+			float(espaciamientoSplit[1])
+		except:
+			check.append('espaciamiento')
+		try:
+			int(datosParaGuardar['plantasXha'])
+		except:
+			check.append('plantasXha')
+		if not validate(datosParaGuardar['fechaPlantacion']):
+			check.append('fechaPlantacion')
+		try:
+			int(datosParaGuardar['numTratamientos'])
+		except:
+			check.append('numTratamientos')
+		try:
+			int(datosParaGuardar['totalPlantas'])
+		except:
+			check.append('totalPlantas')
+		try:
+			float(datosParaGuardar['totalHas'])
+		except:
+			check.append('totalHas')
+		try:
+			int(datosParaGuardar['plantasXparcela'])
+		except:
+			check.append('plantasXparcela')
+		if not datosParaGuardar['tipoClonal'] or datosParaGuardar['tipoClonal'].isspace():
+			check.append('tipoClonal')
+		return check
+
+
 
 
 	def guardarEnsayo(self, datosParaGuardar, tipo):
@@ -901,6 +1001,16 @@ class mainInicio(object):
 	def __init__(self, ensayosRecientes, todosLosEnsayos):
 		super(mainInicio, self).__init__()
 		self.miapp = Inicio(ensayosRecientes, todosLosEnsayos)
+
+
+
+def validate(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%Y/%m/%d')
+        return True
+    except ValueError:
+        # raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+        return False
 
 	# @property
 	# def miapp(self):
