@@ -1,6 +1,7 @@
 import threading
 import networkx as nx
 
+
 class Grafo(object):
 	"""docstring for Grafo"""
 	def __init__(self, canvas, G, id, centros):
@@ -27,14 +28,24 @@ class Grafo(object):
 	def dibujar(self):
 		centros=self.centros#nx.get_node_attributes(self.G,'centro')
 		for e in self.G.edges():
-			centro_a = ((centros[e[0]][0][0] / self.aspecto_x), (centros[e[0]][0][1] / self.aspecto_y))
-			centro_b = ((centros[e[1]][0][0] / self.aspecto_x), (centros[e[1]][0][1] / self.aspecto_y))
-			self.unir(e[0], e[1],[centro_a,centro_b])
+			if str(e[0]) in centros:
+				centro_a = ((centros[str(e[0])][0][0] / self.aspecto_x), (centros[str(e[0])][0][1] / self.aspecto_y))
+				centro_b = ((centros[str(e[1])][0][0] / self.aspecto_x), (centros[str(e[1])][0][1] / self.aspecto_y))
+			else:
+				centro_a = ((centros[e[0]][0][0] / self.aspecto_x), (centros[e[0]][0][1] / self.aspecto_y))
+				centro_b = ((centros[e[1]][0][0] / self.aspecto_x), (centros[e[1]][0][1] / self.aspecto_y))
+			self.unir(e[0], e[1],[centro_a,centro_b])			
 		for id_nodo in self.G.nodes():
-			a = (centros[id_nodo][0][0] - self.ANCHO_ARBOL / 2) / self.aspecto_x
-			b = (centros[id_nodo][0][0] + self.ANCHO_ARBOL / 2) / self.aspecto_x
-			c = (centros[id_nodo][0][1] - self.ANCHO_ARBOL / 2) / self.aspecto_y
-			d = (centros[id_nodo][0][1] + self.ANCHO_ARBOL / 2) / self.aspecto_y
+			if str(id_nodo) in centros:
+				a = (centros[str(id_nodo)][0][0] - self.ANCHO_ARBOL / 2) / self.aspecto_x
+				b = (centros[str(id_nodo)][0][0] + self.ANCHO_ARBOL / 2) / self.aspecto_x
+				c = (centros[str(id_nodo)][0][1] - self.ANCHO_ARBOL / 2) / self.aspecto_y
+				d = (centros[str(id_nodo)][0][1] + self.ANCHO_ARBOL / 2) / self.aspecto_y
+			else:
+				a = (centros[id_nodo][0][0] - self.ANCHO_ARBOL / 2) / self.aspecto_x
+				b = (centros[id_nodo][0][0] + self.ANCHO_ARBOL / 2) / self.aspecto_x
+				c = (centros[id_nodo][0][1] - self.ANCHO_ARBOL / 2) / self.aspecto_y
+				d = (centros[id_nodo][0][1] + self.ANCHO_ARBOL / 2) / self.aspecto_y
 			self.addNodo([a,c,b,d,],id_nodo)
 	def ocultar(self):
 		for n in self.nodos + self.aristas:

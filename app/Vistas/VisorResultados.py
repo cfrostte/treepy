@@ -7,7 +7,8 @@ from .ObjetosVisor.Grafo import Grafo, Nodo
 import threading, queue
 from ControladorDatos import ControladorDatos as CD
 from math import acos, sqrt, pi
-
+from networkx.readwrite import json_graph
+import json
 
 class VisorResultados(Frame):
 	"""docstring for VisorResultados"""
@@ -18,6 +19,7 @@ class VisorResultados(Frame):
 		self.poligono = []
 		self.imagen = None
 		self.repe = None
+		self.cajaMensaje = None
 		self.canvas = CanvasVisorResultados(self)
 		self.canvas.pack(side=BOTTOM)
 		self.Controles = Controles(self,self.canvas)
@@ -25,6 +27,13 @@ class VisorResultados(Frame):
 		self.pack()
 		self.queue = self.deteccion.queue
 	def Analisis(self,imagen):
+		if self.canvas : self.canvas.destroy()
+		if self.Controles : self.Controles.destroy()			
+		self.canvas = CanvasVisorResultados(self)
+		self.canvas.pack(side=BOTTOM)
+		self.Controles = Controles(self,self.canvas)
+		self.Controles.pack(side=TOP,fill=X)
+		self.pack()
 		self.Controles.Init()
 		self.deteccion = InterfaceDeteccion()
 		self.imagen = imagen
@@ -32,9 +41,38 @@ class VisorResultados(Frame):
 		self.queue = self.deteccion.queue
 		self.deteccion.SetImage(imagen.url)
 		self.canvas.Inicio(imagen.url)
+		if imagen.grafo != None:
+			data=json.loads(imagen.grafo)
+			subgrafos = data['grafos']
+			centros = data['centros']
+			print(centros)
+			self.canvas.centros=centros
+			for sg in subgrafos:
+				self.canvas.grafos.append(json_graph.node_link_graph(sg))
+			self.canvas._actualizado = False
+			self.Analizado()
+		else:
+			self.escribirMensaje("Dibujar Polígono")
+	def Analizado(self):
+		self.canvas.seteandoPuntos = False
+		self.canvas.removiendoNodo = False
+		self.canvas.agregandoNodo = False
+		self.canvas.agregandoArista = False
+		self.canvas.removiendoArista = False
+		self.Controles.Add_Node.config(state=DISABLED)
+		self.Controles.Add_Edge.config(state=DISABLED)
+		self.Controles.Rem_Node.config(state=DISABLED)
+		self.Controles.Rem_edge.config(state=DISABLED)
+		self.Controles.analizar.config(state=DISABLED)
+		self.Controles.Siguiente.config(state=DISABLED)
+		self.escribirMensaje("Ya se analizó la imagen")
+
 	def correrAnalisis(self):
 		self.canvas.verDeteccion()
 		self.Controles.analizar.config(state=DISABLED)
+		if len(self.poligono) < 3:
+			messagebox.showinfo("Polígono", "Se recomienda dibujar un polígono, para mejorar los tiempos de detección")
+			self.poligono = [(0,0), (0,self.imagen.largo),(self.imagen.ancho,0),(self.imagen.ancho,self.imagen.largo)]
 		self.deteccion.SetPoly(self.poligono)
 		self.poligono = []
 		self.Espera()
@@ -51,10 +89,31 @@ class VisorResultados(Frame):
 		Tarea = threading.Thread(name="Analizar", target=self.deteccion.BorrarArista,args=(a,b))
 		Tarea.deamon = True
 		Tarea.start()
+	def destroyCajaMensaje(self, e=None):
+		if self.cajaMensaje != None:
+			self.cajaMensaje.destroy()
+		self.cajaMensaje = None
+	def escribirMensaje(self, msg, titulo="- Análisis -"):
+		self.Controles.mensaje.config(text=msg)
+		if self.cajaMensaje is None:
+			self.cajaMensaje = Toplevel()
+			self.cajaMensaje.geometry('%dx%d+%d+%d' % (300, 100, 600, 300))
+			self.cajaMensaje.title(titulo)
+			self.cajaMensaje.grab_set()
+			self.cajaMensaje.overrideredirect(1)
+			self.cajaMensaje.config(relief=RAISED)
+			self.cajaMensaje.bind("<Destroy>", self.destroyCajaMensaje)
+			self.cajaMensaje.protocol("WM_DELETE_WINDOW",self.destroyCajaMensaje)
+			b = Button(self.cajaMensaje, text="OK", command=self.destroyCajaMensaje, width=50)
+			b.pack(side=BOTTOM,pady=10,padx=100)
+			self.cajaMensaje.mensaje = Message(self.cajaMensaje, text=msg, width=300)
+			self.cajaMensaje.mensaje.pack(side=TOP, fill=BOTH)
+		else:
+			self.cajaMensaje.mensaje.config(text=msg)
 	def Espera(self):
 		try:
 			msg = self.queue.get(0)
-			self.Controles.mensaje.config(text=msg)
+			self.escribirMensaje(msg)
 			if(str(msg)!="Listo"):
 				self.after(1,self.Espera)
 			else:
@@ -70,9 +129,13 @@ class VisorResultados(Frame):
 	def EsperaReferenciar(self):
 		try:
 			msg = self.queue.get(0)
-			self.Controles.mensaje.config(text=msg)
+			self.escribirMensaje(msg)
 			if(str(msg)!="Listo"):
 				self.after(1,self.EsperaReferenciar)
+			else:
+				self.destroyCajaMensaje()
+				messagebox.showinfo("Listo","Los datos se guardaron correctamente")
+				self.Controles.volver()
 		except queue.Empty:
 			self.after(10,self.EsperaReferenciar)
 
@@ -87,6 +150,11 @@ class VisorResultados(Frame):
 					else:
 						punto2 = g[2]
 				self.EsperaReferenciar()
+				subgrafos = [json_graph.node_link_data(self.deteccion.grafo.subgraphs[i]) for i in self.deteccion.grafo.subgraphs]
+				centros=self.deteccion.grafo.node_props.centroids
+				data = json.dumps({'grafos':subgrafos, 'centros':centros})
+				self.imagen.grafo = data
+				self.imagen.guardar(CD.db)
 				Tarea = threading.Thread(
 					name="Georeferenciar", 
 					target=CD.analisis_a_objetos,
@@ -94,7 +162,7 @@ class VisorResultados(Frame):
 				Tarea.deamon = True
 				Tarea.start()
 			else:
-				self.Controles.mensaje.config(text="Se necesitan setar dos coordenadas en la imagen")
+				self.escribirMensaje("Se necesitan setar dos coordenadas en la imagen", "Error")
 		else:
 			self.canvas.seteandoPuntos = True
 			self.canvas.removiendoNodo = False
