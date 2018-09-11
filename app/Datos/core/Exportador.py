@@ -138,7 +138,8 @@ class KML(Exportador):
                             presentes = f_r.newfolder(name='Árboles Presentes')
                             for a in r_arboles:
                                 name = str(a['clave'])
-                                coords = [(a['latitud'], a['longitud'])]
+                                # coords = [(a['latitud'], a['longitud'])]
+                                coords = [(a['longitud'], a['latitud'])]
                                 if a['faltante']:
                                     p = faltantes.newpoint(name=name, coords=coords)
                                     p.style.labelstyle.color = simplekml.Color.red
