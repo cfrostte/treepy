@@ -9,19 +9,19 @@ todosLosEnsayos = CD.buscar_objetos('Ensayo')
 # ensayos = []
 # repeticiones = []
 # print(ultimosModificados)
-# for ensayo in ultimosModificados:
+# for ensayo in ultimosModificados:latitudCono1Label
 # 	print("+++++++++++++++++++++++++++++++++")	
 # 	# print(x)
 # 	print(ensayo)
 # 	print("+++++++++++++++++++++++++++++++++")
-# 	ensayos.append(ensayo)
+# 	ensayos.append(ensayo)\ 
 # 	print("-----------------------------------")
 # 	print(CD.obtener_relaciones_de(ensayo, 'Repeticion'))
 # 	print("-----------------------------------")
-	# for repeticion in CD.obtener_relaciones_de(ensayo, 'Repeticion'):
-		# print("---------------")
-		# print(repeticion)
-		# print("---------------")
+    # for repeticion in CD.obtener_relaciones_de(ensayo, 'Repeticion'):
+        # print("---------------")►
+        # print(repeticion)
+        # print("---------------")
 
 
 # inicio.miapp(ultimosModificados)
