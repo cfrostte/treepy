@@ -9,7 +9,7 @@ todosLosEnsayos = CD.buscar_objetos('Ensayo')
 # ensayos = []
 # repeticiones = []
 # print(ultimosModificados)
-# for ensayo in ultimosModificados:
+# for ensayo in ultimosModificados:latitudCono1Label
 # 	print("+++++++++++++++++++++++++++++++++")	
 # 	# print(x)
 # 	print(ensayo)
