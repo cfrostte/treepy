@@ -5,7 +5,7 @@ from ControladorDatos import ControladorDatos as CD
 
 
 CD.crear_estructura()
-# CD.volcar_datos_prueba(3)
+CD.volcar_datos_prueba(3)
 # CD.respaldar_datos()
 
 # print(CD.buscar_objetos('Ensayo'))
@@ -125,8 +125,8 @@ CD.crear_estructura()
 # for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
 #     print(repeticion.matriz(CD.db))
 
-CD.exportar_informe_csv(1)
-CD.exportar_informe_kml(1)
+# CD.exportar_informe_csv(1)
+# CD.exportar_informe_kml(1)
 
 # CD.exportar_informe_csv()
 # CD.exportar_informe_kml()
