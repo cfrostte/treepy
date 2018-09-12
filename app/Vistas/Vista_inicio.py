@@ -524,12 +524,24 @@ class Inicio(object):
 			btnCambiarImagen.pack(side=tk.TOP)
 
 	def clickGuardoImagen(self, accion, frame, claveRepe, claveEnsayo, x=None, izquierda=None, centro=None, derecha=None, claveImagen=None):
+		# if not datosParaGuardar['numCuadro'] or datosParaGuardar['numCuadro'].isspace():
+			# check.append('numCuadro')
+		
+		checkeo = self.checkearCamposDatosImagen()
+		if checkeo:
+			for x in checkeo:
+					self.misframes['Repeticion'].camposEditables[x].config(state=tk.NORMAL, background="#ff8282")
+			messagebox.showinfo("Error", "Controle el formato de datos ingresado y que no haya campos vacios e intente nuevamente.")
+			return False
+
 		if accion == 'new':
 			nuevaImagen = CD.crear_objeto('Imagen')
 		else:
 			nuevaImagen =  CD.buscar_objetos('Imagen',  {'clave' : claveImagen})[0]
 			#Tomo y guardo los datos de la imagen, y la copia al directorio del programa
 		src = askopenfilename()
+		if not src:
+			return False
 		info = metadataInfo(src)
 		nuevaImagen.fecha = info['fecha']
 		nuevaImagen.largo = info['height']
@@ -685,40 +697,6 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(derecha, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack(side=tk.BOTTOM)
 			#Busco el objeto imagen y me quedo con el para editarlo y despues guardarlo.
-			# nuevaImagen =  CD.buscar_objetos('Imagen',  {'clave' : claveImagen})[0]
-			# frameContainerIn = []
-			# frameContainerIn.append(tk.Frame(izquierda))
-			# frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
-			# frameContainerIn.append(tk.Frame(izquierda))
-			# frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
-			# btnCambiarImagen = tk.Button(derecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), izquierda1=izquierda, centro1=centro, derecha1=derecha: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda1, centro1, derecha1))
-			# btnCambiarImagen.pack(side=tk.TOP)
-			# btnAnalizarImagen = tk.Button(derecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen))
-			# btnAnalizarImagen.pack(side=tk.TOP)
-
-			# subtituloDatos = tk.Label(centro, text="Datos de la imagen")
-			# subtituloDatos.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# subtituloDatos.config(font=('Courier', 16))
-			# etapa = tk.Label(centro, text="Etapa : " + str(nuevaImagen.etapa)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# ancho = tk.Label(centro, text="Ancho : " + str(nuevaImagen.ancho)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# largo = tk.Label(centro, text="Largo : " + str(nuevaImagen.largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# largo = tk.Label(centro, text="Altitud : " + str(nuevaImagen.altitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-
-			# datos = []
-			# nombre = 'Imagen ' + str(len(frame))
-			# nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
-			# nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# fechalabel = tk.Label(frameContainerIn[0], text=nuevaImagen.fecha)
-			# fechalabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# ensayoImage = Image.open(nuevaImagen.url)
-			# ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
-			# photo = ImageTk.PhotoImage(ensayoImage)
-			# label = tk.Label(frameContainerIn[1], image=photo)
-			# label.image = photo
-			# label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
-			# datos.append(label)
-			# datos.append(nombrelabel)
-			# datos.append(fechalabel)
 	def verAnalisis(self):
 		self.visorAnalisis = VisorResultados(self.misframes['Analisis'].interior, self)
 
@@ -852,6 +830,42 @@ class Inicio(object):
 				for x in checkeo:
 					self.misframes['Ensayo'].camposEditables[x].config(state=tk.NORMAL, background="#ff8282")
 					
+
+	def checkearCamposDatosImagen(self):
+		check = []
+		
+		try:
+			int(self.misframes['Repeticion'].camposEditables['etapaEntry'].get())
+			if not self.misframes['Repeticion'].camposEditables['etapaEntry'].get() or self.misframes['Repeticion'].camposEditables['etapaEntry'].get().isspace():
+				check.append('etapaEntry')
+		except:
+			check.append('etapaEntry')
+		
+		try:
+			float(self.misframes['Repeticion'].camposEditables['latitudCono1Entry'].get())
+			if not self.misframes['Repeticion'].camposEditables['latitudCono1Entry'].get() or self.misframes['Repeticion'].camposEditables['latitudCono1Entry'].get().isspace():
+				check.append('latitudCono1Entry')
+		except:
+			check.append('latitudCono1Entry')
+		try:
+			float(self.misframes['Repeticion'].camposEditables['longitudCono1Entry'].get())
+			if not self.misframes['Repeticion'].camposEditables['longitudCono1Entry'].get() or self.misframes['Repeticion'].camposEditables['longitudCono1Entry'].get().isspace():
+				check.append('longitudCono1Entry')
+		except:
+			check.append('longitudCono1Entry')
+		try:
+			float(self.misframes['Repeticion'].camposEditables['latitudCono2Entry'].get())
+			if not self.misframes['Repeticion'].camposEditables['latitudCono2Entry'].get() or self.misframes['Repeticion'].camposEditables['latitudCono2Entry'].get().isspace():
+				check.append('latitudCono2Entry')
+		except:
+			check.append('latitudCono2Entry')
+		try:
+			float(self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].get())
+			if not self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].get() or self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].get().isspace():
+				check.append('longitudCono2Entry')
+		except:
+			check.append('longitudCono2Entry')
+		return check
 
 	def checkearCamposEnsayo(self, datosParaGuardar):
 		check = []
