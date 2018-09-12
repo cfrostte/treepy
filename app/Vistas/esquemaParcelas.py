@@ -30,6 +30,9 @@ class esquemaParcelas(Frame):
         bloquesObj = {}
         clones = []
         clonesObj = {}
+        print("------repeticion antes de guardar -------")
+        print(self.repeticionClave)
+        print(CD.buscar_objetos('Repeticion', {'clave' : self.repeticionClave}))
         repe = CD.buscar_objetos('Repeticion', {'clave' : self.repeticionClave})[0]
         # repe.nro
         repe.nroColumnas = len(self.matriz)
@@ -76,7 +79,11 @@ class esquemaParcelas(Frame):
                     parcela = CD.crear_objeto('Parcela')
                     parcela.columna = str(x)
                     parcela.fila = str(j)
-                    parcela.id_bloques = bloquesObj[self.matrizBloques[x][j]].clave
+                    try:
+                        parcela.id_bloques = bloquesObj[self.matrizBloques[x][j]].clave
+                    except:
+                        messagebox.showinfo("Error", "Alguna de las celdas quedo sin pintar, por favor verifique e intente nuevamente.")
+                        return False
                     parcela.id_clones = clonesObj[int(self.matriz[x][j])].clave
                     parcelaGuardada = parcela.guardar(CD.db)
         messagebox.showinfo("Info", "El esquema se ha guardado satisfactoriamente")

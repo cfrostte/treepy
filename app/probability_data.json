@@ -1,0 +1,22 @@
+{
+    "general": {
+        "datetime": "Tue Sep 11 20:48:39 2018",
+        "image": "2.jpg",
+        "patch_size": 9,
+        "intersection": -1
+    },
+    "trees": {
+        "mean": -1,
+        "std": -1,
+        "samples_n": 0,
+        "coords": [],
+        "values": []
+    },
+    "background": {
+        "mean": -1,
+        "std": -1,
+        "samples_n": 0,
+        "coords": [],
+        "values": []
+    }
+}
