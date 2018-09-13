@@ -108,19 +108,19 @@ class ControladorDatos(object):
         # Este objeto permite obtener cualquier coordenada de un punto:
         g = GE.from_tiepoints([xy1, xy2, xy3], [coord1, coord2, coord3])
         total = len(grafo.subgraphs)
-        contador=0
+        contador = 0
         for s in grafo.subgraphs:
-            contador+=1
+            contador += 1
             surcos_detectado = SurcoDetectado()
             surcos_detectado.id_imagenes = imagen.clave
             surcos_detectado.distanciaMedia = -1 # PREGUNTAR COMO OBTENER
             surcos_detectado.anguloMedio = -1 # PREGUNTAR COMO OBTENER
             surcos_detectado.guardar(cls.db)
-            arboles_total = len(grafo.subgraphs[s].nodes())  
+            arboles_total = len(grafo.subgraphs[s].nodes())
             contador_arboles = 0
             for n in grafo.subgraphs[s].nodes():
-                contador_arboles+=1
-                if q!=None:
+                contador_arboles += 1
+                if q != None:
                     q.put("Surco " + str(contador) + " de " + str(total) + " | Árbol " + str(contador_arboles) + " de " + str(arboles_total))
                 c = grafo.node_props.centroids[n]
                 arbol = Arbol()
@@ -135,7 +135,8 @@ class ControladorDatos(object):
                 arbol.areaCopa = areaCopaMetros(dMMetros, dMPixeles, aCPixeles)
                 arbol.primero = 0 # PREGUNTAR COMO OBTENER
                 arbol.guardar(cls.db)
-        if q!=None: q.put("Listo")
+        if q != None:
+            q.put("Listo")
 
     ############################################################################
 
@@ -178,14 +179,14 @@ class ControladorDatos(object):
             repeticiones = cls.crear_objetos_prueba(Repeticion, ensayo.nroRepeticiones, False)
             cls.relacionar_uno_muchos(ensayo, 'Repeticion', True, repeticiones)
             for r in repeticiones:
-                imagenes = cls.crear_objetos_prueba(Imagen, 1, False)
+                imagenes = cls.crear_objetos_prueba(Imagen, 2, False)
                 surcos_detectados = cls.crear_objetos_prueba(SurcoDetectado, 1, False)
                 arboles = cls.crear_objetos_prueba(Arbol, 10, False)
                 arboles_faltantes = cls.crear_objetos_prueba(ArbolFaltante, 1, False)
                 cls.relacionar_uno_muchos(r, 'Imagen', True, imagenes)
                 cls.relacionar_uno_muchos(r, 'Arbol', False, arboles)
                 cls.relacionar_uno_muchos(imagenes[0], 'SurcoDetectado', True, surcos_detectados)
-                cls.relacionar_uno_muchos(imagenes[0], 'ArbolFaltante', False, arboles_faltantes)
+                cls.relacionar_uno_muchos(imagenes[1], 'ArbolFaltante', False, arboles_faltantes)
                 cls.relacionar_uno_muchos(surcos_detectados[0], 'Arbol', True, arboles)
                 cls.relacionar_uno_muchos(arboles[0], 'ArbolFaltante', True, arboles_faltantes)
 

@@ -27,7 +27,6 @@ class Exportador(object):
 
     @staticmethod
     def crear_ruta(r):
-        """Crea toda la ruta"""
         if not os.path.exists(r):
             os.makedirs(r)
             print("'", r, "' creado")
@@ -36,34 +35,13 @@ class Exportador(object):
     def nuevo_archivo(carpeta, extencion):
         Exportador.crear_ruta(carpeta)
         n = datetime.datetime.now()
-        o = "{}/Informe del día {} de {} de {}.{}"
+        o = "{}/Informe del {} de {} de {} a las {} y {}.{}"
         d = n.day
         m = Exportador.meses[n.month]
         y = n.year
-        return o.format(carpeta, d, m, y, extencion)
-
-    # @staticmethod
-    # def correr_consulta(db, clave=None):
-    #     q = """SELECT e.nro AS A, r.nro AS B, c.nro AS C,
-    #     a.clave AS D, a.latitud AS E, a.longitud AS F, 
-    #     CASE WHEN (SELECT 1 FROM arboles_faltantes 
-    #     WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
-    #     a.areaCopa AS H FROM arboles AS a JOIN parcelas AS p 
-    #     JOIN bloques AS b JOIN repeticiones AS r JOIN ensayos AS e 
-    #     JOIN clones AS c WHERE a.id_parcelas = p.clave 
-    #     AND p.id_bloques = b.clave AND b.id_repeticiones = r.clave 
-    #     AND r.id_ensayos = e.clave AND c.clave = p.id_clones {}""".format('AND e.clave = ?' if clave else '')
-    #     return Base.consultar(db, q, (clave, )) if clave else Base.consultar(db, q)
-
-    @staticmethod
-    def correr_consulta(db, clave=None):
-        q = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C,
-        a.clave AS D, a.latitud AS E, a.longitud AS F, 
-        CASE WHEN (SELECT 1 FROM arboles_faltantes 
-        WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
-        a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
-        WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave {}""".format('AND e.clave = ?' if clave else '')
-        return Base.consultar(db, q, (clave, )) if clave else Base.consultar(db, q)
+        hh = n.hour
+        mm = n.minute
+        return o.format(carpeta, d, m, y, hh, mm, extencion)
 
 class CSV(Exportador):
     @staticmethod
@@ -82,38 +60,33 @@ class CSV(Exportador):
             header = [A, B, C, D, E, F, G, H]
             dw = csv.DictWriter(a, fieldnames=header)
             dw.writeheader() # Escribir el header
-            for x in Exportador.correr_consulta(db, clave):
-                fila = {
-                    '{}'.format(header[0]) : x['A'],
-                    '{}'.format(header[1]) : x['B'],
-                    '{}'.format(header[2]) : x['C'],
-                    '{}'.format(header[3]) : x['D'],
-                    '{}'.format(header[4]) : x['E'],
-                    '{}'.format(header[5]) : x['F'],
-                    '{}'.format(header[6]) : x['G'],
-                    '{}'.format(header[7]) : x['H']
-                }
-                dw.writerow(fila)
+            consulta = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C, a.clave AS D, a.latitud AS E, a.longitud AS F, 
+            CASE WHEN (SELECT 1 FROM arboles_faltantes WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
+            a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
+            WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave {}""".format('AND e.clave = ?' if clave else '')
+            resultado = Base.consultar(db, consulta, (clave, )) if clave else Base.consultar(db, consulta)
+            if resultado:
+                for r in resultado:
+                    fila = {
+                        '{}'.format(header[0]) : r['A'],
+                        '{}'.format(header[1]) : r['B'],
+                        '{}'.format(header[2]) : r['C'],
+                        '{}'.format(header[3]) : r['D'],
+                        '{}'.format(header[4]) : r['E'],
+                        '{}'.format(header[5]) : r['F'],
+                        '{}'.format(header[6]) : r['G'],
+                        '{}'.format(header[7]) : r['H']
+                    }
+                    dw.writerow(fila)
         # Debuggear el archivo
         with open(archivo, newline='\n') as a:
             dr = csv.DictReader(a)
             for fila in dr:
                 print(fila)
 
-# class KML(Exportador):
-#     @staticmethod
-#     def informe(db, carpeta):
-#         """Opcion 1 : Exportar datos sin utilizar jerarquia"""
-#         kml = simplekml.Kml()
-#         for x in Exportador.correr_consulta(db):
-#             p = kml.newpoint(name=str(x['D']), coords=[(x['E'], x['F'])])
-#             p.style.labelstyle.color = simplekml.Color.red if x['G'] == 'Si' else simplekml.Color.green
-#         kml.save(Exportador.nuevo_archivo(carpeta, 'kml'))
-
 class KML(Exportador):
     @staticmethod
     def informe(db, carpeta, clave=None):
-        """Opcion 2 : Exportar datos de forma jerarquica"""
         kml = simplekml.Kml()
         q_ensayos = """SELECT ensayos.* FROM ensayos JOIN objetos
         WHERE clave = id AND tipo = 'Ensayo' AND eliminado = 0 AND EXISTS
@@ -129,21 +102,34 @@ class KML(Exportador):
                 if r_repeticiones:
                     for r in r_repeticiones:
                         f_r = f_e.newfolder(name='Repeticion nro {}'.format(r['nro']))
-                        q_arboles = """SELECT arboles.*, CASE WHEN (SELECT 1 FROM arboles_faltantes
-                        WHERE id_arboles = arboles.clave) THEN 1 ELSE 0 END AS faltante FROM arboles 
-                        JOIN objetos WHERE clave = id AND tipo = 'Arbol' AND eliminado = 0 AND id_repeticiones = ?"""
-                        r_arboles = Base.consultar(db, q_arboles, (r['clave'], ))
-                        if r_arboles:
-                            faltantes = f_r.newfolder(name='Árboles Faltantes')
-                            presentes = f_r.newfolder(name='Árboles Presentes')
-                            for a in r_arboles:
-                                name = str(a['clave'])
-                                # coords = [(a['latitud'], a['longitud'])]
-                                coords = [(a['longitud'], a['latitud'])]
-                                if a['faltante']:
-                                    p = faltantes.newpoint(name=name, coords=coords)
-                                    p.style.labelstyle.color = simplekml.Color.red
-                                else:
-                                    p = presentes.newpoint(name=name, coords=coords)
-                                    p.style.labelstyle.color = simplekml.Color.green
+                        q_imagenes = """SELECT imagenes.* FROM imagenes JOIN objetos
+                        WHERE clave = id AND tipo = 'Imagen' AND eliminado = 0 AND id_repeticiones = ?"""
+                        r_imagenes = Base.consultar(db, q_imagenes, (r['clave'], ))
+                        if r_imagenes:
+                            for i in r_imagenes:
+                                f_i = f_r.newfolder(name="Imágen {} / etapa '{}'".format(i['clave'], i['etapa']))
+                                faltantes = f_i.newfolder(name='Árboles Faltantes')
+                                presentes = f_i.newfolder(name='Árboles Presentes')
+                                q_arboles_1 = """SELECT arboles.* FROM arboles JOIN surcos_detectados JOIN objetos
+                                WHERE arboles.clave = id AND tipo = 'Arbol' AND eliminado = 0 
+                                AND id_surcos_detectados = surcos_detectados.clave AND id_repeticiones = ? AND id_imagenes = ?"""
+                                q_arboles_2 = """SELECT arboles.* FROM arboles JOIN arboles_faltantes JOIN objetos
+                                WHERE arboles.clave = id AND tipo = 'Arbol' AND eliminado = 0 
+                                AND id_arboles = arboles.clave AND id_repeticiones = ? AND id_imagenes = ?"""
+                                r_arboles_1 = Base.consultar(db, q_arboles_1, (r['clave'], i['clave']))
+                                r_arboles_2 = Base.consultar(db, q_arboles_2, (r['clave'], i['clave']))
+                                if r_arboles_1:
+                                    for a in r_arboles_1:
+                                        name = str(a['clave'])
+                                        # coords = [(a['latitud'], a['longitud'])]
+                                        coords = [(a['longitud'], a['latitud'])]
+                                        p = presentes.newpoint(name=name, coords=coords)
+                                        p.style.labelstyle.color = simplekml.Color.green
+                                if r_arboles_2:
+                                    for a in r_arboles_2:
+                                        name = str(a['clave'])
+                                        # coords = [(a['latitud'], a['longitud'])]
+                                        coords = [(a['longitud'], a['latitud'])]
+                                        p = faltantes.newpoint(name=name, coords=coords)
+                                        p.style.labelstyle.color = simplekml.Color.red
         kml.save(Exportador.nuevo_archivo(carpeta, 'kml'))
