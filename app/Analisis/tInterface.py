@@ -47,7 +47,10 @@ class InterfaceDeteccion(object):
 		self.queue.put("Recalculando")
 		self.grafo.findSubgraphs()
 		self.queue.put("Listo")
-
+	def AgregarArbol(self, x, y, id_sub=None):
+		pass
+	def AgregarArista(self, a, b):
+		pass
 	def Analizar(self):
 		print("Inicio")
 		self.queue.put("Inicio Segmentacion")
