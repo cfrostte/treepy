@@ -24,13 +24,20 @@ class VisorResultados(Frame):
 		self.canvas.pack(side=BOTTOM)
 		self.Controles = Controles(self,self.canvas)
 		self.Controles.pack(side=TOP,fill=X)
+		self.titulo = Label(self, text = ">",fg='red')
+		self.titulo.pack(side=TOP,fill=X)
 		self.pack()
 		self.queue = self.deteccion.queue
 	def Analisis(self,imagen):
 		if self.canvas : self.canvas.destroy()
+		if self.titulo : self.titulo.destroy()
 		if self.Controles : self.Controles.destroy()			
 		self.canvas = CanvasVisorResultados(self)
 		self.canvas.pack(side=BOTTOM)
+		repe = CD.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
+		ensayo = CD.buscar_objetos('Ensayo', {'clave' : repe.id_ensayos})[0]
+		self.titulo = Label(self, text = ("Ensayo {} - {} ► Repetición {} ► {}").format(ensayo.establecimiento,ensayo.nro,repe.clave, imagen.fecha), font=('Courier', 16))
+		self.titulo.pack(side=TOP,fill=X)
 		self.Controles = Controles(self,self.canvas)
 		self.Controles.pack(side=TOP,fill=X)
 		self.pack()
@@ -52,7 +59,7 @@ class VisorResultados(Frame):
 			self.canvas._actualizado = False
 			self.Analizado()
 		else:
-			self.escribirMensaje("Dibujar Polígono")
+			self.escribirMensaje("Dibujar Polígono", "- Análisis - ", True)
 	def Analizado(self):
 		self.canvas.seteandoPuntos = False
 		self.canvas.removiendoNodo = False
@@ -65,14 +72,17 @@ class VisorResultados(Frame):
 		self.Controles.Rem_edge.config(state=DISABLED)
 		self.Controles.analizar.config(state=DISABLED)
 		self.Controles.Siguiente.config(state=DISABLED)
-		self.escribirMensaje("Ya se analizó la imagen")
+		self.escribirMensaje("Ya se analizó la imagen", "Analisis", True)
 
 	def correrAnalisis(self):
+		if len(self.poligono) < 3:
+			respuesta = messagebox.askokcancel("Polígono", "Se recomienda dibujar un polígono, para mejorar los tiempos de detección")
+			if respuesta is False:
+				self.canvas.desbloquear()
+				return
+			self.poligono = [(0,0), (0,self.imagen.largo),(self.imagen.ancho,0),(self.imagen.ancho,self.imagen.largo)]
 		self.canvas.verDeteccion()
 		self.Controles.analizar.config(state=DISABLED)
-		if len(self.poligono) < 3:
-			messagebox.showinfo("Polígono", "Se recomienda dibujar un polígono, para mejorar los tiempos de detección")
-			self.poligono = [(0,0), (0,self.imagen.largo),(self.imagen.ancho,0),(self.imagen.ancho,self.imagen.largo)]
 		self.deteccion.SetPoly(self.poligono)
 		self.poligono = []
 		self.Espera()
@@ -80,12 +90,12 @@ class VisorResultados(Frame):
 		Tarea.deamon = True
 		Tarea.start()
 	def BorrarNodo(self,id_nodo):
-		self.Espera()
+		self.Espera(True)
 		Tarea = threading.Thread(name="Analizar", target=self.deteccion.BorrarNodo,args=(id_nodo,))
 		Tarea.deamon = True
 		Tarea.start()
 	def BorrarArista(self, a,b):
-		self.Espera()
+		self.Espera(True)
 		Tarea = threading.Thread(name="Analizar", target=self.deteccion.BorrarArista,args=(a,b))
 		Tarea.deamon = True
 		Tarea.start()
@@ -93,8 +103,7 @@ class VisorResultados(Frame):
 		if self.cajaMensaje != None:
 			self.cajaMensaje.destroy()
 		self.cajaMensaje = None
-	def escribirMensaje(self, msg, titulo="- Análisis -"):
-		self.Controles.mensaje.config(text=msg)
+	def escribirMensaje(self, msg, titulo="- Análisis -", ok=None):
 		if self.cajaMensaje is None:
 			self.cajaMensaje = Toplevel()
 			self.cajaMensaje.geometry('%dx%d+%d+%d' % (300, 100, 600, 300))
@@ -104,18 +113,25 @@ class VisorResultados(Frame):
 			self.cajaMensaje.config(relief=RAISED)
 			self.cajaMensaje.bind("<Destroy>", self.destroyCajaMensaje)
 			self.cajaMensaje.protocol("WM_DELETE_WINDOW",self.destroyCajaMensaje)
-			b = Button(self.cajaMensaje, text="OK", command=self.destroyCajaMensaje, width=50)
-			b.pack(side=BOTTOM,pady=10,padx=100)
+			self.cajaMensaje.b = Button(self.cajaMensaje, text="OK", command=self.destroyCajaMensaje, width=50)
+			self.cajaMensaje.b.pack(side=BOTTOM,pady=10,padx=100)
 			self.cajaMensaje.mensaje = Message(self.cajaMensaje, text=msg, width=300)
 			self.cajaMensaje.mensaje.pack(side=TOP, fill=BOTH)
 		else:
 			self.cajaMensaje.mensaje.config(text=msg)
-	def Espera(self):
+		if ok==None or ok == False:
+			self.cajaMensaje.b.pack_forget()	
+		else:
+			self.cajaMensaje.b.pack(side=BOTTOM,pady=10,padx=100)		
+	def Espera(self, sacar=False):
 		try:
 			msg = self.queue.get(0)
-			self.escribirMensaje(msg)
+			if sacar is True and str(msg)=="Listo":
+				self.destroyCajaMensaje()
+			else:
+				self.escribirMensaje(msg,"- Análisis -",str(msg)=="Listo")
 			if(str(msg)!="Listo"):
-				self.after(1,self.Espera)
+				self.after(1,lambda: self.Espera(sacar))
 			else:
 				self.canvas.ANCHO_ARBOL = 20
 				self.canvas.grafos = [self.deteccion.grafo.subgraphs[i] for i in self.deteccion.grafo.subgraphs]
@@ -124,12 +140,12 @@ class VisorResultados(Frame):
 				self.canvas.desbloquear()
 				self.Controles.activarEdicion()
 		except queue.Empty:
-			self.after(10,self.Espera)
+			self.after(10,lambda: self.Espera(sacar))
 
 	def EsperaReferenciar(self):
 		try:
 			msg = self.queue.get(0)
-			self.escribirMensaje(msg)
+			self.escribirMensaje(msg,"- Análisis -",str(msg)=="Listo")
 			if(str(msg)!="Listo"):
 				self.after(1,self.EsperaReferenciar)
 			else:
@@ -162,7 +178,7 @@ class VisorResultados(Frame):
 				Tarea.deamon = True
 				Tarea.start()
 			else:
-				self.escribirMensaje("Se necesitan setar dos coordenadas en la imagen", "Error")
+				self.escribirMensaje("Se necesitan setar dos coordenadas en la imagen", "Error", True)
 		else:
 			self.canvas.seteandoPuntos = True
 			self.canvas.removiendoNodo = False
@@ -219,6 +235,7 @@ class Controles(Frame):
 	def activarEdicion(self):
 		self.Rem_edge.config(state=NORMAL)
 		self.Rem_Node.config(state=NORMAL)
+		self.Add_Edge.config(state=NORMAL)
 		self.Siguiente.config(state=NORMAL)
 	def addNode(self):
 		self.mensaje.config(text="Seleccione ubicacion del nuevo árbol")
@@ -297,6 +314,8 @@ class CanvasVisorResultados(Canvas):
 		self.puntoCentro = None
 		self.triangulo = None
 
+		self.seleccionNuevaArista = None
+
 	def Inicio(self, imagen):
 		self.Limpiar()
 		self.im = Image.open(imagen)
@@ -313,6 +332,7 @@ class CanvasVisorResultados(Canvas):
 		self.config(cursor=self.cursor_anterior)
 		if self.objetoBloqueo != None: self.delete(self.objetoBloqueo)
 	def ClickEvent(self,event):
+		print("click")
 		if not self.editando:
 			self.AddPuntoPoligono(event.x,event.y)
 		elif self.removiendoNodo:
@@ -332,6 +352,17 @@ class CanvasVisorResultados(Canvas):
 					self.bloquear()
 					self.parent.BorrarArista(seleccionado.id_a,seleccionado.id_b)
 					break
+		elif self.agregandoArista:
+			id_seleccionado = event.widget.find_closest(event.x, event.y)[0]
+			seleccionado = None
+			for g in self.grafos_canvas:
+				seleccionado = g.GetNodo(id_seleccionado)
+				if seleccionado is not None:
+					break
+			if self.seleccionNuevaArista is None:
+				self.seleccionNuevaArista = seleccionado
+			elif seleccionado is not None:
+				self.nuevaArista(self.seleccionNuevaArista, seleccionado)				
 		elif self.seteandoPuntos:
 			if self.puntoCentro==None:
 				centro = self.getCentro()
@@ -364,6 +395,18 @@ class CanvasVisorResultados(Canvas):
 					self.grafo_seleccionado = g
 				else:
 					g.pintar("#2f2")
+	def nuevaArista(self, a, b):
+		print(a,b)
+		p1 =  self.centros[str(a.id_grafo)]
+		print(p1) 
+		p1[0] = int(p1[0] * self.aspecto_x)
+		p1[1] = int(p1[1] * self.aspecto_y)
+		p2 =  self.centros[str(b.id_grafo)] 
+		print(p2)
+		p2[0] = int(p2[0] * self.aspecto_x)
+		p2[1] = int(p2[1] * self.aspecto_y)
+		self.canvas.create_line(p1,p2, fill="#2f2", width=2)
+		self.seleccionNuevaArista = None
 	def verDeteccion(self):
 		if self.poligono: self.delete(self.poligono)
 		self.puntospoligono = []
