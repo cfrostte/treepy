@@ -125,8 +125,8 @@ CD.volcar_datos_prueba(3)
 # for repeticion in CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : 10}, limite=1):
 #     print(repeticion.matriz(CD.db))
 
-CD.exportar_informe_csv(1)
-CD.exportar_informe_kml(1)
+# CD.exportar_informe_csv(1)
+# CD.exportar_informe_kml(1)
 
 # CD.exportar_informe_csv()
 # CD.exportar_informe_kml()
@@ -149,3 +149,8 @@ CD.exportar_informe_kml(1)
 
 # g = GE.from_tiepoints([xy1, xy2, xy3], [cor1, cor2, cor3])
 # print(g.transform([cnvSz])[0])
+
+for ensayo in CD.buscar_objetos(tipo='Ensayo', filtro={'clave' : 1}, limite=1):
+    print(ensayo)
+    ensayo.eliminar_cascada(CD.db)
+    

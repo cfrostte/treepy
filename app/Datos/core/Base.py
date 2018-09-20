@@ -215,10 +215,11 @@ class Base(object):
         consulta = "UPDATE objetos SET eliminado = 1 WHERE id = ? AND tipo = ?"
         self.consultar(donde, consulta, (self.clave, self.__class__.__name__))
         if self._relacionados:
-            for (x, tipo) in self._relacionados:
-                if self.lista(donde, tipo):
-                        for hijo in self.lista(donde, tipo):
-                            hijo.eliminar_cascada(self, donde)
+            for tipo in self._relacionados:
+                lista = self.lista(donde, tipo)
+                if lista:
+                    for hijo in lista:
+                        hijo.eliminar_cascada(donde)
         del self # Puede que otro objeto lo apunte
 
     def guardar(self, donde, modificable=True):
