@@ -238,29 +238,28 @@ class Controles(Frame):
 		self.Add_Edge.config(state=NORMAL)
 		self.Siguiente.config(state=NORMAL)
 	def addNode(self):
-		self.mensaje.config(text="Seleccione ubicacion del nuevo árbol")
+		self.mensaje.config(text="Seleccione ubicacion del nuevo árbol / Click derecho para finalizar")
 		self.parent.canvas.agregandoNodo = True
 		self.parent.canvas.removiendoNodo = False
 		self.parent.canvas.agregandoArista = False
 		self.parent.canvas.removiendoArista = False
-		self.parent.canvas.removiendoArista = False
 		self.parent.canvas.deseleccionarNuevaArista()
 	def remNode(self):
-		self.mensaje.config(text="Seleccione árbol a eliminar")
+		self.mensaje.config(text="Seleccione árbol a eliminar / Click derecho para finalizar")
 		self.parent.canvas.removiendoNodo = True
 		self.parent.canvas.agregandoNodo = False
 		self.parent.canvas.agregandoArista = False
 		self.parent.canvas.removiendoArista = False
 		self.parent.canvas.deseleccionarNuevaArista()
 	def addArista(self):
-		self.mensaje.config(text="Seleccione dos árboles a unir")
+		self.mensaje.config(text="Seleccione dos árboles a unir / Click derecho para finalizar")
 		self.parent.canvas.removiendoNodo = False
 		self.parent.canvas.agregandoNodo = False
 		self.parent.canvas.agregandoArista = True
 		self.parent.canvas.removiendoArista = False
 		self.parent.canvas.deseleccionarNuevaArista()
 	def remArista(self):		
-		self.mensaje.config(text="Seleccione unión a eliminar")
+		self.mensaje.config(text="Seleccione unión a eliminar / Click derecho para finalizar")
 		self.parent.canvas.removiendoNodo = False
 		self.parent.canvas.agregandoNodo = False
 		self.parent.canvas.agregandoArista = False
@@ -293,6 +292,7 @@ class CanvasVisorResultados(Canvas):
 		self.aspecto_x = 1
 		self.aspecto_y = 1
 		self.bind("<Button-1>", self.ClickEvent)
+		self.bind("<Button-3>", self.ClickDerecho)
 		self._actualizado = False
 		self.editando = False
 		self.grafos = []
@@ -341,6 +341,15 @@ class CanvasVisorResultados(Canvas):
 	def desbloquear(self):
 		self.config(cursor=self.cursor_anterior)
 		if self.objetoBloqueo != None: self.delete(self.objetoBloqueo)
+	def ClickDerecho(self,event):
+		self.finEdicion()
+	def finEdicion(self):
+		self.parent.Controles.mensaje.config(text="")
+		self.agregandoNodo = False
+		self.removiendoNodo = False
+		self.agregandoArista = False
+		self.removiendoArista = False
+		self.deseleccionarNuevaArista()
 	def ClickEvent(self,event):
 		if not self.editando:
 			self.AddPuntoPoligono(event.x,event.y)
@@ -352,6 +361,20 @@ class CanvasVisorResultados(Canvas):
 					self.bloquear()
 					self.parent.BorrarNodo(seleccionado.id_grafo)
 					break
+		elif self.agregandoNodo:
+			id_seleccionado = event.widget.find_closest(event.x, event.y)[0]
+			for g in self.grafos_canvas:
+				seleccionado = g.GetNodo(id_seleccionado)
+				if seleccionado != None:
+					self.NodoSeleccionado =  seleccionado
+					break
+			if seleccionado is None:
+				pass 
+				''' 
+				aca agregariamos un nodo utilizando "self.NodoSeleccionado" y event.x, 
+				event.y, pero tendria que modificar el diccionadio de centroides 
+				y no esta contemplado en el alcanse de nuestro desarrollo, nos vimo en Narnia.
+				''' 
 		elif self.removiendoArista:
 			id_seleccionado = event.widget.find_closest(event.x, event.y)[0]
 			for g in self.grafos_canvas:
