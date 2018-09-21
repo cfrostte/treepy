@@ -133,7 +133,7 @@ class Inicio(object):
 		self.misframes['Ensayo'].camposEditables['suelo'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Suelo: ', '9.3')
 		self.misframes['Ensayo'].camposEditables['espaciamiento'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Espaciamiento: ', '4 X 1.9')
 		self.misframes['Ensayo'].camposEditables['plantasXha'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Plantas/Ha: ', '1315')
-		self.misframes['Ensayo'].camposEditables['fechaPlantacion'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Fecha de plantacion: ', '15/09/2017')
+		self.misframes['Ensayo'].camposEditables['fechaPlantacion'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Fecha de plantacion (1970/12/31): ', '15/09/2017')
 		self.misframes['Ensayo'].camposEditables['numTratamientos'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'N° Tratamientos: ', '27')
 		self.misframes['Ensayo'].camposEditables['totalPlantas'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Total de plantas: ', '1620')
 		self.misframes['Ensayo'].camposEditables['totalHas'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Total Has: ', '1.23')
@@ -181,8 +181,9 @@ class Inicio(object):
 	def ensayosRecientes(self, ensayosRecientes):
 		fotosEnsayos = []
 		frameContainer=[]
-
-		labelTitulo = ttk.Label(self.misframes['Inicio'].interior, text='Ensayos Recientes')
+		frame = tk.Frame(self.misframes['Inicio'].interior)
+		frame.pack()
+		labelTitulo = ttk.Label(frame, text='Ensayos Recientes')
 		labelTitulo.pack(side=tk.TOP, fill=tk.BOTH)
 		labelTitulo.config(font=("Courier", 33))
 		frameContainer.append(tk.Frame(self.misframes['Inicio'].interior))
@@ -416,6 +417,13 @@ class Inicio(object):
 		respuesta = messagebox.askokcancel("Confirmar", "¿Esta seguro que desea borrar?")
 		if not respuesta:
 			return False
+		# for ensayo in CD.buscar_objetos(tipo='Imagen', filtro={'clave' : imagen.clave}, limite=1):
+			# print(ensayo)
+		try:
+			imagen.eliminar_cascada(CD.db)
+		except Exception as e:
+			messagebox.showinfo("Error", "Ha ocurrido un error al intentar borrar la imagen y todos sus datos asociados. \n" + e)
+			return False
 		parent = frame.master #padre principal
 		frame.destroy()
 		for x, widget in enumerate(parent.winfo_children()):
@@ -481,15 +489,26 @@ class Inicio(object):
 				subtituloDatos.config(font=('Courier', 16))
 
 				etapa = tk.Label(containerCentro, text="Etapa : " + str(imagenes[x].etapa)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				ancho = tk.Label(containerCentro, text="Ancho(Pixels) : " + str(imagenes[x].ancho)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				largo = tk.Label(containerCentro, text="Largo(Pixels) : " + str(imagenes[x].largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				ancho = tk.Label(containerCentro, text="Ancho(Pixels) : " + str(imagenes[x].ancho) + " Largo(Pixels) : " + str(imagenes[x].largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# largo = tk.Label(containerCentro, text="Largo(Pixels) : " + str(imagenes[x].largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
 				altitud = tk.Label(containerCentro, text="Altitud : " + str(imagenes[x].altitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				latitud = tk.Label(containerCentro, text="Latitud de la imagen : " + str(imagenes[x].latitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				longitud = tk.Label(containerCentro, text="Longitud de la imagen : " + str(imagenes[x].longitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				latitudCono1 = tk.Label(containerCentro, text="Latitud del cono 1 : " + str(imagenes[x].latitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				longitudCono1 = tk.Label(containerCentro, text="Longitud del cono 1 : " + str(imagenes[x].longitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				latitudCono2 = tk.Label(containerCentro, text="Latitud del cono 2 : " + str(imagenes[x].latitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
-				longitudCono2 = tk.Label(containerCentro, text="Longitud del cono 2 : " + str(imagenes[x].longitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				latitud = tk.Label(containerCentro, text="Lat y Lnt de la imagen : " + str(imagenes[x].latitud) + " " + str(imagenes[x].longitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# longitud = tk.Label(containerCentro, text="Longitud de la imagen : " + str(imagenes[x].longitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				latitudCono1 = tk.Label(containerCentro, text="Lat y Lnt del cono 1 : " + str(imagenes[x].latitudCono1) + " " + str(imagenes[x].longitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# longitudCono1 = tk.Label(containerCentro, text="Longitud del cono 1 : " + str(imagenes[x].longitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				latitudCono2 = tk.Label(containerCentro, text="Lat y Lnt del cono 2 : " + str(imagenes[x].latitudCono2) + " " + str(imagenes[x].longitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# longitudCono2 = tk.Label(containerCentro, text="Longitud del cono 2 : " + str(imagenes[x].longitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+
+				# etapa = tk.Label(containerCentro, text="Etapa : " + str(imagenes[x].etapa)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# ancho = tk.Label(containerCentro, text="Ancho(Pixels) : " + str(imagenes[x].ancho)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# largo = tk.Label(containerCentro, text="Largo(Pixels) : " + str(imagenes[x].largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# altitud = tk.Label(containerCentro, text="Altitud : " + str(imagenes[x].altitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# latitud = tk.Label(containerCentro, text="Latitud de la imagen : " + str(imagenes[x].latitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# longitud = tk.Label(containerCentro, text="Longitud de la imagen : " + str(imagenes[x].longitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# latitudCono1 = tk.Label(containerCentro, text="Latitud del cono 1 : " + str(imagenes[x].latitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# longitudCono1 = tk.Label(containerCentro, text="Longitud del cono 1 : " + str(imagenes[x].longitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# latitudCono2 = tk.Label(containerCentro, text="Latitud del cono 2 : " + str(imagenes[x].latitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				# longitudCono2 = tk.Label(containerCentro, text="Longitud del cono 2 : " + str(imagenes[x].longitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
 
 				
 				datos = []
@@ -683,11 +702,14 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack(side=tk.BOTTOM)
 		else:
 			for widget in izquierda.winfo_children():
-				widget.destroy()
+				widget.pack_forget()
+				# widget.destroy()
 			for widget in centro.winfo_children():
-				widget.destroy()
+				widget.pack_forget()
+				# widget.destroy()
 			for widget in derecha.winfo_children():
-				widget.destroy()
+				widget.pack_forget()
+				# widget.destroy()
 			frameContainerIn = []
 			frameContainerIn.append(tk.Frame(izquierda))
 			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
@@ -1055,6 +1077,7 @@ class VerticalScrolledFrame(tk.Frame):
 
         # create a frame inside the canvas which will be scrolled with it
         self.interior = interior = tk.Frame(canvas)
+        # self.interior.Ensayos pack(side=tk.TOP)
         interior_id = canvas.create_window(0, 0, window=interior,
                                            anchor=tk.NW)
 
