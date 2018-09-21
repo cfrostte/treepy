@@ -21,7 +21,7 @@ todosLosEnsayos = CD.buscar_objetos('Ensayo')
     # for repeticion in CD.obtener_relaciones_de(ensayo, 'Repeticion'):
         # print("---------------")►
         # print(repeticion)
-        # print("---------------")
+        # print("---------------")widget.master.master
 
 
 # inicio.miapp(ultimosModificados)

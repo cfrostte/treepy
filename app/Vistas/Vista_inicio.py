@@ -19,6 +19,7 @@ import pathlib
 from pathlib import Path
 import datetime
 import os
+from tkinter import Widget
 
 # import tkinter.filedialog as filedialog
 
@@ -219,8 +220,8 @@ class Inicio(object):
 		MENU = tk.Menu(root)	
 
 		menu_archivo = tk.Menu(MENU, tearoff=0)
-		menu_edicion = tk.Menu(MENU, tearoff=0)
-		menu_vista = tk.Menu(MENU, tearoff=0)
+		# menu_edicion = tk.Menu(MENU, tearoff=0)
+		# menu_vista = tk.Menu(MENU, tearoff=0)
 		menu_ayuda = tk.Menu(MENU, tearoff=0)
 
 		menu_archivo.add_command(label="Nuevo ensayo", command= lambda:self.NuevoEnsayo())
@@ -229,15 +230,15 @@ class Inicio(object):
 		menu_archivo.add_separator()
 		menu_archivo.add_command(label="Salir", command=root.quit)
 
-		menu_edicion.add_command(label="Editar Ensayo", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo']))
-		menu_edicion.add_command(label="Editar Repeticion", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion']))
+		# menu_edicion.add_command(label="Editar Ensayo", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo']))
+		# menu_edicion.add_command(label="Editar Repeticion", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion']))
 
 		menu_ayuda.add_command(label="Documentacion", command=donothing)
 		menu_ayuda.add_command(label="Acerca de", command=donothing)
 
 		MENU.add_cascade(label="Archivo", menu=menu_archivo)
-		MENU.add_cascade(label="Edicion", menu=menu_edicion)
-		MENU.add_cascade(label="Vista", menu=menu_vista)
+		# MENU.add_cascade(label="Edicion", menu=menu_edicion)
+		# MENU.add_cascade(label="Vista", menu=menu_vista)
 		MENU.add_cascade(label="Ayuda", menu=menu_ayuda)
 		
 		return MENU
@@ -407,6 +408,19 @@ class Inicio(object):
 
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo'])
 
+	# def borradorecursivo(self, widget):
+		# for x in widget.winfo_children():
+
+
+	def borrarImagen(self, imagen, frame):
+		respuesta = messagebox.askokcancel("Confirmar", "¿Esta seguro que desea borrar?")
+		if not respuesta:
+			return False
+		parent = frame.master #padre principal
+		frame.destroy()
+		for x, widget in enumerate(parent.winfo_children()):
+			widget.winfo_children()[0].winfo_children()[0].winfo_children()[0].config(text="Imagen "+ str(x+1))
+
 	def updateFrameRepeticion(self, repeticion=None, nroRepes=None, nroEnsayo=None):
 		if 'frameAgregarNuevaImagen' in self.misframes['Repeticion'].camposEditables.keys():
 			self.misframes['Repeticion'].camposEditables['frameAgregarNuevaImagen'].pack_forget()
@@ -459,6 +473,8 @@ class Inicio(object):
 				btnCambiarImagen.pack(side=tk.TOP)
 				btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda image=imagenes[x]: self.iniciarAnalisis(image))
 				btnAnalizarImagen.pack(side=tk.TOP)
+				btnBorrarImagen = tk.Button(containerDerecha, text="Borrar", command=lambda image=imagenes[x], frame=containerImg: self.borrarImagen(image, frame))
+				btnBorrarImagen.pack(side=tk.BOTTOM)
 
 				subtituloDatos = tk.Label(containerCentro, text="Datos de la imagen")
 				subtituloDatos.pack(side=tk.TOP, padx=5, pady=5, expand=True)
@@ -480,6 +496,8 @@ class Inicio(object):
 				nombre = 'Imagen ' + str(x+1)
 				nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 				nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+				print("====================Esto es lo que preciso====================")
+				print(nombrelabel)
 				fechalabel = tk.Label(frameContainerIn[0], text=imagenes[x].fecha)
 				fechalabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 				path = str(Path().absolute())
@@ -575,10 +593,13 @@ class Inicio(object):
 		frameContainerIn.append(tk.Frame(izquierda))
 		frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 		self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack_forget()
+		self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack_forget()
 		self.misframes['Repeticion'].camposEditables['btnCambiarImagen'] = tk.Button(derecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), claveImagen=nuevaImagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
 		self.misframes['Repeticion'].camposEditables['btnCambiarImagen'].pack(side=tk.TOP)
 		self.misframes['Repeticion'].camposEditables['btnAnalizarImagen'] = tk.Button(derecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen))
 		self.misframes['Repeticion'].camposEditables['btnAnalizarImagen'].pack(side=tk.TOP)
+		self.misframes['Repeticion'].camposEditables['btnBorrarImagen'] = tk.Button(derecha, text="Borrar", command=lambda: self.borrarImagen(nuevaImagen, frame))
+		self.misframes['Repeticion'].camposEditables['btnBorrarImagen'].pack(side=tk.BOTTOM)
 		subtituloDatos = tk.Label(centro, text="Datos de la imagen")
 		subtituloDatos.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 		subtituloDatos.config(font=('Courier', 16))
@@ -655,8 +676,11 @@ class Inicio(object):
 			label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			datos.append(label)
 			datos.append(nombrelabel)
-			self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(containerDerecha, text="Elegir imagen", command=lambda accion="new", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, containerIzquierda, containerCentro, containerDerecha))
+			self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(containerCentro, text="Elegir imagen", command=lambda accion="new", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, containerIzquierda, containerCentro, containerDerecha))
+			# self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(containerDerecha, text="Elegir imagen", command=lambda accion="new", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, containerIzquierda, containerCentro, containerDerecha))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack(side=tk.BOTTOM)
+			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(derecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack(side=tk.BOTTOM)
 		else:
 			for widget in izquierda.winfo_children():
 				widget.destroy()
@@ -694,8 +718,11 @@ class Inicio(object):
 			label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			datos.append(label)
 			datos.append(nombrelabel)
-			self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(derecha, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+			self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(centro, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+			# self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(derecha, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack(side=tk.BOTTOM)
+			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(derecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack(side=tk.BOTTOM)
 			#Busco el objeto imagen y me quedo con el para editarlo y despues guardarlo.
 	def verAnalisis(self):
 		self.visorAnalisis = VisorResultados(self.misframes['Analisis'].interior, self)
@@ -742,7 +769,7 @@ class Inicio(object):
 		if len(repes) > 0:
 			print("Entro al for de las repes")
 			for x in range(0, len(repes)):
-				label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
+				label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='Repeticion '+str(x+1), relief="solid", borderwidth=2)
 				label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 				label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
 				label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
