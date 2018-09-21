@@ -3,11 +3,12 @@ import threading
 from PIL import Image, ImageTk
 import ctypes
 from Analisis.tInterface import InterfaceDeteccion
-from .ObjetosVisor.Grafo import Grafo, Nodo
+from .ObjetosVisor.Grafo import Grafo, Nodo, Arista
 import threading, queue
 from ControladorDatos import ControladorDatos as CD
 from math import acos, sqrt, pi
 from networkx.readwrite import json_graph
+import networkx as nx
 import json
 
 class VisorResultados(Frame):
@@ -52,7 +53,6 @@ class VisorResultados(Frame):
 			data=json.loads(imagen.grafo)
 			subgrafos = data['grafos']
 			centros = data['centros']
-			print(centros)
 			self.canvas.centros=centros
 			for sg in subgrafos:
 				self.canvas.grafos.append(json_graph.node_link_graph(sg))
@@ -238,29 +238,33 @@ class Controles(Frame):
 		self.Add_Edge.config(state=NORMAL)
 		self.Siguiente.config(state=NORMAL)
 	def addNode(self):
-		self.mensaje.config(text="Seleccione ubicacion del nuevo árbol")
+		self.mensaje.config(text="Seleccione ubicacion del nuevo árbol / Click derecho para finalizar")
 		self.parent.canvas.agregandoNodo = True
 		self.parent.canvas.removiendoNodo = False
 		self.parent.canvas.agregandoArista = False
 		self.parent.canvas.removiendoArista = False
+		self.parent.canvas.deseleccionarNuevaArista()
 	def remNode(self):
-		self.mensaje.config(text="Seleccione árbol a eliminar")
+		self.mensaje.config(text="Seleccione árbol a eliminar / Click derecho para finalizar")
 		self.parent.canvas.removiendoNodo = True
 		self.parent.canvas.agregandoNodo = False
 		self.parent.canvas.agregandoArista = False
 		self.parent.canvas.removiendoArista = False
+		self.parent.canvas.deseleccionarNuevaArista()
 	def addArista(self):
-		self.mensaje.config(text="Seleccione dos árboles a unir")
+		self.mensaje.config(text="Seleccione dos árboles a unir / Click derecho para finalizar")
 		self.parent.canvas.removiendoNodo = False
 		self.parent.canvas.agregandoNodo = False
 		self.parent.canvas.agregandoArista = True
 		self.parent.canvas.removiendoArista = False
+		self.parent.canvas.deseleccionarNuevaArista()
 	def remArista(self):		
-		self.mensaje.config(text="Seleccione unión a eliminar")
+		self.mensaje.config(text="Seleccione unión a eliminar / Click derecho para finalizar")
 		self.parent.canvas.removiendoNodo = False
 		self.parent.canvas.agregandoNodo = False
 		self.parent.canvas.agregandoArista = False
 		self.parent.canvas.removiendoArista = True
+		self.parent.canvas.deseleccionarNuevaArista()
 	def correrAnalisis(self):
 		self.parent.correrAnalisis()
 
@@ -273,7 +277,11 @@ def _angulo(p0,p1,p2):
 def colorTriangulo(puntos):
 	A,B,C = puntos
 	return "#00D0FF" if _angulo(A,B,C)<130 and _angulo(C,A,B)<130 and _angulo(B,C,A)<130 else "#EE5500"
-		
+"""
+	Este objeto se encarga del dibujado de todos los resultados y permite la edicion del mismo,
+	asi como setear los conos de muestra para la georeferenciacion
+
+"""
 class CanvasVisorResultados(Canvas):
 	"""docstring for CanvasVisorResultados"""
 	def __init__(self, parent):
@@ -284,6 +292,7 @@ class CanvasVisorResultados(Canvas):
 		self.aspecto_x = 1
 		self.aspecto_y = 1
 		self.bind("<Button-1>", self.ClickEvent)
+		self.bind("<Button-3>", self.ClickDerecho)
 		self._actualizado = False
 		self.editando = False
 		self.grafos = []
@@ -315,6 +324,7 @@ class CanvasVisorResultados(Canvas):
 		self.triangulo = None
 
 		self.seleccionNuevaArista = None
+		self.GrafoAgregado = Grafo(self, nx.Graph(), -1, self.centros)
 
 	def Inicio(self, imagen):
 		self.Limpiar()
@@ -331,8 +341,16 @@ class CanvasVisorResultados(Canvas):
 	def desbloquear(self):
 		self.config(cursor=self.cursor_anterior)
 		if self.objetoBloqueo != None: self.delete(self.objetoBloqueo)
+	def ClickDerecho(self,event):
+		self.finEdicion()
+	def finEdicion(self):
+		self.parent.Controles.mensaje.config(text="")
+		self.agregandoNodo = False
+		self.removiendoNodo = False
+		self.agregandoArista = False
+		self.removiendoArista = False
+		self.deseleccionarNuevaArista()
 	def ClickEvent(self,event):
-		print("click")
 		if not self.editando:
 			self.AddPuntoPoligono(event.x,event.y)
 		elif self.removiendoNodo:
@@ -343,6 +361,20 @@ class CanvasVisorResultados(Canvas):
 					self.bloquear()
 					self.parent.BorrarNodo(seleccionado.id_grafo)
 					break
+		elif self.agregandoNodo:
+			id_seleccionado = event.widget.find_closest(event.x, event.y)[0]
+			for g in self.grafos_canvas:
+				seleccionado = g.GetNodo(id_seleccionado)
+				if seleccionado != None:
+					self.NodoSeleccionado =  seleccionado
+					break
+			if seleccionado is None:
+				pass 
+				''' 
+				aca agregariamos un nodo utilizando "self.NodoSeleccionado" y event.x, 
+				event.y, pero tendria que modificar el diccionadio de centroides 
+				y no esta contemplado en el alcanse de nuestro desarrollo, nos vimo en Narnia.
+				''' 
 		elif self.removiendoArista:
 			id_seleccionado = event.widget.find_closest(event.x, event.y)[0]
 			for g in self.grafos_canvas:
@@ -360,9 +392,13 @@ class CanvasVisorResultados(Canvas):
 				if seleccionado is not None:
 					break
 			if self.seleccionNuevaArista is None:
-				self.seleccionNuevaArista = seleccionado
-			elif seleccionado is not None:
-				self.nuevaArista(self.seleccionNuevaArista, seleccionado)				
+				if seleccionado is not None:
+					self.seleccionNuevaArista = seleccionado
+					self.seleccionNuevaArista.pintar("blue")				
+			elif seleccionado is not None and self.seleccionNuevaArista.id_grafo != seleccionado.id_grafo:
+				self.nuevaArista(self.seleccionNuevaArista, seleccionado)
+			else:
+				self.deseleccionarNuevaArista()
 		elif self.seteandoPuntos:
 			if self.puntoCentro==None:
 				centro = self.getCentro()
@@ -396,17 +432,30 @@ class CanvasVisorResultados(Canvas):
 				else:
 					g.pintar("#2f2")
 	def nuevaArista(self, a, b):
-		print(a,b)
-		p1 =  self.centros[str(a.id_grafo)]
-		print(p1) 
-		p1[0] = int(p1[0] * self.aspecto_x)
-		p1[1] = int(p1[1] * self.aspecto_y)
-		p2 =  self.centros[str(b.id_grafo)] 
-		print(p2)
-		p2[0] = int(p2[0] * self.aspecto_x)
-		p2[1] = int(p2[1] * self.aspecto_y)
-		self.canvas.create_line(p1,p2, fill="#2f2", width=2)
+		centros = self.centros
+		centro_a = ((centros[a.id_grafo][0][0] / self.aspecto_x), (centros[a.id_grafo][0][1] / self.aspecto_y))
+		centro_b = ((centros[b.id_grafo][0][0] / self.aspecto_x), (centros[b.id_grafo][0][1] / self.aspecto_y))
+		self.grafos_canvas[0].unir(a.id_grafo, b.id_grafo,[centro_a,centro_b])
+
+		_a = (centros[a.id_grafo][0][0] - self.ANCHO_ARBOL / 2) / self.aspecto_x
+		_b = (centros[a.id_grafo][0][0] + self.ANCHO_ARBOL / 2) / self.aspecto_x
+		_c = (centros[a.id_grafo][0][1] - self.ANCHO_ARBOL / 2) / self.aspecto_y
+		_d = (centros[a.id_grafo][0][1] + self.ANCHO_ARBOL / 2) / self.aspecto_y
+		self.grafos_canvas[0].addNodo([_a,_c,_b,_d], self.centros[a.id_grafo])
+
+		_a = (centros[b.id_grafo][0][0] - self.ANCHO_ARBOL / 2) / self.aspecto_x
+		_b = (centros[b.id_grafo][0][0] + self.ANCHO_ARBOL / 2) / self.aspecto_x
+		_c = (centros[b.id_grafo][0][1] - self.ANCHO_ARBOL / 2) / self.aspecto_y
+		_d = (centros[b.id_grafo][0][1] + self.ANCHO_ARBOL / 2) / self.aspecto_y
+		self.grafos_canvas[0].addNodo([_a,_c,_b,_d], self.centros[b.id_grafo])
+		self.deseleccionarNuevaArista()
+
+	def deseleccionarNuevaArista(self):
+		if self.seleccionNuevaArista is None:
+			return
+		self.seleccionNuevaArista.pintar("#2f2")
 		self.seleccionNuevaArista = None
+
 	def verDeteccion(self):
 		if self.poligono: self.delete(self.poligono)
 		self.puntospoligono = []
@@ -432,9 +481,14 @@ class CanvasVisorResultados(Canvas):
 			self.dibujarGrafos()
 		self.after(1,self._Update)
 	def dibujarGrafos(self):
-		for g in self.grafos_canvas: 
-			g.borrar()
-		self.grafos_canvas = []
+		grafoRespaldo = Grafo(self,nx.Graph(),-1,self.centros)	
+		if len(self.grafos_canvas) > 0:
+			grafoRespaldo = self.grafos_canvas[0]
+		for i,g in enumerate(self.grafos_canvas): 
+			if i > 0:
+				g.borrar()
+		self.grafos_canvas = [grafoRespaldo]
+		grafoRespaldo.dibujar()
 		for i,G in enumerate(self.grafos):
 			G_canvas = Grafo(self,G,i,self.centros)
 			G_canvas.dibujar()

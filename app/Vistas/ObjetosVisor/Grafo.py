@@ -24,7 +24,8 @@ class Grafo(object):
 		ys = [p[1] and p[3] for p in puntos]
 		offset = self.ANCHO_ARBOL / 2
 		return (min(xs) - offset, min(ys) - offset, max(xs) + offset, max(ys) + offset)
-
+	def SetCentros(self, centros):
+		self.centros = centros
 	def dibujar(self):
 		centros=self.centros#nx.get_node_attributes(self.G,'centro')
 		for e in self.G.edges():
