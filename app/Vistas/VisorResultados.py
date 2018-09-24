@@ -12,7 +12,7 @@ import networkx as nx
 import json
 from ctypes import windll
 def GetScreensize():
-	return windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1) - 80
+	return windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1) - 140
 	# return self.parent.winfo_width(), self.parent.winfo_height() - 50
 
 class VisorResultados(Frame):
