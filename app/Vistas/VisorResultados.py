@@ -10,6 +10,10 @@ from math import acos, sqrt, pi
 from networkx.readwrite import json_graph
 import networkx as nx
 import json
+from ctypes import windll
+def GetScreensize():
+	return windll.user32.GetSystemMetrics(0), windll.user32.GetSystemMetrics(1) - 80
+	# return self.parent.winfo_width(), self.parent.winfo_height() - 50
 
 class VisorResultados(Frame):
 	"""docstring for VisorResultados"""
@@ -106,7 +110,8 @@ class VisorResultados(Frame):
 	def escribirMensaje(self, msg, titulo="- Análisis -", ok=None):
 		if self.cajaMensaje is None:
 			self.cajaMensaje = Toplevel()
-			self.cajaMensaje.geometry('%dx%d+%d+%d' % (300, 100, 600, 300))
+			x,y = GetScreensize()
+			self.cajaMensaje.geometry('%dx%d+%d+%d' % (300, 100, int(x/2)-150, int(y/2)-50))
 			self.cajaMensaje.title(titulo)
 			self.cajaMensaje.grab_set()
 			self.cajaMensaje.overrideredirect(1)
@@ -529,10 +534,8 @@ class CanvasVisorResultados(Canvas):
 			return
 		self.parent.unir(self.agregando_arista.id_grafo, nodo.id_grafo)
 		self.agregando_arista = None
-	def GetScreensize(self):
-		return 1200, 680#self.parent.winfo_width(), self.parent.winfo_height() - 50
 	def EscalarVista(self, imagen):
-		Screen = self.GetScreensize() 
+		Screen = GetScreensize() 
 		original_size = imagen.size		
 		if original_size[0] > original_size[1]:
 			new_width  = Screen[0]
