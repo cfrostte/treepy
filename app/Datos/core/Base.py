@@ -210,6 +210,18 @@ class Base(object):
         self.consultar(donde, consulta, (self.clave, self.__class__.__name__))
         del self # Puede que otro objeto lo apunte
 
+    def eliminar_cascada(self, donde):
+        """Elimina un registro de manera logica y todos sus hijos"""
+        consulta = "UPDATE objetos SET eliminado = 1 WHERE id = ? AND tipo = ?"
+        self.consultar(donde, consulta, (self.clave, self.__class__.__name__))
+        if self._relacionados:
+            for tipo in self._relacionados:
+                lista = self.lista(donde, tipo)
+                if lista:
+                    for hijo in lista:
+                        hijo.eliminar_cascada(donde)
+        del self # Puede que otro objeto lo apunte
+
     def guardar(self, donde, modificable=True):
         """Crea o modifica los datos del objeto y lo retorna (si se guardo)"""
         existente = self.obtener(donde, {'clave' : self.clave})

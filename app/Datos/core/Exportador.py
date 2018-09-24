@@ -60,10 +60,19 @@ class CSV(Exportador):
             header = [A, B, C, D, E, F, G, H]
             dw = csv.DictWriter(a, fieldnames=header)
             dw.writeheader() # Escribir el header
+            # consulta = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C, a.clave AS D, a.latitud AS E, a.longitud AS F, 
+            # CASE WHEN (SELECT 1 FROM arboles_faltantes WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
+            # a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
+            # WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave {}""".format('AND e.clave = ?' if clave else '')
             consulta = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C, a.clave AS D, a.latitud AS E, a.longitud AS F, 
-            CASE WHEN (SELECT 1 FROM arboles_faltantes WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
-            a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
-            WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave {}""".format('AND e.clave = ?' if clave else '')
+            CASE WHEN (SELECT 1 FROM arboles_faltantes AS a_f JOIN objetos AS o 
+            WHERE a_f.id_arboles = a.clave AND o.tipo = 'ArbolFaltante' AND o.id = a_f.clave AND o.eliminado = 0) 
+            THEN 'Si' ELSE 'No' END AS G, a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
+            JOIN objetos AS o_1 JOIN objetos AS o_2 JOIN objetos AS o_3
+            WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave
+            AND o_1.tipo = 'Arbol' AND o_1.id = a.clave AND o_1.eliminado = 0
+            AND o_2.tipo = 'Repeticion' AND o_2.id = r.clave AND o_2.eliminado = 0
+            AND o_3.tipo = 'Ensayo' AND o_3.id = e.clave AND o_3.eliminado = 0 {}""".format('AND e.clave = ?' if clave else '')
             resultado = Base.consultar(db, consulta, (clave, )) if clave else Base.consultar(db, consulta)
             if resultado:
                 for r in resultado:
