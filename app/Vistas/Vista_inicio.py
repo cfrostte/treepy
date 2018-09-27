@@ -422,7 +422,7 @@ class Inicio(object):
 		try:
 			imagen.eliminar_cascada(CD.db)
 		except Exception as e:
-			messagebox.showinfo("Error", "Ha ocurrido un error al intentar borrar la imagen y todos sus datos asociados. \n" + e)
+			messagebox.showinfo("Error", "Ha ocurrido un error al intentar borrar la imagen y todos sus datos asociados. \n" + str(e))
 			return False
 		parent = frame.master #padre principal
 		frame.destroy()
@@ -884,7 +884,8 @@ class Inicio(object):
 		check = []
 		
 		try:
-			int(self.misframes['Repeticion'].camposEditables['etapaEntry'].get())
+			if int(self.misframes['Repeticion'].camposEditables['etapaEntry'].get()) < 0:
+				check.append('etapaEntry')
 			if not self.misframes['Repeticion'].camposEditables['etapaEntry'].get() or self.misframes['Repeticion'].camposEditables['etapaEntry'].get().isspace():
 				check.append('etapaEntry')
 		except:
@@ -919,13 +920,15 @@ class Inicio(object):
 	def checkearCamposEnsayo(self, datosParaGuardar):
 		check = []
 		try:
-			int(datosParaGuardar['numEnsayo'])
+			if int(datosParaGuardar['numEnsayo']) < 0:
+				check.append('numEnsayo')
 			if not datosParaGuardar['numEnsayo']:
 				check.append('numEnsayo')
 		except:
 			check.append('numEnsayo')
 		try:
-			int(datosParaGuardar['numRepeticiones'])
+			if int(datosParaGuardar['numRepeticiones']) < 1:
+				check.append('numRepeticiones')
 		except:
 			check.append('numRepeticiones')
 		if datosParaGuardar['establecimiento'] == "" or  datosParaGuardar['establecimiento'].isspace():
@@ -938,30 +941,37 @@ class Inicio(object):
 			check.append('suelo')
 		try:
 			espaciamientoSplit = datosParaGuardar["espaciamientoSplit"].lower().split('x')
-			float(espaciamientoSplit[0])
-			float(espaciamientoSplit[1])
+			if float(espaciamientoSplit[0]) <= 0:
+				check.append('espaciamiento')
+			if float(espaciamientoSplit[1]) <=0:
+				check.append('espaciamiento')
 		except:
 			check.append('espaciamiento')
 		try:
-			int(datosParaGuardar['plantasXha'])
+			if int(datosParaGuardar['plantasXha']) < 0:
+				check.append('plantasXha')
 		except:
 			check.append('plantasXha')
 		if not validate(datosParaGuardar['fechaPlantacion']):
 			check.append('fechaPlantacion')
 		try:
-			int(datosParaGuardar['numTratamientos'])
+			if int(datosParaGuardar['numTratamientos']) < 1:
+				check.append('numTratamientos')
 		except:
 			check.append('numTratamientos')
 		try:
-			int(datosParaGuardar['totalPlantas'])
+			if int(datosParaGuardar['totalPlantas']) < 1:
+				check.append('totalPlantas')
 		except:
 			check.append('totalPlantas')
 		try:
-			float(datosParaGuardar['totalHas'])
+			if float(datosParaGuardar['totalHas']) < 0:
+				check.append('totalHas')
 		except:
 			check.append('totalHas')
 		try:
-			int(datosParaGuardar['plantasXparcela'])
+			if int(datosParaGuardar['plantasXparcela']) < 1:
+				check.append('plantasXparcela')
 		except:
 			check.append('plantasXparcela')
 		if not datosParaGuardar['tipoClonal'] or datosParaGuardar['tipoClonal'].isspace():
@@ -1018,7 +1028,7 @@ class Inicio(object):
 		repes = CD.buscar_objetos('Repeticion', {'id_ensayos' : ensayo.clave})
 
 		for x in range(0, len(repes)):
-			label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='REPEEEE '+str(x+1), relief="solid", borderwidth=2)
+			label = tk.Label(self.misframes['Ensayo'].camposEditables['frameContainer'][-2], text='Repetición '+str(x+1), relief="solid", borderwidth=2)
 			label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 			# label.bind("<Leave>", lambda event, :label.config(relief="solid", bd=1))
 			label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
