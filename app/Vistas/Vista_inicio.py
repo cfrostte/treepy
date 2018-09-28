@@ -24,14 +24,15 @@ from tkinter import Widget
 # import tkinter.filedialog as filedialog
 
 from Vistas.VisorResultados import VisorResultados
+import webbrowser
 
 actualFrame = 1
 def donothing():
 	print("donothing")
 
-
 class Inicio(object):
 	__instance = None
+	variableAyudaBorrar = 0
 
 	def __new__(cls, misEnsayosRecientes, todosLosEnsayos):
 		if Inicio.__instance is None:
@@ -48,7 +49,7 @@ class Inicio(object):
 		self.frameActivo = "Inicio"
 		self.frameAnterior = ""
 
-		misframes = ['Inicio', 'Ensayo', 'Repeticion', 'Analisis', 'ListaEnsayos']
+		misframes = ['Inicio', 'Ensayo', 'Repeticion', 'Analisis', 'ListaEnsayos', 'Acerca', 'Manual']
 		self.misframes = self.generarFrames(misframes)
 		self.misframes['Inicio'].pack(fill=tk.BOTH, padx=0, pady=0, expand=True)
 
@@ -56,9 +57,56 @@ class Inicio(object):
 		self.verEnsayo()
 		self.verRepeticion()
 		self.verAnalisis()
+		self.verAyudas()
 		
 		self.root.config(menu=self.mimenu(self.root))
 		self.root.mainloop()
+
+	def verAyudas(self):
+		frame = tk.Frame(self.misframes['Manual'].interior)
+		frame.pack()
+		labelTitulo = ttk.Label(frame, text='Manual de usuario en linea')
+		labelTitulo.pack(side=tk.TOP, fill=tk.BOTH)
+		labelTitulo.config(font=("Courier", 33))
+		# frameContainer = tk.Frame(self.misframes['Manual'].interior)
+		# frameContainer.pack(side=tk.LEFT,fill=tk.BOTH, expand=True)
+		link = ttk.Label(frame, text='Haga click aqui', foreground ="blue", cursor="hand2")
+		link.pack(side=tk.TOP, fill=tk.BOTH)
+		link.config(font=("Arial", 22))
+		link.bind("<Button-1>", lambda event, arg='w':self.abrirLink())
+
+		frame2 = tk.Frame(self.misframes['Acerca'].interior)
+		frame2.pack()
+		label1 = ttk.Label(frame2, text='TreePy Análisis de Imágenes')
+		label2 = ttk.Label(frame2, text='Analizador de sobrevivencia y geolocalización de')
+		label3 = ttk.Label(frame2, text='árboles en fotos aéreas de ensayos forestales.')
+		label4 = ttk.Label(frame2, text='Este producto de software fue desarrollado por:')
+		label5 = ttk.Label(frame2, text='• Jean Aramburu')
+		label6 = ttk.Label(frame2, text='• Carlos Frostte')
+		label7 = ttk.Label(frame2, text='• Guillermo Becker')
+		label8 = ttk.Label(frame2, text='• Stephanie Rudenko')
+		label1.pack(side=tk.TOP, fill=tk.BOTH)
+		label1.config(font=("Arial", 22))
+		label2.pack(side=tk.TOP, fill=tk.BOTH)
+		label2.config(font=("Arial", 18))
+		label3.pack(side=tk.TOP, fill=tk.BOTH)
+		label3.config(font=("Arial", 18))
+		label4.pack(side=tk.TOP, fill=tk.BOTH)
+		label4.config(font=("Arial", 18))
+		label5.pack(side=tk.BOTTOM, fill=tk.BOTH)
+		label5.config(font=("Arial", 16))
+		label6.pack(side=tk.BOTTOM, fill=tk.BOTH)
+		label6.config(font=("Arial", 16))
+		label7.pack(side=tk.BOTTOM, fill=tk.BOTH)
+		label7.config(font=("Arial", 16))
+		label8.pack(side=tk.BOTTOM, fill=tk.BOTH)
+		label8.config(font=("Arial", 16))
+
+
+
+		
+	def abrirLink(self):
+		webbrowser.open_new(r"http://www.google.com")
 
 	def verRepeticion(self):
 		self.misframes['Repeticion'].camposEditables['totalFrame'], self.misframes['Repeticion'].camposEditables['frameContainer'] = [], []
@@ -234,8 +282,10 @@ class Inicio(object):
 		# menu_edicion.add_command(label="Editar Ensayo", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Ensayo']))
 		# menu_edicion.add_command(label="Editar Repeticion", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion']))
 
-		menu_ayuda.add_command(label="Documentacion", command=donothing)
-		menu_ayuda.add_command(label="Acerca de", command=donothing)
+		# menu_ayuda.add_command(label="Manual ", command=donothing)
+		# menu_ayuda.add_command(label="Acerca de", command=donothing)
+		menu_ayuda.add_command(label="Manual ", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Manual']))
+		menu_ayuda.add_command(label="Acerca de", command=lambda:self.raise_frame(self.misframes[self.frameActivo], self.misframes['Acerca']))
 
 		MENU.add_cascade(label="Archivo", menu=menu_archivo)
 		# MENU.add_cascade(label="Edicion", menu=menu_edicion)
@@ -398,7 +448,7 @@ class Inicio(object):
 	    self.frameActivo = newframe.get_name()
 	    self.frameAnterior = frame.get_name()
 	    print('Nuevo : '+ self.frameActivo + '___ Anterior : ' + self.frameAnterior)
-	def clickVerRepeticion(self, event, repeticion, nroRepes, nroEnsayo):
+	def clickVerRepeticion(self, repeticion, nroRepes, nroEnsayo, event=None,):
 		self.updateFrameRepeticion(repeticion, nroRepes, nroEnsayo)
 		self.raise_frame(self.misframes[self.frameActivo], self.misframes['Repeticion'])
 
@@ -414,8 +464,18 @@ class Inicio(object):
 
 
 	def borrarImagen(self, imagen, frame):
+		url = imagen.url.split('.jpg')[0].split('//')
+		repeticion = CD.buscar_objetos(tipo='Repeticion', filtro={'clave' : imagen.id_repeticiones})[0]
+		print("--------------------------Queiro ver repeticion-------------------------")
+		print(repeticion)
+		print("--------------------------Queiro ver repeticion-------------------------")
+		nroRepes = CD.buscar_objetos(tipo='Ensayo', filtro={'clave' : url[-3]})[0].nroRepeticiones
+		nroEnsayo = url[-3]
 		respuesta = messagebox.askokcancel("Confirmar", "¿Esta seguro que desea borrar?")
 		if not respuesta:
+			# print("------------------------------------")
+			# print(url)
+			# print("-------------------1111111111-----------------")
 			return False
 		# for ensayo in CD.buscar_objetos(tipo='Imagen', filtro={'clave' : imagen.clave}, limite=1):
 			# print(ensayo)
@@ -424,10 +484,29 @@ class Inicio(object):
 		except Exception as e:
 			messagebox.showinfo("Error", "Ha ocurrido un error al intentar borrar la imagen y todos sus datos asociados. \n" + str(e))
 			return False
-		parent = frame.master #padre principal
-		frame.destroy()
-		for x, widget in enumerate(parent.winfo_children()):
-			widget.winfo_children()[0].winfo_children()[0].winfo_children()[0].config(text="Imagen "+ str(x+1))
+		 	# if frame.master:#padre principal
+		print(frame)
+		print("---------------------22222222---------------")
+		print(enumerate(frame))
+		print("---------------------333333333---------------")
+		# print(frame[0].master)
+		print("---------------------444444444---------------")
+		# print(frame.winfo_children())
+		print("------------------------------------")
+		# if frame.master: 
+		if not isinstance(frame, dict): 
+			parent = frame.master 
+			frame.destroy()
+			for x, widget in enumerate(parent.winfo_children()):
+				widget.winfo_children()[0].winfo_children()[0].winfo_children()[0].config(text="Imagen "+ str(x+1))
+		else:
+			# parent = self.misframes['Repeticion'].camposEditables['imagenesRepeticion']
+			# self.misframes['Repeticion'].camposEditables['imagenesRepeticion'].pack_forget()
+			parent = frame[0].master 
+			frame[0].destroy()
+		self.clickVerRepeticion(repeticion, nroRepes, nroEnsayo)
+		# self.updateFrameRepeticion(repeticion, nroRepes, nroEnsayo)
+			## self.misframes['Repeticion'].camposEditables['imagenesRepeticion'].destroy()
 
 	def updateFrameRepeticion(self, repeticion=None, nroRepes=None, nroEnsayo=None):
 		if 'frameAgregarNuevaImagen' in self.misframes['Repeticion'].camposEditables.keys():
@@ -441,6 +520,9 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['imagenesRepeticion'][x].destroy()
 		if self.misframes['Repeticion'].camposEditables['frameesquema'].grilla!=None:
 			self.misframes['Repeticion'].camposEditables['frameesquema'].grilla.destroy() 
+		print("--------------REPEEEEEEE-----------------")
+		print(repeticion)
+		print("--------------REPEEEEEEE-----------------")
 		if repeticion.nroFilas != ' ' and repeticion.nroColumnas != ' ':
 			#Dibujo el esquema de la repeticion
 			self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = repeticion.clave
@@ -795,7 +877,7 @@ class Inicio(object):
 				label.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 				label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
 				label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
-				label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=ensayo.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes, ensayo.nro))
+				label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=ensayo.nroRepeticiones:self.clickVerRepeticion(repe, nroRepes, ensayo.nro, event))
 
 				self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
 			# self.misframes['Ensayo'].camposEditables['btnAgregarRepeticion'].pack_forget()
@@ -1034,7 +1116,7 @@ class Inicio(object):
 			label.bind("<Leave>", lambda event, esteLabel=label :esteLabel.config(relief="solid", bd=1))
 			label.bind("<Enter>", lambda event, esteLabel=label :esteLabel.config(relief="raised", bd=8))
 			# label.bind("<Button-1>", lambda event, arg=repes[x]:self.clickVerRepeticion(event,arg))
-			label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=guardado.nroRepeticiones:self.clickVerRepeticion(event, repe, nroRepes, ensayo.nro))
+			label.bind("<Button-1>", lambda event, repe=repes[x], nroRepes=guardado.nroRepeticiones:self.clickVerRepeticion(repe, nroRepes, ensayo.nro, event))
 
 			self.misframes['Ensayo'].camposEditables['todasLasRepeticiones'][x] = label
 
