@@ -60,6 +60,7 @@ class Inicio(object):
 		self.verAyudas()
 		
 		self.root.config(menu=self.mimenu(self.root))
+		self.root.resizable(False, False)
 		self.root.mainloop()
 
 	def verAyudas(self):
@@ -207,7 +208,7 @@ class Inicio(object):
 		self.misframes['Ensayo'].camposEditables['suelo'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Suelo: ', '9.3')
 		self.misframes['Ensayo'].camposEditables['espaciamiento'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Espaciamiento: ', '4 X 1.9')
 		self.misframes['Ensayo'].camposEditables['plantasXha'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Plantas/Ha: ', '1315')
-		self.misframes['Ensayo'].camposEditables['fechaPlantacion'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Fecha de plantacion (1970/12/31): ', '15/09/2017')
+		self.misframes['Ensayo'].camposEditables['fechaPlantacion'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Fecha de plantacion (aaaa/mm/dd): ', '15/09/2017')
 		self.misframes['Ensayo'].camposEditables['numTratamientos'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'N° Tratamientos: ', '27')
 		self.misframes['Ensayo'].camposEditables['totalPlantas'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Total de plantas: ', '1620')
 		self.misframes['Ensayo'].camposEditables['totalHas'] = self.frameCreateCampo(self.misframes['Ensayo'].camposEditables['frameContainer'], totalFrame[0], 'Total Has: ', '1.23')
@@ -248,12 +249,25 @@ class Inicio(object):
 	def frameCreateCampo(self, frameContainer, parent, textLabel, textDato):
 		frameContainer.append(tk.Frame(parent))
 		frameContainer[-1].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-		label = tk.Label(frameContainer[-1], text=textLabel).pack(side=tk.LEFT, fill=tk.BOTH)
-		entry = self.createCampo(frameContainer[-1], textDato)
+		frameuno = tk.Frame(frameContainer[-1])
+		frameuno.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+		frameuno.config(width=100)
+		frameuno.config(relief="groove", bd=1)
+		frameuno.pack_propagate(0)
+		framedos = tk.Frame(frameContainer[-1])
+		framedos.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+		framedos.config(width=100)
+		framedos.config(relief="groove", bd=1)
+		framedos.pack_propagate(0)
+		# label = tk.Label(frameContainer[-1], text=textLabel).pack(side=tk.LEFT, fill=tk.BOTH)
+		label = tk.Label(frameuno, text=textLabel).pack(side=tk.LEFT, fill=tk.BOTH)
+		entry = self.createCampo(framedos, textDato)
 		return entry
 
 	def createCampo(self, frameContainer, texto):
 		entry = tk.Entry(frameContainer)
+		entry.config(width=100)
+		entry.pack_propagate(0)
 		entry.insert(0, texto)
 		entry.pack(side=tk.RIGHT, fill=tk.X, expand=True)
 		entry.config(state=tk.DISABLED)
@@ -932,6 +946,7 @@ class Inicio(object):
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['plantasXparcela'], ensayo.plantasParcela)
 		self.updateEntry(self.misframes['Ensayo'].camposEditables['tipoClonal'], ensayo.tipoClonal)
 		self.misframes['Ensayo'].camposEditables['btnExportar'].config(command = lambda: exportar(ensayo.clave))
+		self.misframes['Ensayo'].camposEditables['btnExportar'].pack()
 
 		print("Antes de buscar la repeticionne: ", ensayo.clave)
 		repes = CD.buscar_objetos('Repeticion', {'id_ensayos' : ensayo.clave})
