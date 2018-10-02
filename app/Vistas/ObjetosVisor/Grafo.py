@@ -1,6 +1,100 @@
 import threading
 import networkx as nx
 
+class GrafoFaltantes(object):
+	"""docstring for GrafoFaltantes"""
+	def __init__(self, canvas, centros):
+		self.canvas = canvas
+		self.centros = centros
+		self.color = "#f22"
+		self.ANCHO_ARBOL = 25
+		self.aspecto_x = self.canvas.aspecto_x
+		self.aspecto_y = self.canvas.aspecto_y
+		self.id = -1
+		self.nodos = []
+		self.aristas = []
+		self.array_id_nodos_canvas = []
+		self.array_id_aristas_canvas = []
+	def dibujar(self):
+		id_nodo = 0
+		for nodo in self.centros:
+			a = (nodo[0] - self.ANCHO_ARBOL / 2) / self.aspecto_x
+			b = (nodo[0] + self.ANCHO_ARBOL / 2) / self.aspecto_x
+			c = (nodo[1] - self.ANCHO_ARBOL / 2) / self.aspecto_y
+			d = (nodo[1] + self.ANCHO_ARBOL / 2) / self.aspecto_y
+			self.addNodo([a,c,b,d,],id_nodo)
+			id_nodo+=1
+	def GetCentrado(self):
+		puntos = [n.puntos for n in self.nodos]
+		xs = [p[0] and p[2] for p in puntos]
+		ys = [p[1] and p[3] for p in puntos]
+		offset = self.ANCHO_ARBOL / 2
+		return (min(xs) - offset, min(ys) - offset, max(xs) + offset, max(ys) + offset)
+	def SetCentros(self, centros):
+		self.centros = centros
+	def ocultar(self):
+		for n in self.nodos + self.aristas:
+			threading.Thread(name="CambiarColor", target=n.ocultar).start()
+	def desocultar(self):
+		for n in self.nodos + self.aristas:
+			threading.Thread(name="CambiarColor", target=n.desocultar).start()
+	def addNodo(self, puntos, id_grafo):
+		self.append(Nodo(puntos,id_grafo,self.canvas, self.color))
+	def append(self, nodo):
+		if nodo.canvas == None:
+			nodo.canvas = self.canvas
+		self.nodos.append(nodo)
+		self.array_id_nodos_canvas = [n.id_canvas for n in self.nodos]
+	def unir(self,  a, b, puntos):
+		self.aristas.append(Arista(a, b,puntos, self.canvas))
+		self.array_id_aristas_canvas = [n.id_canvas for n in self.aristas]
+	def pintar(self,color=None):
+		if self.color == None:
+			color = self.color
+		if self.color == color:
+			return
+		self.color = color
+		for n in self.nodos + self.aristas:
+			t = threading.Thread(name="CambiarColor", target=n.pintar, args=(color,))
+			t.deamon = True
+			t.start()
+	def existe(self, _id):
+		return _id in self.array_id_nodos_canvas
+	def existe_arista(self, id_):
+		return _id in self.array_id_aristas_canvas
+	def GetNodo(self,_id):
+		for nodo in self.nodos:
+			if nodo.id_canvas == _id:
+				return nodo
+		return None
+	def GetArista(self, _id):
+		for arista in self.aristas:
+			if arista.id_canvas == _id:
+				return arista
+		return None
+	def DelNodo(self, _id):
+		for nodo in self.nodos:
+			if nodo.id_canvas == _id:
+				for a in self.aristas:
+					if a.id_a == nodo.id_grafo or a.id_b == nodo.id_grafo:
+						self.DelArista(a.id_canvas)
+				nodo.borrar()
+				del nodo
+				return
+	def DelArista(self, _id):
+		for arista in self.aristas:
+			if arista.id_canvas == _id:
+				arista.borrar()
+				del arista
+				return
+	def borrar(self):
+		for nodo in list(self.nodos):
+			nodo.borrar()
+			del nodo
+		for arista in list(self.aristas):
+			arista.borrar()
+			del arista
+		
 
 class Grafo(object):
 	"""docstring for Grafo"""
@@ -64,7 +158,9 @@ class Grafo(object):
 	def unir(self,  a, b, puntos):
 		self.aristas.append(Arista(a, b,puntos, self.canvas))
 		self.array_id_aristas_canvas = [n.id_canvas for n in self.aristas]
-	def pintar(self,color):
+	def pintar(self,color=None):
+		if self.color == None:
+			color = self.color
 		if self.color == color:
 			return
 		self.color = color
@@ -110,12 +206,12 @@ class Grafo(object):
 			del arista
 class Nodo(object):
 	"""docstring for Nodo"""
-	def __init__(self, p, id_grafo, canvas):
+	def __init__(self, p, id_grafo, canvas, color="#2f2"):
 		super(Nodo, self).__init__()
 		self.canvas = canvas
 		self.id_grafo = id_grafo
 		self.puntos = p
-		self.id_canvas = self.canvas.create_rectangle(p[0],p[1],p[2],p[3], fill="#2f2", outline="#2f2", stipple="gray12")
+		self.id_canvas = self.canvas.create_rectangle(p[0],p[1],p[2],p[3], fill=color, outline=color, stipple="gray12")
 	def pintar(self, color):
 		if color!="#2f2":
 			self.canvas.tag_raise(self.id_canvas)

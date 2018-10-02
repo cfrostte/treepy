@@ -1,22 +1,22 @@
 {
-    "general": {
-        "datetime": "Tue Jun 26 16:03:34 2018",
-        "image": "arboles_03.jpg",
-        "patch_size": 9,
-        "intersection": -1
-    },
     "trees": {
         "mean": -1,
-        "std": -1,
+        "values": [],
         "samples_n": 0,
         "coords": [],
-        "values": []
+        "std": -1
+    },
+    "general": {
+        "datetime": "Thu Aug 16 09:48:04 2018",
+        "image": "arboles_02.jpg",
+        "intersection": -1,
+        "patch_size": 9
     },
     "background": {
         "mean": -1,
-        "std": -1,
+        "values": [],
         "samples_n": 0,
         "coords": [],
-        "values": []
+        "std": -1
     }
 }

@@ -283,14 +283,14 @@ class Segmentation(object):
         width = detection.img_width
         height = detection.img_height
         img_VARI = []
-
         self.img = np.asarray(detection.img_RGB)
 
         import multiprocessing
-
-        num_cores = multiprocessing.cpu_count()
-        pool = multiprocessing.Pool(num_cores)
+        num_cores = multiprocessing.cpu_count()  # number of cores of the CPU
+        max_tasks = 2  # max amount of tasks to be performed by processes. improves use of resources
+        pool = multiprocessing.Pool(num_cores, maxtasksperchild=max_tasks)
         img_VARI = pool.map(self.computeRowVARI, range(0, height))
+        pool.close()  # closes the pool once finished
 
         # Normalisation
         min = np.min(img_VARI)
@@ -307,6 +307,7 @@ class Segmentation(object):
             VARI_fname = config.getVARIPath()
             # mycmap = LinearSegmentedColormap.from_list('mycmap', ['black', 'red', 'white'])
             plt.imsave(VARI_fname, img_VARI, cmap='hot')
+            plt.close()
 
         return img_VARI
 

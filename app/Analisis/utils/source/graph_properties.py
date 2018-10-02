@@ -154,6 +154,8 @@ class GraphProperties(object):
             self.G.add_edge(e[0], e[1])
             self.computeEdgeProperties(e)
 
+        self.subgraphs_edge_candidates = [] # clean the list of candidates
+
     def computeEdgeProperties(self, e):
         '''
         Computes and stores all the properties for the given edge
@@ -197,8 +199,8 @@ class GraphProperties(object):
             areas_list[n] = self.getAreaOfNode(n)
         return areas_list
 
-    def getExcentriciy(self, node):
-        return self.node_props.excentriciy[node]
+    def getExcentricity(self, node):
+        return self.node_props.excentricity[node]
 
     def getExcentriciys(self, nodes_list):
         excentriciy_list = {}
@@ -257,6 +259,7 @@ class GraphProperties(object):
 
     #--------------------------------------------------------------------------------
     # find non-connected subgraphs in main graph
+    # @profile
     def findSubgraphs(self):
 
         self.subgraphs = {}
