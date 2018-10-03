@@ -2,11 +2,12 @@ class Parcela(object):
 	"""docstring for Grafo"""
 	def __init__(self, canvas, id_p):
 		self.canvas = canvas 
-        self.id = id_p
+		self.id = id_p
 		self.aspecto_x = canvas.aspecto_x
 		self.aspecto_y = canvas.aspecto_y
 		self.puntos = []
 		self.poligono = None
+		self.parcelaDB = None
 	def addPunto(self,x,y):
 		self.puntos.append([x,y])
 		self.dibujar()
@@ -18,3 +19,5 @@ class Parcela(object):
 	def getPoligono(self):
 		poly = [(punto[0] * self.aspecto_x, punto[1] * self.aspecto_y) for punto in self.puntos]
 		return poly
+	def setParcelaDB(self, db):
+		self.parcelaDB = db

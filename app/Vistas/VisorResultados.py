@@ -173,7 +173,7 @@ class VisorResultados(Frame):
 				Tarea = threading.Thread(
 					name="Georeferenciar", 
 					target=CD.analisis_a_objetos,
-					args=(self.imagen, self.deteccion.grafo, punto1, punto2, self.queue))
+					args=(self.imagen, self.deteccion.grafo, punto1, punto2,self.canvas.parcelas, self.queue))
 				Tarea.deamon = True
 				Tarea.start()
 			else:
