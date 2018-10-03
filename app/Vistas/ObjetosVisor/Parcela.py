@@ -1,7 +1,8 @@
 class Parcela(object):
 	"""docstring for Grafo"""
-	def __init__(self, canvas):
+	def __init__(self, canvas, id_p):
 		self.canvas = canvas 
+        self.id = id_p
 		self.aspecto_x = canvas.aspecto_x
 		self.aspecto_y = canvas.aspecto_y
 		self.puntos = []
