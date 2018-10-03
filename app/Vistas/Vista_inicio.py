@@ -43,9 +43,9 @@ class Inicio(object):
 		self.misEnsayosRecientes = misEnsayosRecientes
 		self.todosLosEnsayos = todosLosEnsayos
 		self.root = tk.Tk()
-		self.root.geometry("1280x720")
+		# self.root.geometry("1280x720")
 		self.root.title("TreePy Análisis de Imágenes")
-		# self.root.state('zoomed')
+		self.root.state('zoomed')
 		self.frameActivo = "Inicio"
 		self.frameAnterior = ""
 
@@ -847,7 +847,8 @@ class Inicio(object):
 			# self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(containerDerecha, text="Elegir imagen", command=lambda accion="new", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, containerIzquierda, containerCentro, containerDerecha))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack(side=tk.BOTTOM)
 			# self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(derecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
-			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(containerDerecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(containerDerecha, text="Cancelar", command=lambda accion="update", : containerImg.destroy())
+			# self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(containerDerecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack(side=tk.BOTTOM)
 
 			print("-----------------INFOOOOOO-------------------------")
