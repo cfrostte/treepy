@@ -20,6 +20,7 @@ class InterfaceDeteccion(object):
 		config.initLog('logfile')
 		config.use_autocontrast = False
 		config.use_automatic_segm_threshold = True
+		config.use_auto_distance_thresh = False
 		config.compute_VARI = True
 		config.multiprocess_VARI = False
 		config.algorithm = 2
@@ -53,7 +54,7 @@ class InterfaceDeteccion(object):
 		pass
 	def Analizar(self):
 		print("Inicio")
-		self.queue.put("Inicio Segmentacion")
+		self.queue.put("Inicio Segmentación")
 		arr_binary = automaticSegmentation(self.detector)
 		arr_closed = closing(arr_binary, square(3))
 		arr_RGB = array(self.detector.img_RGB)
@@ -78,14 +79,14 @@ class InterfaceDeteccion(object):
 		self.queue.put("Grafo v4 - Filtrando por cantidad de uniones")
 		graph_props_v4 = filterNodeDegree(graph_props_v3)
 		graph_props_v4.findSubgraphs()
-		self.queue.put("Grafo vf - Filtrando ultimas uniones")
+		self.queue.put("Grafo final - Filtrando últimas uniones")
 		for i in range(3):
 		    graph_props_vf = filterUltimasEdges(graph_props_v4)
 		graph_props_vf = filterNodeDegree(graph_props_vf)
 		graph_props_vf.findSubgraphs()
-		self.queue.put("Grafo vf - Agregando nodos")
+		self.queue.put("Grafo final - Agregando nodos")
 		AddNodes(graph_props_vf)
-		self.queue.put("Grafo vf - Dividiendo Surcos")
+		self.queue.put("Grafo final - Dividiendo Surcos")
 		grf2 = dividirSurco(graph_props_vf,2,20)
 		self.queue.put("Grafo final - Filtrando surcos")
 		grf2.findSubgraphs()

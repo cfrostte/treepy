@@ -54,6 +54,10 @@ def initConfig():
     global labeling_suffix
     labeling_suffix = '_labeling'
 
+    # suffix to save graphs
+    global graph_suffix
+    graph_suffix = '_graph'
+
     # suffix to save closing results
     global closing_suffix
     closing_suffix = '_closing'
@@ -93,6 +97,10 @@ def initConfig():
     global use_autocontrast
     use_autocontrast = True
 
+    # automatic threshold of distances between nodes
+    global use_auto_distance_thresh
+    use_auto_distance_thresh = True
+
     global use_automatic_segm_threshold
     use_automatic_segm_threshold = False
 
@@ -130,22 +138,34 @@ def initLog(log_name):
     logging.info("Started at: " + str(st_time))
     logging.info("---------------------------------")
 
-# prints info and results for each processed object
-def printObjInfoToLog(obj):
-    logging.info(" File name: " + obj.getFileName() )
-    logging.info("    Width (px): " + str(obj.getImageWidth()) )
-    logging.info("    Height (px): " + str(obj.getImageHeight()) )
-    logging.info("    Regions detected: " + str(obj.getRegionsN()) )
-    logging.info("    Regions areas (px): " + str(obj.getRegionsArea()) )
-    logging.info("    SCORE (0 to 1.0): " + str(obj.getScore()) )
+def printObjInfoToLog(det):
+    """
+    :param det: Detection class object
+    :return: None
+    Print info and results for each processed object
+    """
+    logging.info(" File name: " + det.getFileName())
+    logging.info("    Width (px): " + str(det.getImageWidth()))
+    logging.info("    Height (px): " + str(det.getImageHeight()))
+    logging.info("    Regions detected: " + str(det.getRegionsN()))
+    logging.info("    Regions areas (px): " + str(det.getRegionsArea()))
+    logging.info("    SCORE (0 to 1.0): " + str(det.getScore()))
     logging.info("---------------------------------")
 
-# prints results for a list of objects
-def printListInfoToLog(obj_list):
-    logging.info("Images processed: " + str(len(obj_list)))
+def printListInfoToLog(obj_list_n):
+    """
+    :param obj_list_n: number of processed images
+    :return: None
+    Print the amount of processed images to the logfile
+    """
+    # logging.info("Images processed: " + str(len(obj_list)))
+    logging.info("Images processed: " + str(obj_list_n))
 
-# closes the log file and prints footer
 def closeLog():
+    """
+    :return: None
+    Close the log file and print a footer
+    """
     fn_time = datetime.datetime.now()
     logging.info("Finished at: " + str(fn_time))
     tot_time = fn_time - st_time
@@ -154,10 +174,19 @@ def closeLog():
 
 # BASIC SETs/GETs METHODS
 def setDebugMode(var):
+    """
+    :param var: int
+    :return: None
+    Set the debug mode level
+    """
     global DEBUG_MODE
     DEBUG_MODE = var
 
 def getDebugMode():
+    """
+    :return: int
+    Return the current debug mode
+    """
     return DEBUG_MODE
 # -------------------------------------------------
 def setSourceFolderName(var):
@@ -168,10 +197,19 @@ def getSourceFolderName():
     return images_folder
 # -------------------------------------------------
 def setExclusionMargin(var):
+    """
+    :param var: percentage (float)
+    :return: None
+    Set an exclusion margin for the image
+    """
     global exclusion_margin
     exclusion_margin = var
 
 def getExclusionMargin():
+    """
+    :return: percentage (float)
+    Return the current value of the exclusion margin
+    """
     return exclusion_margin
 # -------------------------------------------------
 def setMinAreaSize(var):
@@ -210,6 +248,11 @@ def getBinarySuffix():
     return binary_suffix
 # -------------------------------------------------
 def setGlobalOtsuSuffix(var):
+    """
+    :param var: string
+    :return: None
+    Set the suffix for the Global Otsu output image
+    """
     global global_otsu_suffix
     global_otsu_suffix = var
 
@@ -243,6 +286,13 @@ def setLabelingSuffix(var):
 
 def getLabelingSuffix():
     return labeling_suffix
+# -------------------------------------------------
+def setGraphSuffix(var):
+    global graph_suffix
+    graph_suffix = var
+
+def getGraphSuffix():
+    return graph_suffix
 # -------------------------------------------------
 def setClosingSuffix(var):
     global binary_suffix
@@ -334,6 +384,12 @@ def getVARIPath():
 def getLabelingPath(image_name):
     labeling_path = getResultsPath() + '/' + image_name + getLabelingSuffix() + getResultsExtension()
     return labeling_path
+
+# returns relative path to save labeled images
+def getPlotPath(image_name):
+    graph_path = getResultsPath() + '/' + image_name + getResultsExtension()
+    # graph_path = getResultsPath() + '/' + image_name + getGraphSuffix() + getResultsExtension()
+    return graph_path
 
 # returns relative path to save closing images
 def getClosingPath(image_name):

@@ -13,7 +13,7 @@ class NodeProperties(object):
         # list of bounding boxes of each region
         self.bboxes = {}
         # list of axis region
-        self.excentriciy = {}
+        self.excentricity = {}
         # error relative: area region vs area bbox
         self.error_area = {}
         # quality of node
@@ -78,11 +78,11 @@ class NodeProperties(object):
 
     # get and set excentriciy --------------------------------------------------
     def setExcentriciy(self,excentriciy_list):
-        self.excentriciy = {}
-        self.excentriciy = excentriciy_list
+        self.excentricity = {}
+        self.excentricity = excentriciy_list
 
-    def getExcentriciy(self):
-        return self.excentriciy
+    def getExcentricity(self):
+        return self.excentricity
 
     # get and set error of areas -----------------------------------------------
     def setErrorArea(self,error_list):
@@ -107,6 +107,6 @@ class NodeProperties(object):
         self.bboxes.pop(node)
         self.centroids.pop(node)
         self.coordCentroids.pop(node)
-        self.excentriciy.pop(node)
+        self.excentricity.pop(node)
         self.error_area.pop(node)
         # self.quality.pop(node)

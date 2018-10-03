@@ -43,6 +43,7 @@ def cutRemains(img_RGB):
     return poly
 
 # set threshold grayscale
+# @profile
 def automaticSegmentation(self):
     segm = Segmentation()
 
@@ -52,8 +53,6 @@ def automaticSegmentation(self):
     img = []
 
     start_time = datetime.datetime.now()
-    print("\tauto segm Started at: " + str(start_time))
-
 
     # VARI descriptor
     if config.compute_VARI:
@@ -65,31 +64,23 @@ def automaticSegmentation(self):
         else:
             self.img_VARI = segm.computeVARI(self)
 
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tdescriptor multi: " + str(tot_time)[5:])
-        start_time = end_time
+        start_time = printElapsedTime(start_time, 'Descriptor multiproc.')
         img = self.img_VARI
-
     else:
         print('* Grayscale image')
         import numpy
         img = numpy.array(self.img_Grayscale.convert("L"))
-
-
-
+    start_time = printElapsedTime(start_time, 'Automat. segm.')
 
     # segmentation algorithms
     if algo == 2:
         print('* Global Otsu')
         img_binary = segm.globalOtsu(self, img)
         # print('con Otsu', np.min(img_binary), np.max(img_binary))
-
     elif algo == 3:
         print('* Local Otsu')
         img_binary = segm.computeLocalOtsu(self, img)
         # print('con Otsu', np.min(img_binary), np.max(img_binary))
-
     else:
         # initialize probability config (from file or from GUI)
         segm.initProbabilityConfig(self)
@@ -101,19 +92,15 @@ def automaticSegmentation(self):
         print('* Automatic grayscale segmentation')
         img_binary = segm.automaticGrayscaleSegmentation(self)
 
-    end_time = datetime.datetime.now()
-    tot_time = end_time - start_time
-    print("\talgo: " + str(tot_time)[5:])
-    start_time = end_time
-
+    start_time = printElapsedTime(start_time, 'Segment. alg.')
     img_fname = self.getFileName()
     dest_fname = config.getConfigFilename()
     segm.writeProbabilityConfig(img_fname, dest_fname)
 
     return img_binary
 
+# @profile
 def createGraph(graph_props):
-    # convert lists into arrays
     thr_dist = config.getDistanceThreshold()
     centroids_arr = list(graph_props.node_props.getCentroids().values())
     rang_centr = len(centroids_arr)
@@ -130,19 +117,19 @@ def createGraph(graph_props):
             if(dist <= thr_dist):
                 angle = calculateAngle(centroids_arr[i][0],centroids_arr[j][0])
 
-                if (centroids_arr[i][0][0] > centroids_arr[j][0][0]):
-                    graph_props.G.add_node(i)
-                    graph_props.G.add_node(j)
-                    graph_props.G.add_edge(j,i,quality = 0)
-                    angles_list[(j,i)] = angle
-                    distances_list[(j,i)] = dist
+                # if (centroids_arr[i][0][0] > centroids_arr[j][0][0]):
+                # graph_props.G.add_node(i)
+                # graph_props.G.add_node(j)
+                # graph_props.G.add_edge(j,i,quality = 0)
+                # angles_list[(j,i)] = angle
+                # distances_list[(j,i)] = dist
+                # else:
+                graph_props.G.add_node(j)
+                graph_props.G.add_node(i)
+                graph_props.G.add_edge(i,j,quality = 0)
+                angles_list[(i,j)] = angle
+                distances_list[(i,j)] = dist
 
-                else:
-                    graph_props.G.add_node(j)
-                    graph_props.G.add_node(i)
-                    graph_props.G.add_edge(i,j,quality = 0)
-                    angles_list[(i,j)] = angle
-                    distances_list[(i,j)] = dist
             centroides_cen[i] = centroids_arr[i][0]
             centroides_cen[j] = centroids_arr[j][0]
 
@@ -191,32 +178,29 @@ def calculateDistance(coords1, coords2):
     return dist
 # -------------------------------------------------------------------------------
 def calculateAngle(a, b):
-    '''
-        CALCULATE ANGLE
-        of the segment defined by ab If b(x)<a(x): the segment ba is used
-        Else: the segment ab is used
-
-        :param a: node coord tuple (x, y)
-        :param b: node coord tuple (x, y)
-        :return: angle of the ab segment
-
-    '''
+    """
+    :param a: node coord tuple (x, y)
+    :param b: node coord tuple (x, y)
+    :return: angle of the ab segment (float)
+    Calculates the angle of the segment defined by ab If b(x)<a(x): the segment ba is used
+    Else: the segment ab is used
+    """
     if (a[0] > b[0]):
-        angle = np.abs(computeAngle(b, a))
+        angle = computeAngle(b, a)
     else:
-        angle = np.abs(computeAngle(a, b))
+        angle = computeAngle(a, b)
     return angle
 
 # -------------------------------------------------------------------------------
 def computeAngle(a,b):
-    '''
-    Compute the angle of the segment defined by a and b
+    """
     :param a: node coord tuple (x, y)
     :param b: node coord tuple (x, y)
-    :return: angle of the segment
-    '''
+    :return: angle of the segment (float)
+    Compute the angle of the segment defined by a and b
+    """
     x = (b[0] - a[0])
-    y = np.abs(b[1] - a[1])
+    y = (b[1] - a[1])
     angle = math.atan2(y,x) * (180.0 / math.pi)
     return angle
 
@@ -229,50 +213,60 @@ def _angle(p0,p1,p2):
 
     return math.acos( (a+b-c) / math.sqrt(4*a*b) ) * 180/math.pi
 # -------------------------------------------------------------------------------
-def drawGraph(graph_props):
-    '''
-        DRAW LISTSUBGRAPH
-        this function draws the subgraphs in the image
-    '''
-
+def drawGraph(graph_props, plot_curves=True):
+    """
+    :param graph_props: GraphProperties object
+    :return: None
+    Draws the subgraphs over the image
+    """
     pos_miss = graph_props.node_props.getCoordMissing()
     pos = graph_props.node_props.getCoordCentroids()
-    rand_color = randomcolor.RandomColor()
 
+    # generate colormap
+    l = len(graph_props.subgraphs.values())
+    subgraphs_n = 15
+    if l>subgraphs_n:
+        subgraphs_n = l
+    c = plt.cm.get_cmap('hsv', subgraphs_n+1)
     cont = 0
+    margin = 30
 
+    # subgraph's curves
+    if plot_curves:
+        for s in graph_props.subgraphs:
+            x = []
+            y = []
+            H = graph_props.subgraphs[s]
+            if (H.number_of_nodes() > 3):
+                for n in H.nodes():
+                    x.append(graph_props.node_props.centroids[n][0][0])
+                    y.append(graph_props.node_props.centroids[n][0][1])
+                xp = np.linspace(min(x)-100, max(x)+100, len(x)+100)
+                # plt.ylim(max(y),0)
+                if (graph_props.subgraph_props.error_curve[s] > 20):
+                    plt.plot(xp,graph_props.subgraph_props.coef_curve[s](xp),'m--',linewidth=1.5)
+                    plt.text(x[0],y[0]+margin, str(graph_props.subgraph_props.error_curve[s]), bbox=dict(facecolor='red', alpha=0.5))
+                else:
+                    plt.plot(xp,graph_props.subgraph_props.coef_curve[s](xp),'b--',linewidth=1.5)
+                    plt.text(x[0],y[0]+margin, str(graph_props.subgraph_props.error_curve[s]), bbox=dict(facecolor='grey', alpha=0.5))
+
+    # nodes and edges
     for s in graph_props.subgraphs.values():
-        color = rand_color.generate()
-        nx.draw_networkx(s, pos=pos, with_labels = True, edgelist = s.edges(data = True),node_color = color, edgecolor = 'w',font_color='black',font_size = 10, node_size = 220)
+        # nx.draw_networkx(s, pos=pos, with_labels = True, edgelist = s.edges(data = True),node_color = c(cont+1), edgecolor = 'w',font_color='black',font_size = 10, node_size = 220)
+        nx.draw_networkx(s, pos=pos, with_labels = True, edgelist = s.edges(data = True),node_color = 'green', edgecolor = 'grey',font_color='white',font_size = 10, node_size = 220)
         x = [int(i) for i in s.node()]
         pos_x = pos[x[len(x) - 1]][0] - 20
         pos_y = pos[x[len(x) - 1]][1]
-        plt.text(pos_x, pos_y, str(cont), bbox={'facecolor':'w', 'alpha':0.5, 'pad':9})
+        plt.text(pos_x+margin, pos_y+margin, str(cont), bbox={'facecolor':'w', 'alpha':0.5, 'pad':6})
         cont += 1
 
+    # missing nodes
     for p in range(len(pos_miss)):
         # plt.text(pos_miss[p][0], pos_miss[p][1], str(-1), bbox={'facecolor':'r', 'alpha':0.7, 'pad':8})
-        plt.plot(pos_miss[p][0],pos_miss[p][1],'maroon', marker="o",  markersize=25)
-
-    for s in graph_props.subgraphs:
-        x = []
-        y = []
-        H = graph_props.subgraphs[s]
-        if (H.number_of_nodes() > 3):
-            for n in H.nodes():
-                x.append(graph_props.node_props.centroids[n][0][0])
-                y.append(graph_props.node_props.centroids[n][0][1])
-            xp = np.linspace(min(x)-100, max(x)+100, len(x)+100)
-            # plt.ylim(max(y),0)
-            if (graph_props.subgraph_props.error_curve[s] > 20):
-                plt.plot(xp,graph_props.subgraph_props.coef_curve[s](xp),'r-',linewidth=3.5)
-                plt.text(x[0],y[0],str(graph_props.subgraph_props.error_curve[s]), bbox=dict(facecolor='white', alpha=0.5))
-            else:
-                plt.plot(xp,graph_props.subgraph_props.coef_curve[s](xp),color ="white",linestyle = '-',linewidth=3.5)
-                plt.text(x[0],y[0],str(graph_props.subgraph_props.error_curve[s]), bbox=dict(facecolor='red', alpha=0.5))
-
+        plt.plot(pos_miss[p][0],pos_miss[p][1],'maroon', marker="o",  markersize=15)
 
 # -------------------------------------------------------------------------------
+# @profile
 def filterUltimasEdges(graph_props):
 
     graph_props_2 = copy.deepcopy(graph_props)
@@ -295,8 +289,10 @@ def filterEdgesAngles(graph_props):
         if np.abs(list_angle[s]) > (graph_props.getStdTwoAngles(list(s)[0]) + 1.2*graph_props.getMeanTwoAngles(list(s)[0])):
             if list_angle[s] < 0:
                 removeEdges(s[2],graph_props_2)
+                # print('\tremoving edge (ang A)', s[2], list_angle[s])
             else:
                 removeEdges(s[1],graph_props_2)
+                # print('\tremoving edge (ang B)', s[1], list_angle[s])
 
     return graph_props_2
 
@@ -320,25 +316,42 @@ def maxInDictionari(dict_d):
 def filterEdgesDistance(graph_props):
     graph_props_2 = copy.deepcopy(graph_props)
 
+    if config.use_auto_distance_thresh:
+        thresh = config.getDistanceThreshold()
+        min = thresh[0]
+        max = thresh[1]
+    else:
+        thresh = 75
+
+    # print('USING dist thres =', thresh)
+    # print('edges n', len(list(graph_props.subgraphs)))
+
     for s in list(graph_props.subgraphs):
         H = graph_props.subgraphs[s]
         for e in list(H.edges()):
-            if graph_props.getDistanceOfEdge(e) > 75:
-                removeEdges(e,graph_props_2)
+            if config.use_auto_distance_thresh:
+                if not (min < graph_props.getDistanceOfEdge(e) < max):
+                    removeEdges(e,graph_props_2)
+                # if min > graph_props.getDistanceOfEdge(e):
+                #     print('\tremoving edge (dist)', e, graph_props.getDistanceOfEdge(e))
+            else:
+                if graph_props.getDistanceOfEdge(e) > thresh:
+                    removeEdges(e,graph_props_2)
+                # print('\tremoving edge (dist)', e, graph_props.getDistanceOfEdge(e))
 
     return graph_props_2
 
 # -------------------------------------------------------------------------------
-def filterNodeExcentricty(graph_props):
+def filterNodeExcentricity(graph_props):
 
     graph_props_2 = copy.deepcopy(graph_props)
 
-    mean_ex = np.mean(list(graph_props.node_props.getExcentriciy().values()))
-    std_ex = np.std(list(graph_props.node_props.getExcentriciy().values()))
+    mean_ex = np.mean(list(graph_props.node_props.getExcentricity().values()))
+    std_ex = np.std(list(graph_props.node_props.getExcentricity().values()))
     for s in list(graph_props.subgraphs):
         H = graph_props.subgraphs[s]
         for n in list(H.nodes()):
-            if graph_props.getExcentriciy(n) < (mean_ex-2*std_ex):
+            if graph_props.getExcentricity(n) < (mean_ex - 2 * std_ex):
                 removeNodes(n,graph_props_2)
 
     return graph_props_2
@@ -349,6 +362,7 @@ def filterNodeDegree(graph_props):
     for n in list(graph_props.G.nodes()):
         if graph_props.G.degree(n) == 0:
             removeNodes(n,graph_props_2)
+            # None
     return graph_props_2
 
 
@@ -363,6 +377,8 @@ def setCandidatesOfEdges(G):
     for s in G.subgraphs:
         H = G.subgraphs[s]
         tuplas_nodes.append([n for n in H.nodes() if H.degree(n) == 1])
+
+    print(tuplas_nodes)
 
     cont = 0
     for t1 in range(len(tuplas_nodes)-1):
@@ -403,6 +419,421 @@ def setCandidatesOfEdges(G):
                             #         Grf.subgraphs_edge_candidates.append((tuplas_nodes[t1][n1], tuplas_nodes[t2][n2]))
                             #         list_edges_union.append((tuplas_nodes[t1][n1], tuplas_nodes[t2][n2]))
     return Grf
+
+# def findEdges(graph):
+#     """
+#     :param graph: object to find edge candidates (Graph Properties)
+#     :return: Graph Properties object with added candidates
+#     Looks for edge candidates between subgraphs and single nodes
+#     """
+#     Grf = copy.deepcopy(graph)
+#     max_loops = 3
+#     loop = 0
+#
+#     while loop < max_loops:
+#         tuplas_nodes = []
+#         single_nodes = []
+#         for s in Grf.subgraphs:
+#             H = Grf.subgraphs[s]
+#             nodes_deg_0 = [n for n in H.nodes() if H.degree(n) == 0]
+#             if len(nodes_deg_0) == 1:
+#                 single_nodes.append(nodes_deg_0[0])
+#             nodes_deg_1 = [n for n in H.nodes() if H.degree(n) == 1]
+#             if 0 < len(nodes_deg_1) <= 2:  # to exclude cases when subgraph has more than 2 nodes with degree == 1
+#                 tuplas_nodes.append(nodes_deg_1)
+#
+#         # print('\n', tuplas_nodes)
+#         # print(single_nodes)
+#
+#         if len(single_nodes) == 0 or len(tuplas_nodes) == 0: # there aren't nodes to evaluate
+#             break
+#
+#         for sg in tuplas_nodes:
+#             i = tuplas_nodes.index(sg)
+#             sg_mean_d, sg_std_d = Grf.getMeanDistance(i), Grf.getStdDistance(i)
+#             sg_std_a = Grf.getStdAngle(i)
+#             # print('>', sg, sg_mean_d, sg_std_d)
+#             for n1 in sg:
+#                 n1_centr = Grf.getCoordCentroids(n1)
+#                 n1_neighb = list(Grf.G.neighbors(n1))[0]
+#                 n1_neighb_centr = Grf.getCoordCentroids(n1_neighb)
+#                 # print(n1, n1_neighb)
+#                 # print(n1, 'neigh', Grf.G[n1][0])
+#                 for n0 in single_nodes:
+#                     n0_centr = Grf.getCoordCentroids(n0)
+#                     dist = calculateDistance(n0_centr, n1_centr)
+#
+#                     if 1*(sg_mean_d-2*sg_std_d) < dist < 2*(sg_mean_d+2*sg_std_d):
+#                         # if sg_std_d == 0:
+#                         new_edge_angle = calculateAngle(n0_centr, n1_centr)
+#                         n1_neighb_angle = calculateAngle(n1_centr, n1_neighb_centr)
+#
+#                         # print(n1, n0, 'dist=', dist, 'ang=', sg_angle)
+#                         # print('\t', n1, n1_neighb, 'ang neighb=', n1_neighb_angle)
+#
+#                         if n1_neighb_angle - 2*sg_std_a < new_edge_angle < n1_neighb_angle + 2*sg_std_a:
+#                             # print('nuevo edge:', n1, n0, 'loop:', loop)
+#                             Grf.subgraphs_edge_candidates.append((n1, n0))
+#
+#         if len(Grf.subgraphs_edge_candidates) == 0:
+#             # print('break on loop', loop, ', no candidates')
+#             break
+#         Grf.addEdgesCandidates()
+#         Grf.findSubgraphs()
+#         loop += 1
+#
+#     return Grf
+
+def findEdges(graph):
+    """
+    :param graph: object to find edge candidates (Graph Properties)
+    :return: Graph Properties object with new edges
+    Looks for edge candidates between subgraphs
+    """
+    Grf = copy.deepcopy(graph)
+    max_loops = 2
+    loop = 0
+    connected_subgr = []
+    distances = []
+    tuples = []
+
+    while loop < max_loops:
+        tuplas_nodes = []
+        single_nodes = []
+        for s in Grf.subgraphs:
+            H = Grf.subgraphs[s]
+            nodes_deg_0 = [n for n in H.nodes() if H.degree(n) == 0]
+            if len(nodes_deg_0) != 0:
+                single_nodes.append(nodes_deg_0[0])
+
+            nodes_deg_1 = [n for n in H.nodes() if H.degree(n) == 1]
+            if 0 < len(nodes_deg_1):  # to exclude cases when subgraph has more than 2 nodes with degree == 1
+                tuplas_nodes.append(nodes_deg_1)
+
+        # print('\ngrado=1', tuplas_nodes)
+        # print(single_nodes)
+
+        if len(single_nodes) == 0 or len(tuplas_nodes) == 0:  # there aren't nodes to evaluate
+            break
+
+        for sg1 in tuplas_nodes:
+            i1 = tuplas_nodes.index(sg1)
+            sg1_mean_d, sg1_std_d = Grf.getMeanDistance(i1), Grf.getStdDistance(i1)
+            sg1_mean_a, sg1_std_a = Grf.getMeanAngle(i1), Grf.getStdAngle(i1)
+
+            if sg1_std_d == 0:
+                sg1_std_d = sg1_mean_d * 0.2
+                # print('cero std dist', sg1, sg1_std_d)
+
+            mult_std_dist = 2
+            mult_mean_dist = 3
+            min_d1 = sg1_mean_d - (mult_std_dist * sg1_std_d)
+            max_d1 = (mult_mean_dist * sg1_mean_d) + (mult_std_dist * sg1_std_d)
+
+            # TODO: mejorar este valor por defecto
+            if sg1_std_a == 0:
+                sg1_std_a = np.abs(sg1_mean_a) * 0.2
+                # print('cero std ang', sg1, sg1_std_a)
+            # print('>>>', sg1, sg1_mean_d, sg1_std_d)
+            # print('>', sg, sg_mean_d, sg_std_d)
+            mult_std_ang = 3
+            ang_thres_1 = mult_std_ang * sg1_std_a
+            max_thres_ang = 30
+            if ang_thres_1 > max_thres_ang:
+                # print('ang thres sg1 > 30:', ang_thres_1)
+                ang_thres_1 = max_thres_ang
+
+            for n1 in sg1:
+                n1_centr = Grf.getCoordCentroids(n1)
+                n1_neighb = list(Grf.G.neighbors(n1))[0]
+                n1_neighb_centr = Grf.getCoordCentroids(n1_neighb)
+                # print(n1, n1_neighb)
+                # print(n1, 'neigh', Grf.G[n1][0])
+
+                distances = []
+                tuples = []
+
+                for n2 in single_nodes:
+                    if (sg1, n2) not in connected_subgr:
+                        i2 = single_nodes.index(n2)
+                        # sg2_mean_d, sg2_std_d = Grf.getMeanDistance(i2), Grf.getStdDistance(i2)
+                        # sg2_mean_a, sg2_std_a = Grf.getMeanAngle(i2), Grf.getStdAngle(i2)
+                        # if sg2_std_d == 0:
+                        #     sg2_std_d = sg2_mean_d * 0.2
+                        #     # print('cero dist', sg2, sg2_std_d)
+                        # if sg2_std_a == 0:
+                        #     sg2_std_a = np.abs(sg2_mean_a) * 0.2
+                        #     # print('cero std ang', sg2, sg2_std_a)
+
+                            # for n2 in sg2:
+                        n2_centr = Grf.getCoordCentroids(n2)
+                        # n2_neighb = list(Grf.G.neighbors(n2))[0]
+                        # n2_neighb_centr = Grf.getCoordCentroids(n2_neighb)
+
+                        dist = calculateDistance(n2_centr, n1_centr)
+                        # print('\t', n1, n2)
+                        # distance min/max values of sg1 and sg2
+                        # min_d2 = sg2_mean_d - (mult_std_dist * sg2_std_d)
+                        # max_d2 = (mult_mean_dist * sg2_mean_d) + (mult_std_dist * sg2_std_d)
+
+                        # ang_thres_2 = mult_std_ang * sg2_std_a
+                        # if ang_thres_2 > max_thres_ang:
+                        #     # print('ang thres sg2 > 30:', ang_thres_2)
+                        #     ang_thres_2 = max_thres_ang
+
+                        if (min_d1 < dist < max_d1):
+                            # if sg_std_d == 0:
+                            new_edge_angle = calculateAngle(n2_centr, n1_centr)
+                            n1_neighb_angle = calculateAngle(n1_centr, n1_neighb_centr)
+                            # n2_neighb_angle = calculateAngle(n2_centr, n2_neighb_centr)
+                            min_a1 = n1_neighb_angle - ang_thres_1
+                            max_a1 = n1_neighb_angle + ang_thres_1
+                            # min_a2 = n2_neighb_angle - ang_thres_2
+                            # max_a2 = n2_neighb_angle + ang_thres_2
+
+                            # print(n1, n0, 'dist=', dist, 'ang=', sg_angle)
+                            # print('\t', n1, n1_neighb, 'ang neighb=', n1_neighb_angle)
+
+                            if (min_a1 < new_edge_angle < max_a1):
+                                # print('nuevo edge (subgr):', n1, n2, 'loop:', loop)
+                                # print(n1_neighb_angle, new_edge_angle, n2_neighb_angle)
+                                # print(sg1_mean_a, sg1_std_a)
+                                # print(sg2_mean_a, sg2_std_a)
+                                #
+                                # print(min_d1, '<', dist, '<', max_d1)
+                                # print(sg1_mean_d, sg1_std_d)
+                                #
+                                # print(min_d2, '<', dist, '<', max_d2)
+                                # print(sg2_mean_d, sg2_std_d)
+
+                                # Grf.subgraphs_edge_candidates.append((n1, n2))
+                                # connected_subgr.append((sg1, sg2))
+                                tuples.append((n1, n2))
+                                distances.append(dist)
+                                # print('possible edge', (n1, n2))
+                                # print('\t', min_d1, '<', dist ,'<', max_d1, 'and', min_d2 ,'<', dist, '<', max_d2)
+                                # print('\t', min_a1, '<', new_edge_angle ,'<', max_a1, 'and', min_a2 ,'<', new_edge_angle, '<', max_a2)
+
+                                # Grf.addEdgesCandidates()
+                                # Grf.findSubgraphs()
+                                # loop += 1
+
+                                # print('break, loop', loop)
+                                # break
+                            # else:
+                            #     print('\tno ang', n1, n2)
+                            # print('\t', min_a1, '<', new_edge_angle, '<', max_a1)
+                            # print('\t', n1_neighb_angle, sg1_mean_a, sg1_std_a)
+                            # print('\t', min_a2, '<', new_edge_angle, '<', max_a2)
+                            # print('\t', n2_neighb_angle, sg2_mean_a, sg2_std_a)
+
+                        # else:
+                        #     print('\tno dist', n1, n2)
+                    # else:
+                    #     print('omitido: ', (sg1, sg2))
+
+                if len(distances) != 0:
+                    # add the edge with min distance
+                    i = distances.index(np.min(distances))
+                    # print('tuples/dists', tuples[i][0], tuples[i][1], distances[i])
+                    # print('nuevo edge (single):', tuples[i][0], tuples[i][1])
+                    Grf.subgraphs_edge_candidates.append((tuples[i][0], tuples[i][1]))
+
+        if len(Grf.subgraphs_edge_candidates) == 0:
+            # print('break on loop', loop, ', no candidates')
+            break
+
+        Grf.addEdgesCandidates()
+        Grf.findSubgraphs()
+        loop += 1
+        # print('loop +1')
+
+    return Grf
+
+def findEdgesBetweenSubgraphs(graph):
+    """
+    :param graph: object to find edge candidates (Graph Properties)
+    :return: Graph Properties object with new edges
+    Looks for edge candidates between subgraphs
+    """
+    Grf = copy.deepcopy(graph)
+    max_loops = 2
+    loop = 0
+    connected_subgr = []
+    distances = []
+    tuples = []
+
+    while loop < max_loops:
+        tuplas_nodes = []
+        single_nodes = []
+        for s in Grf.subgraphs:
+            H = Grf.subgraphs[s]
+            # nodes_deg_0 = [n for n in H.nodes() if H.degree(n) == 0]
+            # if len(nodes_deg_0) != 0:
+            #     single_nodes.append(nodes_deg_0[0])
+
+            nodes_deg_1 = [n for n in H.nodes() if H.degree(n) == 1]
+            if 0 < len(nodes_deg_1):  # to exclude cases when subgraph has more than 2 nodes with degree == 1
+                tuplas_nodes.append(nodes_deg_1)
+
+        # print('\ngrado=1', tuplas_nodes)
+        # print(single_nodes)
+
+        if len(tuplas_nodes) == 0:  # there aren't nodes to evaluate
+            break
+
+        for sg1 in tuplas_nodes[:-1]:
+            i1 = tuplas_nodes.index(sg1)
+            sg1_mean_d, sg1_std_d = Grf.getMeanDistance(i1), Grf.getStdDistance(i1)
+            sg1_mean_a, sg1_std_a = Grf.getMeanAngle(i1), Grf.getStdAngle(i1)
+
+            if sg1_std_d == 0:
+                sg1_std_d = sg1_mean_d * 0.2
+                # print('cero std dist', sg1, sg1_std_d)
+
+            mult_std_dist = 2
+            mult_mean_dist = 3
+            min_d1 = sg1_mean_d - (mult_std_dist * sg1_std_d)
+            max_d1 = (mult_mean_dist * sg1_mean_d) + (mult_std_dist * sg1_std_d)
+
+            if sg1_std_a == 0:
+                sg1_std_a = np.abs(sg1_mean_a) * 0.2
+                # print('cero std ang', sg1, sg1_std_a)
+            # print('>>>', sg1, sg1_mean_d, sg1_std_d)
+            # print('>', sg, sg_mean_d, sg_std_d)
+            mult_std_ang = 3
+            ang_thres_1 = mult_std_ang * sg1_std_a
+            min_thres_ang = 10
+            max_thres_ang = 30
+            if ang_thres_1 > max_thres_ang:
+                # print('ang thres sg1 > 30:', ang_thres_1)
+                ang_thres_1 = max_thres_ang
+            if ang_thres_1 < min_thres_ang:
+                # print('ang thres sg1 < 10:', ang_thres_1)
+                ang_thres_1 = min_thres_ang
+
+            for n1 in sg1:
+                n1_centr = Grf.getCoordCentroids(n1)
+                n1_neighb = list(Grf.G.neighbors(n1))[0]
+                n1_neighb_centr = Grf.getCoordCentroids(n1_neighb)
+                # print(n1, n1_neighb)
+                # print(n1, 'neigh', Grf.G[n1][0])
+
+                for sg2 in tuplas_nodes[i1+1:]:
+                    distances = []
+                    tuples = []
+                    if (sg1, sg2) not in connected_subgr:
+                        i2 = tuplas_nodes.index(sg2)
+                        sg2_mean_d, sg2_std_d = Grf.getMeanDistance(i2), Grf.getStdDistance(i2)
+                        sg2_mean_a, sg2_std_a = Grf.getMeanAngle(i2), Grf.getStdAngle(i2)
+                        if sg2_std_d == 0:
+                            sg2_std_d = sg2_mean_d * 0.2
+                            # print('cero dist', sg2, sg2_std_d)
+                        if sg2_std_a == 0:
+                            # sg2_std_a = np.abs(sg2_mean_a) * 0.2
+                            sg2_std_a = max_thres_ang
+                            # print('cero std ang', sg2, sg2_std_a)
+
+                        for n2 in sg2:
+                            n2_centr = Grf.getCoordCentroids(n2)
+                            n2_neighb = list(Grf.G.neighbors(n2))[0]
+                            n2_neighb_centr = Grf.getCoordCentroids(n2_neighb)
+
+                            dist = calculateDistance(n2_centr, n1_centr)
+                            # print('\t', n1, n2)
+                            # distance min/max values of sg1 and sg2
+                            min_d2 = sg2_mean_d - (mult_std_dist * sg2_std_d)
+                            max_d2 = (mult_mean_dist * sg2_mean_d) + (mult_std_dist * sg2_std_d)
+
+                            if min_d1 > max_d1:
+                                aux = min_d1
+                                min_d1 = max_d1
+                                max_d1 = aux
+
+                            if min_d2 > max_d2:
+                                aux = min_d2
+                                min_d2 = max_d2
+                                max_d2 = aux
+
+                            if (min_d1 < dist < max_d1) and (min_d2 < dist < max_d2):
+                                # if sg_std_d == 0:
+                                ang_thres_2 = mult_std_ang * sg2_std_a
+                                if ang_thres_2 > max_thres_ang:
+                                    # print('ang thres sg2 > 30:', ang_thres_2)
+                                    ang_thres_2 = max_thres_ang
+                                if ang_thres_2 < min_thres_ang:
+                                    # print('ang thres sg2 > 30:', ang_thres_2)
+                                    ang_thres_2 = min_thres_ang
+
+                                new_edge_angle = calculateAngle(n2_centr, n1_centr)
+                                n1_neighb_angle = calculateAngle(n1_centr, n1_neighb_centr)
+                                n2_neighb_angle = calculateAngle(n2_centr, n2_neighb_centr)
+                                min_a1 = n1_neighb_angle - ang_thres_1
+                                max_a1 = n1_neighb_angle + ang_thres_1
+                                min_a2 = n2_neighb_angle - ang_thres_2
+                                max_a2 = n2_neighb_angle + ang_thres_2
+
+                                # TODO: verificar si es necesario invertir el orden del min/max
+                                # print(n1, n0, 'dist=', dist, 'ang=', sg_angle)
+                                # print('\t', n1, n1_neighb, 'ang neighb=', n1_neighb_angle)
+
+                                if (min_a1 < new_edge_angle < max_a1) and (min_a2 < new_edge_angle < max_a2):
+                                    # print('nuevo edge (subgr):', n1, n2, 'loop:', loop)
+                                    # print(n1_neighb_angle, new_edge_angle, n2_neighb_angle)
+                                    # print(sg1_mean_a, sg1_std_a)
+                                    # print(sg2_mean_a, sg2_std_a)
+                                    #
+                                    # print(min_d1, '<', dist, '<', max_d1)
+                                    # print(sg1_mean_d, sg1_std_d)
+                                    #
+                                    # print(min_d2, '<', dist, '<', max_d2)
+                                    # print(sg2_mean_d, sg2_std_d)
+
+                                    # Grf.subgraphs_edge_candidates.append((n1, n2))
+                                    # connected_subgr.append((sg1, sg2))
+                                    tuples.append((n1, n2))
+                                    distances.append(dist)
+                                    # print('possible edge', (n1, n2))
+                                    # print('\t', min_d1, '<', dist ,'<', max_d1, 'and', min_d2 ,'<', dist, '<', max_d2)
+                                    # print('\t', min_a1, '<', new_edge_angle ,'<', max_a1, 'and', min_a2 ,'<', new_edge_angle, '<', max_a2)
+
+                                    # Grf.addEdgesCandidates()
+                                    # Grf.findSubgraphs()
+                                    # loop += 1
+
+                                    # print('break, loop', loop)
+                                    # break
+                            #     else:
+                            #         print('\tno ang', n1, n2)
+                            #         print('\t', min_a1, '<', new_edge_angle, '<', max_a1)
+                            #         print('\t\t', n1_neighb_angle, sg1_mean_a, sg1_std_a)
+                            #         print('\t', min_a2, '<', new_edge_angle, '<', max_a2)
+                            #         print('\t\t', n2_neighb_angle, sg2_mean_a, sg2_std_a)
+                            #
+                            # else:
+                            #     print('\tno dist', n1, n2)
+                    # else:
+                    #     print('omitido: ', (sg1, sg2))
+
+                    if len(distances) != 0:
+                        # add the edge with min distance
+                        i = distances.index(np.min(distances))
+                        # print('tuples/dists', tuples[i][0], tuples[i][1], distances[i])
+                        # print('\tnuevo edge (subgr):', tuples[i][0], tuples[i][1])
+                        Grf.subgraphs_edge_candidates.append((tuples[i][0], tuples[i][1]))
+
+        if len(Grf.subgraphs_edge_candidates) == 0:
+            # print('break on loop', loop, ', no candidates')
+            break
+
+        Grf.addEdgesCandidates()
+        Grf.findSubgraphs()
+        loop += 1
+        # print('loop +1')
+
+    return Grf
+
+
 
 #-------------------------------------------------------------------------------
 # Generate list of nodes missing
@@ -446,14 +877,22 @@ def AddNodes(grf):
 
 # -------------------------------------------------------------------------------
 # Filter subgraph
+# @profile
 def filterSubgraph(graph_props):
-
+    start_time = datetime.datetime.now()
 
     graph_props_0 = filterEdgesDistance(graph_props)
     graph_props_0.findSubgraphs()
-    graph_props_1 = filterEdgesAngles(graph_props_0)
-    graph_props_1.findSubgraphs()
-    graph_props_2 = filterNodeExcentricty(graph_props_1)
+    start_time = printElapsedTime(start_time, '\tEdges dist')
+
+    # graph_props_1 = filterEdgesAngles(graph_props_0)
+    # graph_props_1.findSubgraphs()
+    # start_time = printElapsedTime(start_time, '\tEdges ang')
+
+    graph_props_2 = filterNodeExcentricity(graph_props_0)
+    graph_props_2.findSubgraphs()
+    start_time = printElapsedTime(start_time, '\tNodes exc')
+
     return graph_props_2
 
 #-------------------------------------------------------------------------------
@@ -551,6 +990,7 @@ def distMin(P,U):
     dist_min = np.min(dist)
     return dist.index(dist_min)
 
+# @profile
 def dividirSurco(grf,degree,error_max):
 
     grf2 = copy.deepcopy(grf)
@@ -561,41 +1001,57 @@ def dividirSurco(grf,degree,error_max):
             node_cons = []
             N = 4
             umb_err = 20
+            # print('nodes   ', H.nodes())
             for n in H.nodes():
                 if H.degree(n) == 1:
+                    # print('\tappend', n)
                     node_0.append(n)
 
-            n_x  = node_0[0]
-            n_s = node_0[0]
+            if len(node_0) > 0:
+                n_x  = node_0[0]
+                n_s = node_0[0]
 
-            for cont in range(len(list(H.nodes()))):
-                node_cons.append(n_s)
-                consect = []
-                for i in H.neighbors(n_s):
-                    if i not in node_cons:
-                        n_s = i
-            error = 0
-            while (error < umb_err):
-                x = [grf.getCoordCentroids(node_cons[n])[0] for n in range(N)]
-                y = [grf.getCoordCentroids(node_cons[n])[1] for n in range(N)]
-                z = np.polyfit(x,y, degree) # genera parametros de la curva
-                p = np.poly1d(z) # función curva
-                e = np.abs(np.polyval(z, x) - y)
-                error = np.sum(e)/len(x)
-                N += 1
+                for cont in range(len(list(H.nodes()))):
+                    node_cons.append(n_s)
+                    consect = []
+                    for i in H.neighbors(n_s):
+                        if i not in node_cons:
+                            n_s = i
+                error = 0
+                while (error < umb_err):
+                    # print('---> ', N, node_cons, range(N), n_s)
+                    try:
+                        x = [grf.getCoordCentroids(node_cons[n])[0] for n in range(N)]
+                        y = [grf.getCoordCentroids(node_cons[n])[1] for n in range(N)]
+                    except IndexError:
+                        break
+                    z = np.polyfit(x,y, degree) # genera parametros de la curva
+                    p = np.poly1d(z) # función curva
+                    e = np.abs(np.polyval(z, x) - y)
+                    error = np.sum(e)/len(x)
+                    N += 1
 
-            x2 = [grf.getCoordCentroids(n)[0] for n in H.nodes()]
-            y2 = [grf.getCoordCentroids(n)[1] for n in H.nodes()]
+                if config.getDebugMode() == 1:
+                    x2 = [grf.getCoordCentroids(n)[0] for n in H.nodes()]
+                    y2 = [grf.getCoordCentroids(n)[1] for n in H.nodes()]
 
-        #     plt.figure()
-        #     plt.axis('equal')
-        #     plt.ylim(max(y),0)
-        #     xp = np.linspace(min(x), max(x), len(x)+100)
-        #     plt.plot(x2,y2,'.',xp,p(xp),'r-')
-            removeNodes(node_cons[N],grf2)
+                    plt.figure()
+                    plt.axis('equal')
+                    plt.ylim(max(y),0)
+                    xp = np.linspace(min(x), max(x), len(x)+100)
+                    plt.plot(x2,y2,'.',xp,p(xp),'r-')
+                # print('\n->', N-1, node_cons)
+                # print('-->', node_cons[N-1])
+                try:
+                    grf2 = removeNodes(node_cons[N-1],grf2)
+                except IndexError:
+                    pass
 
-        # plt.show()
-        return grf2
+    if config.getDebugMode() == 1:
+        plt.show()
+
+    plt.close()
+    return grf2
 
 # -------------------------------------------------------------------------------
 def plotPolynomial(grf):
@@ -622,7 +1078,8 @@ def plotPolynomial(grf):
                 plt.plot(x,y,'.',xp,grf.subgraph_props.coef_curve[s](xp),'g-')
                 plt.text(x[0],y[0],str(grf.subgraph_props.error_curve[s]), bbox=dict(facecolor='green', alpha=0.58))
 
-    plt.show()
+    if config.getDebugMode() == 1:
+        plt.show()
 
 
 # def polynomialRegression(grf,degree):
@@ -661,42 +1118,51 @@ def plotPolynomial(grf):
 
 #-----------------------------------------------------------------------
 # runs the detection on a single image
+# @profile
 def processImage():
-    obj = Detection()
-    obj.process()
-    config.printObjInfoToLog(obj)
-    return obj
+    det = Detection()
+    det.process()
+    config.printObjInfoToLog(det)
+    del det
+    # return det
 
 # loops on the given folder (from settings)
 def processFolder():
     # variables initialization
-    obj_list = []
+    # obj_list = []
     index = 0
 
     source_dir = config.getSourceFolderName()
     listing = os.listdir(source_dir)
     for file in listing:
         for search_str in config.getSupportedFormats():
-            if search_str in file or str.upper(search_str) in file:
+            if search_str.lower() in file.lower():
                 config.setImageFilename(file)
-                obj_list.append(processImage())
+                # obj_list.append(processImage())
+                processImage()
                 index = index + 1
 
-    return obj_list
+    return index
 
 # runs the detection on the given file/folder
 def run(file):
     if (os.path.isdir(file)):
         # if directory
         config.setSourceFolderName(file)
-        proc_list = processFolder()
-        config.printListInfoToLog(proc_list)
+        proc_list_n = processFolder()
+        config.printListInfoToLog(proc_list_n)
     else:
         # if file
         dir, filename = os.path.split(file)
         config.setSourceFolderName(dir)
         config.setImageFilename(filename)
         proc_img = processImage()
+
+def printElapsedTime(start_time, msg):
+    end_time = datetime.datetime.now()
+    tot_time = end_time - start_time
+    print("\t"+msg+":\t" + str(tot_time)[2:11])
+    return end_time
 
 class Detection(object):
 
@@ -754,15 +1220,19 @@ class Detection(object):
         img_binary = self.img_RGB.point(mask_R+mask_G+mask_B).convert('L').point([0]*255+[255])
         return img_binary
 
-    def saveFigure(self,graph_props,nombre):
+    # @profile
+    def saveFigure(self, graph_props, nombre, plot_curves=True):
         fig, ax = plt.subplots(figsize=config.subplot_size)
-        ax.imshow(config.arr_overlay)
+        # ax.imshow(config.arr_overlay)
+        # ax.imshow(array(self.img_RGB))
 
         ax = self.drawRegions(graph_props, ax)
-        drawGraph(graph_props)
+        drawGraph(graph_props, plot_curves)
         ax.set_axis_off()
+        ax.invert_yaxis()
         plt.tight_layout()
-        plt.savefig(config.getLabelingPath(nombre))
+        plt.savefig(config.getPlotPath(nombre))
+        plt.close()
 
     def filterRegionsByArea(self, arr_labeled, node_props, poly=None):
         centroids_arr = {}
@@ -771,6 +1241,7 @@ class Detection(object):
         eccentricity = {}
         error_area = {}
         intensity = {}
+        #poly = cutRemains(self.img_RGB)
         if not poly:
             poly = cutRemains(self.img_RGB)
 
@@ -829,37 +1300,99 @@ class Detection(object):
         node_props.setExcentriciy(eccentricity)
         node_props.setErrorArea(error_area)
 
-
         return node_props
-
 
     def drawRegions(self, graph_props, ax):
         bbox = graph_props.node_props.getBBoxes()
 
         if config.getDebugMode() >= 1:
             for i in graph_props.G.nodes():
-                # draw rectangle around segmented areas
-                rect = mpatches.Rectangle((bbox[i][0], bbox[i][1]), bbox[i][2]-bbox[i][0], bbox[i][3]-bbox[i][1],
-                                       fill=False, edgecolor='w', linewidth=1)
-                ax.add_patch(rect)
+                ## draw rectangle around segmented areas
+                # rect = mpatches.Rectangle((bbox[i][0], bbox[i][1]), bbox[i][2]-bbox[i][0], bbox[i][3]-bbox[i][1],
+                #                        fill=False, edgecolor='w', linewidth=1)
+                # ax.add_patch(rect)
 
                 # draw centroid over segmented areas
                 centroid = mpatches.Circle( ((bbox[i][2]+bbox[i][0])/2, ((bbox[i][3]+bbox[i][1])/2)), 0.5, fill=False, edgecolor='yellow', linewidth=1)
                 ax.add_patch(centroid)
-
         return ax
 
+    def automaticDistanceThreshold(self, graph):
+        """
+        :return: min threshold (int), max threshold (int)
+        Computes min/max distance threshold for the given graph
+        """
+        print('* Automatic distance threshold')
+
+        dist_list = []
+        for s in list(graph.subgraphs):
+            H = graph.subgraphs[s]
+            for e in list(H.edges()):
+                dist_list.append(graph.getDistanceOfEdge(e))
+
+        # compute Gaussian Kernel Density Estimation
+        from scipy import stats
+        dist_list = np.array(dist_list)
+        kde = stats.gaussian_kde(dist_list)
+        # bins = np.linspace(dist_list.min(), dist_list.max(), 100)
+        bins = np.linspace(dist_list.min(), dist_list.max(), dist_list.max() - dist_list.min())
+        estimation = kde(bins)
+
+        # find maxs, mins of estimation
+        import peakutils
+        maxs = peakutils.indexes(estimation)
+        mins = peakutils.indexes(-estimation)
+        # print('maxs', dist_list.min()+maxs)
+        # print('mins', dist_list.min()+mins)
+
+        min = dist_list.min() + mins[0]
+        max = dist_list.min() + maxs[0]
+
+        diff = np.abs(maxs[0]-mins[0])
+        # diff_2 = int(diff*0.8)
+        min_1 = max-diff
+        min_2 = max+diff
+        # print(min_1, min_2, diff)
+
+        if config.getDebugMode() == 2 or config.getDebugMode() == 1:
+            plt.plot(bins, estimation, 'c--')
+
+            bins = np.linspace(0, np.max(dist_list), num=np.max(dist_list))
+            plt.hist(dist_list, facecolor='grey', label='Dist grafo inicial', bins=bins, normed=True, alpha=0.6)
+            plt.legend()
+
+            plt.title(self.getFileName())
+            plt.ylabel("Pixels")
+            plt.xlabel("Distances")
+            plt.plot(max, estimation[maxs[0]], '*k')
+            plt.plot(min, estimation[mins[0]], '*r')
+            fname = config.getPlotPath(config.getImageFilename()+'_distances')
+
+            # plt.plot([max-diff, max-diff], [0, estimation[maxs[0]]], 'g.-', label='min_dist')
+            # plt.plot([max+diff, max+diff], [0, estimation[maxs[0]]], 'm.-', label='max_dist')
+
+            plt.plot([min_1, min_1], [0, estimation[maxs[0]]], 'g--', label='min_dist')
+            plt.plot([min_2, min_2], [0, estimation[maxs[0]]], 'm--', label='max_dist')
+
+            if config.getDebugMode() == 2:
+                plt.savefig(fname)
+            if config.getDebugMode() == 1:
+                plt.show()
+
+        return min_1, min_2
 
     # applies threshold, detects regions, calculates score
 
+    # @profile
     def process(self):
 
         # SEGMENTATION #------------------------------
 
         start_time = datetime.datetime.now()
+        start_time_process = start_time
 
         print('\nProcessing:', config.getImageFilename())
-        print("\tStarted at: " + str(start_time))
+        print("\tStarted at: " + str(start_time)[11:23])
 
         # PHASE 2
         # # calculate distance min between trees
@@ -867,7 +1400,6 @@ class Detection(object):
         # plt.imshow(self.img_RGB)
         # p = plt.ginput(-1)
         # # # # dist = calculateDistance(p[0],p[1])
-        config.setDistanceThreshold(200)
         # setThresholdcolor(self,p)
 
         # Selection of segmentation threshold type
@@ -887,17 +1419,13 @@ class Detection(object):
             bin_folder = config.getBinaryFolderPath()
             if not os.path.exists(bin_folder):
                 os.makedirs(bin_folder)
-
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tSegmentation: " + str(tot_time)[5:])
-        start_time = end_time
-
+        start_time = printElapsedTime(start_time, 'Segmentation')
 
         # POSTPROCESSING #------------------------------
         # PHASE 3
         # Binary closing
         arr_closed = closing(arr_binary, square(3))
+        del arr_binary
 
         # configure size of subplots
         config.subplot_size = (arr_closed.shape[1]/100, arr_closed.shape[0]/100)
@@ -908,12 +1436,7 @@ class Detection(object):
             cls_binary.save(config.getClosingPath(self.img_file))
             # print(np.min(cls_binary))
             # print(np.max(cls_binary))
-
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tPostprocessing: " + str(tot_time)[5:])
-        start_time = end_time
-
+        start_time = printElapsedTime(start_time, 'Postprocess.')
 
         # PHASE 4
         # Labeling
@@ -924,14 +1447,11 @@ class Detection(object):
         arr_RGB = array(self.img_RGB)
         plt.close('all')
         arr_labeled = label(arr_closed)
+        del arr_closed
         config.arr_overlay = label2rgb(arr_labeled, image=arr_RGB, alpha=0.2)
+        start_time = printElapsedTime(start_time, 'Labeling')
 
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tLabeling: " + str(tot_time)[5:])
-        start_time = end_time
-
-            # return arr_labeled, ax
+        # return arr_labeled, ax
 
         # arr_labeled, ax = axplot(arr_closed,arr_RGB)
         # ###############################################################################################
@@ -962,11 +1482,9 @@ class Detection(object):
         # ---------------------------------------------------------
         graph_props_v0 = createGraph(graph_props_v0)
         graph_props_v0.findSubgraphs()
+        start_time = printElapsedTime(start_time, 'Initial graph')
+        self.saveFigure(graph_props_v0, config.getImageFilename()+'_v0', False)
 
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tCreation of initial graph/find subgraphs: " + str(tot_time)[5:])
-        start_time = end_time
 
         #self.saveFigure(graph_props_v0,config.getImageFilename())
 
@@ -976,14 +1494,14 @@ class Detection(object):
         #   - Filter for angles
         #   - Filter for nodes
         # ---------------------------------------------------------
-        graph_props_v1 = filterSubgraph(graph_props_v0)
-        graph_props_v1.findSubgraphs()
-        # self.saveFigure(graph_props_v1, 'arboles_01.jpg')
 
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tSubgraph filtering: distance, angle, eccentricity " + str(tot_time)[5:])
-        start_time = end_time
+        if config.use_auto_distance_thresh:
+            min_dist, max_dist = self.automaticDistanceThreshold(graph_props_v0)
+            config.setDistanceThreshold([min_dist, max_dist])
+
+        graph_props_v1 = filterSubgraph(graph_props_v0)
+        start_time = printElapsedTime(start_time, 'Subgraph filtering')
+        self.saveFigure(graph_props_v1, config.getImageFilename()+'_v1', False)
 
         # graph_props_v2 = filterSubgraph(graph_props_v1)
         # graph_props_v2.findSubgraphs()
@@ -994,27 +1512,19 @@ class Detection(object):
         # #   - Add of setCandidatesOfEdges
         # #   - Draw of candidates
         # # ---------------------------------------------------------
-        graph_props_v3 = setCandidatesOfEdges(graph_props_v1)
-        graph_props_v3.addEdgesCandidates()
-        graph_props_v3.findSubgraphs()
-
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tEdge candidates " + str(tot_time)[5:])
-        start_time = end_time
-
-        # self.saveFigure(graph_props_v3,'arboles_03.jpg')
+        graph_props_v3 = findEdges(graph_props_v1)
+        graph_props_v3 = findEdgesBetweenSubgraphs(graph_props_v3)
+        # graph_props_v3.addEdgesCandidates()
+        # graph_props_v3.findSubgraphs()
+        start_time = printElapsedTime(start_time, 'Edge candidates')
+        self.saveFigure(graph_props_v3, config.getImageFilename()+'_v3', False)
 
         # # 4 - Filter the nodes of degree == 0
         # # ---------------------------------------------------------
         graph_props_v4 = filterNodeDegree(graph_props_v3)
         graph_props_v4.findSubgraphs()
-        # self.saveFigure(graph_props_v4,'arboles_04.jpg')
-
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tNode filtering: degree " + str(tot_time)[5:])
-        start_time = end_time
+        start_time = printElapsedTime(start_time, 'Node filtering: degree')
+        self.saveFigure(graph_props_v4, config.getImageFilename()+'_v4')
 
         # # 5 - Last filter of edges
         # # ---------------------------------------------------------
@@ -1022,30 +1532,28 @@ class Detection(object):
             graph_props_vf = filterUltimasEdges(graph_props_v4)
         graph_props_vf = filterNodeDegree(graph_props_vf)
         graph_props_vf.findSubgraphs()
-
-        end_time = datetime.datetime.now()
-        tot_time = end_time - start_time
-        print("\tUltimas edges " + str(tot_time)[5:])
-        start_time = end_time
+        start_time = printElapsedTime(start_time, 'Ultimas edges')
+        self.saveFigure(graph_props_vf, config.getImageFilename()+'_vf')
 
         AddNodes(graph_props_vf)
 
-        grf2 = dividirSurco(graph_props_vf,2,20)
+        degree = 2
+        error_max = 20
+        grf2 = dividirSurco(graph_props_vf, degree, error_max)
         grf2.findSubgraphs()
-
 
         # Compute curve of subgraphs
         if config.use_polynomial_regression:
-            plotPolynomial(graph_props_vf)
-            plotPolynomial(grf2)
-            end_time = datetime.datetime.now()
-            tot_time = end_time - start_time
-            print("\tPolynomial regression: " + str(tot_time)[5:])
-            start_time = end_time
+            if config.getDebugMode() == 1:
+                plotPolynomial(graph_props_vf)
+                plotPolynomial(grf2)
+                start_time = printElapsedTime(start_time, 'Polynomial regression')
 
-        self.saveFigure(grf2,config.getImageFilename())
+        self.saveFigure(grf2, config.getImageFilename()+'_grf2')
 
-
+        end_time = datetime.datetime.now()
+        tot_time = end_time - start_time_process
+        print("Total:\t" + str(tot_time)[3:11])
 
     def calculateCentroid(self, x_side, y_side):
         centroid = [x_side/2, y_side/2]
