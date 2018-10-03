@@ -98,6 +98,10 @@ class ControladorDatos(object):
     @classmethod
     def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, parcelas, q=None):
         """..."""
+        def parcelaPertenece(arbol,c, parcels):
+            for p in parcels:
+                if Point(tuple(c)).within(Polygon(p.getPoligono())):
+                    arbol.id_parcelas = p.parcelaDB.clave
         def areaCopaMetros(distanciaMediaMetros, distanciaMediaPixeles, areaCopaPixeles):
             """Retorna el area de la copa de un arbol, expresada en metros cuadrados"""
             try:
@@ -107,14 +111,25 @@ class ControladorDatos(object):
             except Exception as e:
                 print(e)
                 return 0
-        for p in parcelas:
-            pass
-
-        def parcelaPertenece(arbol):
-            for p in parcelas:
-                if arbol.within(Polygon(p.getPoligono())):
-                    return p.id
-            return 0
+        repeticion = cls.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
+        matrizinicial = [ [ None for i in range(int(repeticion.nroFilas)) ] for j in range(int(repeticion.nroColumnas)) ]
+        bloques = cls.buscar_objetos('Bloque', {'id_repeticiones' : imagen.id_repeticiones})
+        parcelas_db = []
+        for bl in bloques:
+            parcelas_db += cls.buscar_objetos('Parcela', {'id_bloques' : bl.clave})
+        for i,x in enumerate(parcelas_db):
+            nroBloque = cls.buscar_objetos('Bloque', {'clave' : x.id_bloques})[0]
+            matrizinicial[int(x.columna)][int(x.fila)] = x
+        pos = 0
+        print("printear Matriz")
+        for fila in matrizinicial:
+            for columna in fila:
+                if type(fila) is Parcela:
+                    print("Fila es igual", fila)
+                    parcelas[pos].setParcelaDB(fila)
+                    pos+=1
+                else:
+                    print("Fila no es igual None")
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
@@ -148,6 +163,7 @@ class ControladorDatos(object):
                 aCPixeles = int(grafo.node_props.areas[n])
                 arbol.areaCopa = areaCopaMetros(dMMetros, dMPixeles, aCPixeles)
                 arbol.primero = 0 # PREGUNTAR COMO OBTENER
+                parcelaPertenece(arbol, c, parcels)
                 arbol.guardar(cls.db)
         if q != None:
             q.put("Listo")
