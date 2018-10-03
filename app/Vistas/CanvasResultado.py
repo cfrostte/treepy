@@ -70,6 +70,7 @@ class CanvasVisorResultados(Canvas):
 		self.parcelas = []
 		self.nuevaParcela = False
 		self.parcelaAcual = None
+        self.contadorParcela = 0
 
 	def Inicio(self, imagen):
 		self.Limpiar()
@@ -99,7 +100,8 @@ class CanvasVisorResultados(Canvas):
 			if self.parcelaAcual is not None:
 				self.parcelaAcual.borrar()
 			del self.parcelaAcual
-		self.parcelaAcual = Parcela(self)
+        self.contadorParcela += 1
+		self.parcelaAcual = Parcela(self,self.contadorParcela)
 	def finEdicion(self):
 		self.parent.Controles.mensaje.config(text="")
 		self.agregandoNodo = False

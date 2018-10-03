@@ -27,6 +27,8 @@ from Datos.Repeticion import Repeticion
 from Datos.SurcoDetectado import SurcoDetectado
 from Datos.SurcoDetectadoParcela import SurcoDetectadoParcela
 
+from shapely.geometry import LineString, Polygon, Point
+
 from Utilidades import Logger as log
 
 class ControladorDatos(object):
@@ -94,13 +96,25 @@ class ControladorDatos(object):
     ############################################################################
 
     @classmethod
-    def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, q=None):
+    def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, parcelas, q=None):
         """..."""
         def areaCopaMetros(distanciaMediaMetros, distanciaMediaPixeles, areaCopaPixeles):
             """Retorna el area de la copa de un arbol, expresada en metros cuadrados"""
-            pixelesPorCadaMetro = float(distanciaMediaPixeles)/float(distanciaMediaMetros)
-            pixelesPorCadaMetroCuadrado = pixelesPorCadaMetro**2
-            return float(areaCopaPixeles)/float(pixelesPorCadaMetroCuadrado)
+            try:
+                pixelesPorCadaMetro = float(distanciaMediaPixeles)/float(distanciaMediaMetros)
+                pixelesPorCadaMetroCuadrado = pixelesPorCadaMetro**2
+                return float(areaCopaPixeles)/float(pixelesPorCadaMetroCuadrado)
+            except Exception as e:
+                print(e)
+                return 0
+        for p in parcelas:
+            pass
+
+        def parcelaPertenece(arbol):
+            for p in parcelas:
+                if arbol.within(Polygon(p.getPoligono())):
+                    return p.id
+            return 0
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
