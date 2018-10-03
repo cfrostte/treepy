@@ -98,8 +98,8 @@ class ControladorDatos(object):
     @classmethod
     def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, parcelas, q=None):
         """..."""
-        def parcelaPertenece(arbol,c, parcels):
-            for p in parcels:
+        def parcelaPertenece(arbol,c, parcelas):
+            for p in parcelas:
                 if Point(tuple(c)).within(Polygon(p.getPoligono())):
                     arbol.id_parcelas = p.parcelaDB.clave
         def areaCopaMetros(distanciaMediaMetros, distanciaMediaPixeles, areaCopaPixeles):
@@ -121,15 +121,11 @@ class ControladorDatos(object):
             nroBloque = cls.buscar_objetos('Bloque', {'clave' : x.id_bloques})[0]
             matrizinicial[int(x.columna)][int(x.fila)] = x
         pos = 0
-        print("printear Matriz")
         for fila in matrizinicial:
             for columna in fila:
-                if type(fila) is Parcela:
-                    print("Fila es igual", fila)
-                    parcelas[pos].setParcelaDB(fila)
+                if columna is not None:
+                    parcelas[pos].setParcelaDB(columna)
                     pos+=1
-                else:
-                    print("Fila no es igual None")
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
@@ -163,8 +159,20 @@ class ControladorDatos(object):
                 aCPixeles = int(grafo.node_props.areas[n])
                 arbol.areaCopa = areaCopaMetros(dMMetros, dMPixeles, aCPixeles)
                 arbol.primero = 0 # PREGUNTAR COMO OBTENER
-                parcelaPertenece(arbol, c, parcels)
+                parcelaPertenece(arbol, c, parcelas)
                 arbol.guardar(cls.db)
+        for f in grafo.node_props.coord_missing:
+            arbol = Arbol()
+            arbol.id_repeticiones = imagen.id_repeticiones
+            arbol.latitud, arbol.longitud = g.transform([f])[0]
+            arbol.primero = 0
+            arbol.areaCopa = 0
+            parcelaPertenece(arbol, f, parcelas)
+            arbol.guardar(cls.db)
+            arboles_faltante = ArbolFaltante()
+            arboles_faltante.id_imagenes = imagen.clave
+            arboles_faltante.id_arboles = arbol.clave
+            arboles_faltante.guardar(cls.db)
         if q != None:
             q.put("Listo")
 
@@ -247,4 +255,4 @@ class ControladorDatos(object):
 
 ################################################################################
 
-log.init(ControladorDatos) # Inicializa el Logger para que guarde correctamente
+# log.init(ControladorDatos) # Inicializa el Logger para que guarde correctamente
