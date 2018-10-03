@@ -60,7 +60,7 @@ class Inicio(object):
 		self.verAyudas()
 		
 		self.root.config(menu=self.mimenu(self.root))
-		self.root.resizable(False, False)
+		# self.root.resizable(False, False)
 		self.root.mainloop()
 
 	def verAyudas(self):
