@@ -404,12 +404,27 @@ class Inicio(object):
 
 	def openMultiColumn(self, frameListaEnsayos, todosLosEnsayos):
 		try: 
+			self.misframes['ListaEnsayos'].camposEditables['titulo'].pack_forget()
+			self.misframes['ListaEnsayos'].camposEditables['titulo'].destroy()
+			self.misframes['ListaEnsayos'].camposEditables['lista'].pack_forget()
+			self.misframes['ListaEnsayos'].camposEditables['lista'].destroy()
 			self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack_forget()
 			self.misframes['ListaEnsayos'].camposEditables['frameTree'].destroy()
 		except Exception:
 			print("Error en openMulticolumn")
 
-		self.misframes['ListaEnsayos'].camposEditables['frameTree'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
+		self.misframes['ListaEnsayos'].interior.pack()
+		self.misframes['ListaEnsayos'].camposEditables['titulo'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
+		self.misframes['ListaEnsayos'].camposEditables['titulo'].pack(side=tk.TOP, fill=tk.BOTH)
+		self.misframes['ListaEnsayos'].camposEditables['lista'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
+		self.misframes['ListaEnsayos'].camposEditables['lista'].pack(side=tk.TOP, fill=tk.BOTH)
+
+		labelTitulo = tk.Label(self.misframes['ListaEnsayos'].camposEditables['titulo'], text='Lista de ensayos')
+		labelTitulo.pack(side=tk.TOP, fill=tk.BOTH)
+		labelTitulo.config(font=("Courier", 33))
+
+		# self.misframes['ListaEnsayos'].camposEditables['frameTree'] = tk.Frame(self.misframes['ListaEnsayos'].interior)
+		self.misframes['ListaEnsayos'].camposEditables['frameTree'] = tk.Frame(self.misframes['ListaEnsayos'].camposEditables['lista'])
 		# self.frame = tk.Frame(self.misframes['ListaEnsayos'].interior)
 		self.misframes['ListaEnsayos'].camposEditables['frameTree'].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 		# self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -428,6 +443,24 @@ class Inicio(object):
 		self.build_tree(self.car_list, self.car_header, self.tree)
 
 	def _setup_widgets(self, parent, car_header):
+
+		# style = ttk.Style()
+		# style.element_create("Custom.Treeheading.border", "from", "default")
+		# style.layout("Custom.Treeview.Heading", [
+		#     ("Custom.Treeheading.cell", {'sticky': 'nswe'}),
+		#     ("Custom.Treeheading.border", {'sticky':'nswe', 'children': [
+		#         ("Custom.Treeheading.padding", {'sticky':'nswe', 'children': [
+		#             ("Custom.Treeheading.image", {'side':'right', 'sticky':''}),
+		#             ("Custom.Treeheading.text", {'sticky':'we'})
+		#         ]})
+		#     ]}),
+		# ])
+		# style.configure("Custom.Treeview.Heading",
+		#     background="blue", foreground="white", relief="flat")
+		# style.map("Custom.Treeview.Heading",
+		#     relief=[('active','groove'),('pressed','sunken')])
+
+
 		self.parent = parent
 		self.car_header = car_header
 		# s = """click on header to sort by that column to change width of column drag boundary"""
@@ -436,6 +469,7 @@ class Inicio(object):
             # padding=(10, 2, 10, 6), text=s)
 		# msg.pack(side=tk.TOP, fill='x', expand=True)
 		container = self.parent
+		# self.tree = tttk.Treeview(columns=self.car_header, show="headings", style="Custom.Treeview")
 		self.tree = tttk.Treeview(columns=self.car_header, show="headings")
 		vsb = tttk.Scrollbar(orient="vertical", command=self.tree.yview)
 		# hsb = tttk.Scrollbar(orient="horizontal", command=self.tree.xview)
@@ -851,12 +885,12 @@ class Inicio(object):
 			# self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(containerDerecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack(side=tk.BOTTOM)
 
-			print("-----------------INFOOOOOO-------------------------")
-			print(self.misframes['Repeticion'].camposEditables['totalFrame'][2].winfo_height())
-			print(self.misframes['Repeticion'].camposEditables['totalFrame'][2].winfo_width())
-			print(containerImg.winfo_height())
-			print(containerImg.winfo_width())
-			print("-----------------INFOOOOOO-------------------------")
+			# print("-----------------INFOOOOOO-------------------------")
+			# print(self.misframes['Repeticion'].camposEditables['totalFrame'][2].winfo_height())
+			# print(self.misframes['Repeticion'].camposEditables['totalFrame'][2].winfo_width())
+			# print(containerImg.winfo_height())
+			# print(containerImg.winfo_width())
+			# print("-----------------INFOOOOOO-------------------------")
 			if len(frame)==1:
 				self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=self.misframes['Repeticion'].camposEditables['totalFrame'][2].winfo_width(),height= int(self.misframes['Repeticion'].camposEditables['totalFrame'][2].winfo_height())+55)
 				self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=self.misframes['Repeticion'].camposEditables['totalFrame'][1].winfo_width(), height=int(self.misframes['Repeticion'].camposEditables['totalFrame'][1].winfo_height())+55)
@@ -865,15 +899,14 @@ class Inicio(object):
 				self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=self.misframes['Repeticion'].camposEditables['totalFrame'][1].winfo_width(), height=int(self.misframes['Repeticion'].camposEditables['totalFrame'][1].winfo_height())+355)
 
 		else:
+
 			for widget in izquierda.winfo_children():
 				widget.pack_forget()
-				# widget.destroy()
 			for widget in centro.winfo_children():
 				widget.pack_forget()
-				# widget.destroy()
 			for widget in derecha.winfo_children():
 				widget.pack_forget()
-				# widget.destroy()
+
 			frameContainerIn = []
 			frameContainerIn.append(tk.Frame(izquierda))
 			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
@@ -893,7 +926,7 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['longitudCono2Entry'] = tk.Entry(centro); self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].insert(0, ' '); self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].pack(side=tk.TOP, fill=tk.X, expand=True)
 			datos = []
 			nombre = 'Imagen ' + str(x)
-			# nombre = 'Imagen ' + str(len(frame))
+					# nombre = 'Imagen ' + str(len(frame))
 			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			ensayoImage = Image.open(str(Path().absolute()) + '//Vistas//iconImage.png')
@@ -905,11 +938,80 @@ class Inicio(object):
 			datos.append(label)
 			datos.append(nombrelabel)
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(centro, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
-			# self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(derecha, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+					# self.misframes['Repeticion'].camposEditables['btnElegirImagen'] = tk.Button(derecha, text="Elegir imagen", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack(side=tk.BOTTOM)
-			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(derecha, text="Cancelar", command=lambda accion="update", : self.clickGuardoImagen(accion, frame, claveRepe, claveEnsayo, x, izquierda, centro, derecha, claveImagen))
+			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'] = tk.Button(derecha, text="Cancelar", command=lambda claveImg=claveImagen, : self.cancelarNewImage(claveImg, x, derecha, centro, izquierda))
 			self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack(side=tk.BOTTOM)
-			#Busco el objeto imagen y me quedo con el para editarlo y despues guardarlo.
+					#Busco el objeto imagen y me quedo con el para editarlo y despues guardarlo.
+
+			#######################################################################
+			#######################################################################
+			#######################################################################
+	def cancelarNewImage(self, claveImg, x, derecha, centro, izquierda):
+		imagen = CD.buscar_objetos("Imagen", {'clave' : claveImg})[0]
+		print("---------CANCELANDO----------")
+		print(claveImg)
+		print(imagen)
+		print("---------CANCELANDO----------")
+		# imagen = CD.buscar_objetos("Imagen", {'clave' : claveImg})[0]
+		repeticion = CD.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
+
+		for widget in izquierda.winfo_children():
+			widget.pack_forget()
+			# widget.destroy()
+		for widget in centro.winfo_children():
+			widget.pack_forget()
+			# widget.destroy()
+		for widget in derecha.winfo_children():
+			widget.pack_forget()
+			# widget.destroy()
+
+		frameContainerIn = []
+		frameContainerIn.append(tk.Frame(izquierda))
+		frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+		frameContainerIn.append(tk.Frame(izquierda))
+		frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
+
+		btnCambiarImagen = tk.Button(derecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=imagen.id_repeticiones, claveEnsayoArg=repeticion.id_ensayos, y=x+1, izquierda=izquierda, centro=centro, derecha=derecha, claveImagen=imagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
+		btnCambiarImagen.pack(side=tk.TOP)
+		btnAnalizarImagen = tk.Button(derecha, text="Analizar", command=lambda image=imagen: self.iniciarAnalisis(image))
+		btnAnalizarImagen.pack(side=tk.TOP)
+		btnBorrarImagen = tk.Button(derecha, text="Borrar", command=lambda image=imagen, frame=self.misframes['Repeticion'].camposEditables['imagenesRepeticion']: self.borrarImagen(image, frame))
+		btnBorrarImagen.pack(side=tk.BOTTOM)
+
+		subtituloDatos = tk.Label(centro, text="Datos de la imágen")
+		subtituloDatos.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		subtituloDatos.config(font=('Courier', 16))
+
+		etapa = tk.Label(centro, text="Etapa : " + str(imagen.etapa)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		ancho = tk.Label(centro, text="Ancho(Pixels) : " + str(imagen.ancho) + " Largo(Pixels) : " + str(imagen.largo)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		altitud = tk.Label(centro, text="Altitud : " + str(imagen.altitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		latitud = tk.Label(centro, text="Lat y Lnt de la imagen : " + str(imagen.latitud) + " " + str(imagen.longitud)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		latitudCono1 = tk.Label(centro, text="Lat y Lnt del cono 1 : " + str(imagen.latitudCono1) + " " + str(imagen.longitudCono1)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		latitudCono2 = tk.Label(centro, text="Lat y Lnt del cono 2 : " + str(imagen.latitudCono2) + " " + str(imagen.longitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		datos = []
+		nombre = 'Imagen ' + str(x)
+		nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
+		nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		fechalabel = tk.Label(frameContainerIn[0], text=imagen.fecha)
+		fechalabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		path = str(Path().absolute())
+		try:
+			ensayoImage = Image.open(imagen.url)
+		except:
+			ensayoImage = Image.open(path + '\\Vistas\\notFound.jpg')
+		ensayoImage = ensayoImage.resize((175,175),Image.ANTIALIAS)
+		photo = ImageTk.PhotoImage(ensayoImage)
+		label = tk.Label(frameContainerIn[1], image=photo)
+		label.image = photo
+		label.pack(side=tk.TOP, padx=5, pady=5, expand=True)
+		datos.append(label)
+		datos.append(nombrelabel)
+		datos.append(fechalabel)
+		# fotosRepeticion.append(datos)
+
+
+
 	def verAnalisis(self):
 		self.visorAnalisis = VisorResultados(self.misframes['Analisis'].interior, self)
 
@@ -924,7 +1026,7 @@ class Inicio(object):
 			CD.exportar_informe_csv(clave)
 			CD.exportar_informe_kml(clave)
 			# path="C:/Users"
-			path=CD.kml
+			path=CD.out
 			path=os.path.realpath(path)
 			os.startfile(path)
 
