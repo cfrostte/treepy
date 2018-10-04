@@ -1026,7 +1026,7 @@ class Inicio(object):
 			CD.exportar_informe_csv(clave)
 			CD.exportar_informe_kml(clave)
 			# path="C:/Users"
-			path=CD.kml
+			path=CD.out
 			path=os.path.realpath(path)
 			os.startfile(path)
 
