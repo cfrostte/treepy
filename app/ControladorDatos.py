@@ -35,8 +35,9 @@ class ControladorDatos(object):
 
     db = 'Datos/store/treepy.db' # Donde se guarda la BD
     sql = 'Datos/store/treepy.sql' # Donde se exporta la BD
-    csv = 'Datos/store/out/csv' # Donde se exportan los CSV
-    kml = 'Datos/store/out/kml' # Donde se exportan los KML
+    out = 'Datos/store/out' # Donde se exportan los datos
+    csv = out + '/csv' # Donde se exportan los CSV
+    kml = out + '/kml' # Donde se exportan los KML
 
     # Tipos de objeto manejados:
     controlados = {

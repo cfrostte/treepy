@@ -32,21 +32,24 @@ class Exportador(object):
             print("'", r, "' creado")
 
     @staticmethod
-    def nuevo_archivo(carpeta, extencion):
+    def nuevo_archivo(carpeta, extencion, clave):
         Exportador.crear_ruta(carpeta)
         n = datetime.datetime.now()
-        o = "{}/Informe del {} de {} de {} a las {} y {}.{}"
+        o = "{}/{} del {} de {} de {} a las {};{}.{}"
         d = n.day
         m = Exportador.meses[n.month]
         y = n.year
         hh = n.hour
         mm = n.minute
-        return o.format(carpeta, d, m, y, hh, mm, extencion)
+        q_1 = 'Informe del ensayo N° {}'.format(clave)
+        q_2 = 'Informe los ensayos'
+        q = q_1 if clave else q_2
+        return o.format(carpeta, q, d, m, y, hh, mm, extencion)
 
 class CSV(Exportador):
     @staticmethod
     def informe(db, carpeta, clave=None):
-        archivo = Exportador.nuevo_archivo(carpeta, 'csv')
+        archivo = Exportador.nuevo_archivo(carpeta, 'csv', clave)
         # Escribir en archivo
         with open(archivo, 'w') as a:
             A = 'N° de Ensayo'
@@ -60,11 +63,7 @@ class CSV(Exportador):
             header = [A, B, C, D, E, F, G, H]
             dw = csv.DictWriter(a, fieldnames=header)
             dw.writeheader() # Escribir el header
-            # consulta = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C, a.clave AS D, a.latitud AS E, a.longitud AS F, 
-            # CASE WHEN (SELECT 1 FROM arboles_faltantes WHERE id_arboles = a.clave) THEN 'Si' ELSE 'No' END AS G, 
-            # a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
-            # WHERE r.id_ensayos = e.clave AND a.id_repeticiones = r.clave {}""".format('AND e.clave = ?' if clave else '')
-            consulta = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C, a.clave AS D, a.latitud AS E, a.longitud AS F, 
+            consulta = """SELECT e.nro AS A, r.nro AS B, 'S/N' AS C, a.clave AS D, a.latitud AS E, a.longitud AS F,
             CASE WHEN (SELECT 1 FROM arboles_faltantes AS a_f JOIN objetos AS o 
             WHERE a_f.id_arboles = a.clave AND o.tipo = 'ArbolFaltante' AND o.id = a_f.clave AND o.eliminado = 0) 
             THEN 'Si' ELSE 'No' END AS G, a.areaCopa AS H FROM arboles AS a JOIN repeticiones AS r JOIN ensayos AS e 
@@ -141,4 +140,4 @@ class KML(Exportador):
                                         coords = [(a['longitud'], a['latitud'])]
                                         p = faltantes.newpoint(name=name, coords=coords)
                                         p.style.labelstyle.color = simplekml.Color.red
-        kml.save(Exportador.nuevo_archivo(carpeta, 'kml'))
+        kml.save(Exportador.nuevo_archivo(carpeta, 'kml', clave))
