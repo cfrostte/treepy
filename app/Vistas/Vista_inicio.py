@@ -5,7 +5,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import cgitb
 from inspect import getmembers
-from pprint import pprint
+# from pprint import pprint
 import random
 from Vistas.esquemaParcelas import esquemaParcelas
 # from Vistas.AbrirEnsayo import AbrirEnsayo
@@ -150,11 +150,11 @@ class Inicio(object):
 		self.misframes['Repeticion'].camposEditables['frameesquema'].pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 		self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(relief="groove", bd=4)
-		self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=610, height=655)
+		self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=770, height=655)
 		self.misframes['Repeticion'].camposEditables['totalFrame'][1].pack_propagate(0)
 		# self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=610)
 		self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(relief="groove", bd=4)
-		self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=610, height=655)
+		self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=770, height=655)
 		self.misframes['Repeticion'].camposEditables['totalFrame'][2].pack_propagate(0)
 		# self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=610)
 
@@ -187,8 +187,8 @@ class Inicio(object):
 		totalFrame.append(tk.Frame(self.misframes['Ensayo'].interior))
 		totalFrame[-1].pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
-		totalFrame[0].config(height=400, width=610, relief="groove", bd=4)
-		totalFrame[1].config(height=400, width=610, relief="groove", bd=4)
+		totalFrame[0].config(height=400, width=770, relief="groove", bd=4)
+		totalFrame[1].config(height=400, width=770, relief="groove", bd=4)
 		totalFrame[2].config(height=400, width=60)
 		totalFrame[0].pack_propagate(0)
 		totalFrame[1].pack_propagate(0)
@@ -343,7 +343,7 @@ class Inicio(object):
 		return MENU
 
 	def NuevoEnsayo(self):
-		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].config(text='Ingrese nuevo ensayo')
+		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].config(text='Ingrese nuevo ensayo', font=("Courier", 33))
 		self.misframes['Ensayo'].camposEditables['numEnsayo'].config(state=tk.NORMAL)
 		self.misframes['Ensayo'].camposEditables['numEnsayo'].delete(0, tk.END)
 		self.misframes['Ensayo'].camposEditables['numEnsayo'].insert(0, '000')
@@ -605,8 +605,8 @@ class Inicio(object):
 		print("--------------REPEEEEEEE-----------------")
 		print(repeticion)
 		print("--------------REPEEEEEEE-----------------")
-		self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=610, height=655)
-		self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=610, height=655)
+		self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=770, height=655)
+		self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=770, height=655)
 		if repeticion.nroFilas != ' ' and repeticion.nroColumnas != ' ':
 			#Dibujo el esquema de la repeticion
 			self.misframes['Repeticion'].camposEditables['frameesquema'].repeticionClave = repeticion.clave
@@ -626,8 +626,8 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['containerImagenes'] = containerImagenes
 
 			if len(imagenes)<1:
-				self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=610, height=455)
-				self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=610, height=455)
+				self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=770, height=455)
+				self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=770, height=455)
 			if len(imagenes)>1:
 				self.misframes['Repeticion'].camposEditables['totalFrame'][1].config(width=self.misframes['Repeticion'].camposEditables['totalFrame'][1].winfo_width(), height=100+( len(imagenes)*355))
 				self.misframes['Repeticion'].camposEditables['totalFrame'][2].config(width=self.misframes['Repeticion'].camposEditables['totalFrame'][1].winfo_width(), heigh=100+( len(imagenes)*355))
@@ -715,7 +715,7 @@ class Inicio(object):
 			containerNewImg = tk.Frame(containerNewImagen)
 			containerNewImg.pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 			containerNewImg.config(padx=10, pady=10, relief="raised", bd=4)
-			containerNewImg.config(width=610, height=50)
+			containerNewImg.config(width=770, height=50)
 			containerNewImg.pack_propagate(0)
 			self.misframes['Repeticion'].camposEditables['agregar'] = containerNewImg
 			btnCambiarImagen = tk.Button(containerNewImg, text="Agregar imágen", command=lambda: self.cambiarImagen("new", self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], repeticion.clave, repeticion.id_ensayos, len(self.misframes['Repeticion'].camposEditables['imagenesRepeticion'])+1))
@@ -733,7 +733,7 @@ class Inicio(object):
 			containerNewImg = tk.Frame(containerNewImagen)
 			containerNewImg.pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 			containerNewImg.config(padx=10, pady=10, relief="raised", bd=4)
-			containerNewImg.config(width=610, height=50)
+			containerNewImg.config(width=770, height=50)
 			containerNewImg.pack_propagate(0)
 			self.misframes['Repeticion'].camposEditables['agregar'] = containerNewImg
 			btnCambiarImagen = tk.Button(containerNewImg, text="Agregar imágen", command=lambda: self.cambiarImagen("update", self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], repeticion.clave, repeticion.id_ensayos))
@@ -1096,7 +1096,11 @@ class Inicio(object):
 			self.misframes['Ensayo'].camposEditables['totalHas'].config(state=tk.NORMAL, background="#fff")
 			self.misframes['Ensayo'].camposEditables['plantasXparcela'].config(state=tk.NORMAL, background="#fff")
 			self.misframes['Ensayo'].camposEditables['tipoClonal'].config(state=tk.NORMAL, background="#fff")
-			self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].config(text='Guardar', command= lambda: self.clickBtnModificar('Guardar', 'Actualizar'))
+			if tipo != "Nuevo":
+				self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].config(text='Guardar', command= lambda: self.clickBtnModificar('Guardar', 'Actualizar'))
+			else:
+				self.misframes['Ensayo'].camposEditables['btnModificarGuardar'].config(text='Guardar', command= lambda: self.clickBtnModificar('Guardar', 'Nuevo'))
+
 		else:
 			checkSave = []
 			if tipo != "Nuevo":
@@ -1142,7 +1146,11 @@ class Inicio(object):
 				self.guardarEnsayo(datosParaGuardar, tipo)
 			else:
 				messagebox.showinfo("Error", "Controle el formato de datos ingresado y que no haya campos vacios e intente nuevamente.")
-				self.clickBtnModificar('Modificar', 'Actualizar')
+				# self.clickBtnModificar('Modificar', tipo)
+				if tipo != "Nuevo":
+					self.clickBtnModificar('Modificar', 'Actualizar')
+				else:
+					self.clickBtnModificar('Modificar', 'Nuevo')
 				for x in checkeo:
 					self.misframes['Ensayo'].camposEditables[x].config(state=tk.NORMAL, background="#ff8282")
 					
@@ -1280,6 +1288,7 @@ class Inicio(object):
 		messagebox.showinfo("Info", "Se ha guardado correctamente") # if guardado else messagebox("Error", "Ha ocurrido un error al guardar. Intente mas tarde.")
 
 		self.misframes['Ensayo'].camposEditables['tituloEnsayo'].config(text="Ensayo N° "+str(ensayo.nro))
+		self.misframes['Ensayo'].camposEditables['ensayoClave'] = ensayo.clave
 		#Si es nuevo creao tantas repeticiones vacias como diga el nro de repeticiones
 		if tipo == "Nuevo":
 			for x in range(0, int(guardado.nroRepeticiones)):
@@ -1391,7 +1400,7 @@ class mainInicio(object):
 
 def validate(date_text):
     try:
-        datetime.datetime.strptime(date_text, '%Y/%m/%d')
+        datetime.datetime.strptime(date_text, '%d/%m/%Y')
         return True
     except ValueError:
         # raise ValueError("Incorrect data format, should be YYYY-MM-DD")

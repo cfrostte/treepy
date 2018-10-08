@@ -34,7 +34,7 @@ class VisorResultados(Frame):
 		self.canvas.pack(side=BOTTOM)
 		repe = CD.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
 		ensayo = CD.buscar_objetos('Ensayo', {'clave' : repe.id_ensayos})[0]
-		self.titulo = Label(self, text = ("Ensayo {} - {} ► Repetición {} ► {}").format(ensayo.establecimiento,ensayo.nro,repe.clave, imagen.fecha), font=('Courier', 16))
+		self.titulo = Label(self, text = ("Ensayo {} - {} ► Repetición {} ► {}").format(ensayo.establecimiento,ensayo.nro,repe.nro, imagen.fecha), font=('Courier', 16))
 		self.titulo.pack(side=TOP,fill=X)
 		self.Controles = Controles(self,self.canvas)
 		self.Controles.pack(side=TOP,fill=X)
