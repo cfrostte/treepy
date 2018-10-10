@@ -30,7 +30,7 @@ class EditorBloques(Frame):
 			self.coloresbt[i].pack()
 	   
 	def add(self):
-		self.colores.append(Bloque("Bloque " + str(len(self.colores) + 1), askcolor((0, 0, 0), self)[1]))
+		self.colores.append(Bloque("Color " + str(len(self.colores) + 1), askcolor((0, 0, 0), self)[1]))
 		self.actualizar()
 
 	def actualizar(self):

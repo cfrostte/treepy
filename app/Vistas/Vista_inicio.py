@@ -292,7 +292,7 @@ class Inicio(object):
 			frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 
 			datos = []
-			nombre = 'Ensayo N° ' + str(ensayo.clave) + '\nEstablecimiento:  ' + str(ensayo.establecimiento)
+			nombre = 'Ensayo N° ' + str(ensayo.nro) + '\nEstablecimiento:  ' + str(ensayo.establecimiento)
 			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
 			ensayoImage = Image.open('Vistas/Image.jpg')
@@ -653,7 +653,7 @@ class Inicio(object):
 
 				btnCambiarImagen = tk.Button(containerDerecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=repeticion.clave, claveEnsayoArg=repeticion.id_ensayos, y=x+1, izquierda=containerIzquierda, centro=containerCentro, derecha=containerDerecha, claveImagen=imagenes[x].clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
 				btnCambiarImagen.pack(side=tk.TOP)
-				btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar", command=lambda image=imagenes[x]: self.iniciarAnalisis(image))
+				btnAnalizarImagen = tk.Button(containerDerecha, text="Analizar imagen", command=lambda image=imagenes[x]: self.iniciarAnalisis(image))
 				btnAnalizarImagen.pack(side=tk.TOP)
 				btnBorrarImagen = tk.Button(containerDerecha, text="Borrar", command=lambda image=imagenes[x], frame=containerImg: self.borrarImagen(image, frame))
 				btnBorrarImagen.pack(side=tk.BOTTOM)
@@ -792,9 +792,9 @@ class Inicio(object):
 		frameContainerIn[-1].pack(side=tk.TOP,fill=tk.BOTH, expand=True)
 		self.misframes['Repeticion'].camposEditables['btnElegirImagen'].pack_forget()
 		self.misframes['Repeticion'].camposEditables['btnElegirImagenCancelar'].pack_forget()
-		self.misframes['Repeticion'].camposEditables['btnCambiarImagen'] = tk.Button(derecha, text="Cambiar imágen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), claveImagen=nuevaImagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
+		self.misframes['Repeticion'].camposEditables['btnCambiarImagen'] = tk.Button(derecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=claveRepe, claveEnsayoArg=claveEnsayo, y=len(frame), claveImagen=nuevaImagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
 		self.misframes['Repeticion'].camposEditables['btnCambiarImagen'].pack(side=tk.TOP)
-		self.misframes['Repeticion'].camposEditables['btnAnalizarImagen'] = tk.Button(derecha, text="Analizar", command=lambda: self.iniciarAnalisis(nuevaImagen))
+		self.misframes['Repeticion'].camposEditables['btnAnalizarImagen'] = tk.Button(derecha, text="Analizar imagen", command=lambda: self.iniciarAnalisis(nuevaImagen))
 		self.misframes['Repeticion'].camposEditables['btnAnalizarImagen'].pack(side=tk.TOP)
 		self.misframes['Repeticion'].camposEditables['btnBorrarImagen'] = tk.Button(derecha, text="Borrar", command=lambda: self.borrarImagen(nuevaImagen, frame))
 		self.misframes['Repeticion'].camposEditables['btnBorrarImagen'].pack(side=tk.BOTTOM)
@@ -811,7 +811,7 @@ class Inicio(object):
 		longitudCono2 = tk.Label(centro, text="Longitud cono 2 : " + str(nuevaImagen.longitudCono2)).pack(side=tk.TOP, padx=5, pady=5, expand=True)
 
 		datos = []
-		nombre = 'Imágen ' + str(x)
+		nombre = 'Imagen ' + str(x)
 		# nombre = 'Imagen ' + str(len(frame))
 		nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 		nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
@@ -865,7 +865,7 @@ class Inicio(object):
 			self.misframes['Repeticion'].camposEditables['longitudCono2Label'] = tk.Label(containerCentro, text="Ingrese longitud cono dos."); self.misframes['Repeticion'].camposEditables['longitudCono2Label'].pack(side=tk.TOP, fill=tk.X, expand=True)
 			self.misframes['Repeticion'].camposEditables['longitudCono2Entry'] = tk.Entry(containerCentro); self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].insert(0, ' '); self.misframes['Repeticion'].camposEditables['longitudCono2Entry'].pack(side=tk.TOP, fill=tk.X, expand=True)
 			datos = []
-			nombre = 'Imágen ' + str(x)
+			nombre = 'Imagen ' + str(x)
 			# nombre = 'Imagen ' + str(len(frame))
 			nombrelabel = tk.Label(frameContainerIn[0], text=nombre)
 			nombrelabel.pack(side=tk.TOP, padx=5, pady=5, expand=True)
@@ -974,7 +974,7 @@ class Inicio(object):
 
 		btnCambiarImagen = tk.Button(derecha, text="Cambiar imagen", command=lambda accion="update", frameArg=self.misframes['Repeticion'].camposEditables['imagenesRepeticion'], claveRepeArg=imagen.id_repeticiones, claveEnsayoArg=repeticion.id_ensayos, y=x+1, izquierda=izquierda, centro=centro, derecha=derecha, claveImagen=imagen.clave: self.cambiarImagen(accion, frameArg, claveRepeArg, claveEnsayoArg, y, izquierda, centro, derecha, claveImagen))
 		btnCambiarImagen.pack(side=tk.TOP)
-		btnAnalizarImagen = tk.Button(derecha, text="Analizar", command=lambda image=imagen: self.iniciarAnalisis(image))
+		btnAnalizarImagen = tk.Button(derecha, text="Analizar imagen", command=lambda image=imagen: self.iniciarAnalisis(image))
 		btnAnalizarImagen.pack(side=tk.TOP)
 		btnBorrarImagen = tk.Button(derecha, text="Borrar", command=lambda image=imagen, frame=self.misframes['Repeticion'].camposEditables['imagenesRepeticion']: self.borrarImagen(image, frame))
 		btnBorrarImagen.pack(side=tk.BOTTOM)

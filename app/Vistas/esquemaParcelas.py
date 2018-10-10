@@ -19,7 +19,7 @@ class esquemaParcelas(Frame):
         self.bloqueseleccionado = None
         self.controles = Frame(self)
         self.controles.pack()
-        self.colores = [Bloque("Bloque 1", "#33FFD4"), Bloque("Bloque 2","#FF336B"), Bloque("Bloque 3", "#311F63")]
+        self.colores = [Bloque("Color 1", "#33FFD4"), Bloque("Color 2","#FF336B"), Bloque("Color 3", "#8b77ff")]
         # self.colores = ['#33FFD4', '#FF336B', '#311F63']
         self.grilla = None
         self.b1 = Button(self.controles,text="Pegar",command=self.pegar)
