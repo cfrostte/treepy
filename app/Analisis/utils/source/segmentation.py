@@ -3,9 +3,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.mlab as mlab
-import settings as config
+import Analisis.utils.source.settings as config
 from matplotlib.colors import LinearSegmentedColormap
-from probability import Probability
+from Analisis.utils.source.probability import Probability
 
 class Segmentation(object):
 

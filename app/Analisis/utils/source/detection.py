@@ -13,10 +13,10 @@ from numpy import array
 import numpy as np
 import os
 import math
-import settings as config
-from graph_properties import GraphProperties
+import Analisis.utils.source.settings as config
+from Analisis.utils.source.graph_properties import GraphProperties
 from shapely.geometry import LineString, Polygon, Point
-from segmentation import Segmentation
+from Analisis.utils.source.segmentation import Segmentation
 import randomcolor
 import copy
 
