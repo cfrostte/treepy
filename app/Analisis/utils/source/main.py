@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import os, sys
-import detection
-import settings as config
+import Analisis.utils.source.detection
+import Analisis.utils.source.settings as config
 
 # check if the image filename was provided as argument
 if(len(sys.argv)>1):

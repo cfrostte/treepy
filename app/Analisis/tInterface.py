@@ -1,7 +1,8 @@
 import os,sys
-sys.path.append("Analisis\\utils\\source")
-from detection import *
-import settings as config
+# sys.path.append("Analisis\\utils\\source")
+from Analisis.utils.source.detection import *
+import Analisis.utils.source.settings as config
+# import settings as config
 import datetime, time
 import threading, queue
 from shapely.geometry import Polygon

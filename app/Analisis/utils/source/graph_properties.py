@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 import networkx as nx
-from node_properties import NodeProperties
-from edge_properties import EdgeProperties
-from subgraph_properties import SubgraphProperties
-import settings as config
+from Analisis.utils.source.node_properties import NodeProperties
+from Analisis.utils.source.edge_properties import EdgeProperties
+from Analisis.utils.source.subgraph_properties import SubgraphProperties
+import Analisis.utils.source.settings as config
 import numpy as np
 import math
-import detection
+import Analisis.utils.source.detection
 import sys
 
 

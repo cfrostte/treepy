@@ -11,6 +11,10 @@ crea y lista objetos de tipo Base, vuelca datos de prueba y respalda la BD.
 
 import sqlite3
 
+from shapely.geometry import Polygon, Point
+# from shapely import geometry
+# from geometry import Polygon, Point
+
 from Datos.core.Exportador import Base as Base
 from Datos.core.Exportador import CSV as csv
 from Datos.core.Exportador import KML as kml
@@ -26,8 +30,6 @@ from Datos.Parcela import Parcela
 from Datos.Repeticion import Repeticion
 from Datos.SurcoDetectado import SurcoDetectado
 from Datos.SurcoDetectadoParcela import SurcoDetectadoParcela
-
-from shapely.geometry import LineString, Polygon, Point
 
 from Utilidades import Logger as log
 
@@ -99,7 +101,7 @@ class ControladorDatos(object):
     @classmethod
     def analisis_a_objetos(cls, imagen, grafo, xy2, xy3, parcelas, q=None):
         """..."""
-        def parcelaPertenece(arbol,c, parcelas):
+        def parcelaPertenece(arbol, c, parcelas):
             for p in parcelas:
                 if Point(tuple(c)).within(Polygon(p.getPoligono())):
                     arbol.id_parcelas = p.parcelaDB.clave
@@ -113,12 +115,12 @@ class ControladorDatos(object):
                 print(e)
                 return 0
         repeticion = cls.buscar_objetos('Repeticion', {'clave' : imagen.id_repeticiones})[0]
-        matrizinicial = [ [ None for i in range(int(repeticion.nroFilas)) ] for j in range(int(repeticion.nroColumnas)) ]
+        matrizinicial = [[None for i in range(int(repeticion.nroFilas))] for j in range(int(repeticion.nroColumnas))]
         bloques = cls.buscar_objetos('Bloque', {'id_repeticiones' : imagen.id_repeticiones})
         parcelas_db = []
         for bl in bloques:
             parcelas_db += cls.buscar_objetos('Parcela', {'id_bloques' : bl.clave})
-        for i,x in enumerate(parcelas_db):
+        for i, x in enumerate(parcelas_db):
             nroBloque = cls.buscar_objetos('Bloque', {'clave' : x.id_bloques})[0]
             matrizinicial[int(x.columna)][int(x.fila)] = x
         pos = 0
@@ -126,7 +128,7 @@ class ControladorDatos(object):
             for columna in fila:
                 if columna is not None:
                     parcelas[pos].setParcelaDB(columna)
-                    pos+=1
+                    pos += 1
         xy1 = int(imagen.largo/2), int(imagen.ancho/2)
         coord1 = imagen.latitud, imagen.longitud
         coord2 = imagen.latitudCono1, imagen.longitudCono1
