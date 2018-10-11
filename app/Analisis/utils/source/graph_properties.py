@@ -8,7 +8,7 @@ from Analisis.utils.source.subgraph_properties import SubgraphProperties
 import Analisis.utils.source.settings as config
 import numpy as np
 import math
-import Analisis.utils.source.detection
+from Analisis.utils.source import detection
 import sys
 
 
