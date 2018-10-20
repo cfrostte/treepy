@@ -107,7 +107,7 @@ class Inicio(object):
 
 		
 	def abrirLink(self):
-		webbrowser.open_new(r"http://www.google.com")
+		webbrowser.open_new(r"https://docs.google.com/document/d/1_6xXUO0WHpcLgpsXxxOypeycEKFEB46O9rv-pBB8aZw/edit?usp=sharing")
 
 	def verRepeticion(self):
 		self.misframes['Repeticion'].camposEditables['totalFrame'], self.misframes['Repeticion'].camposEditables['frameContainer'] = [], []
