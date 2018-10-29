@@ -195,6 +195,7 @@ class ControladorDatos(object):
 
     @classmethod
     def crear_estructura(cls):
+        
         """..."""
         log.debug('Creando estructura')
         q = """CREATE TABLE IF NOT EXISTS objetos (id INTEGER NOT NULL,
